@@ -7,8 +7,12 @@ export enum TrainingDay {
   DAY_F = 'DAY_F',
 }
 
-export enum Tempo {
-  SLOW_MINUS = 'SLOW_MINUS',
-  SLOW = 'SLOW',
-  SLOW_PLUS = 'SLOW_PLUS',
+export enum SetScheme {
+  STRAIGHT = 'STRAIGHT',
+  TOP_SET = 'TOP_SET',
+  BACKOFF = 'BACKOFF',
+  DROPSET = 'DROPSET',
+  CLUSTER = 'CLUSTER',
+  AMRAP = 'AMRAP',
+  EMOM = 'EMOM',
 }
