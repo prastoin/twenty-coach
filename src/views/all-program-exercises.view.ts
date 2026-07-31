@@ -3,6 +3,8 @@ import { defineView, ViewType } from 'twenty-sdk/define';
 import {
   PROGRAM_EXERCISE_DAY_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_NAME_FIELD_UNIVERSAL_IDENTIFIER,
+  PROGRAM_EXERCISE_SET_SCHEME_FIELD_UNIVERSAL_IDENTIFIER,
+  PROGRAM_EXERCISE_TARGET_PERCENT_1RM_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
@@ -61,10 +63,18 @@ export default defineView({
       size: 100,
     },
     {
+      universalIdentifier: 'd0ddcdb9-ecce-4105-b1e0-ff561f9d8548',
+      fieldMetadataUniversalIdentifier:
+        PROGRAM_EXERCISE_SET_SCHEME_FIELD_UNIVERSAL_IDENTIFIER,
+      position: 5,
+      isVisible: true,
+      size: 120,
+    },
+    {
       universalIdentifier: 'f42ad9ca-dc36-46d7-bbbd-010d06af02e7',
       fieldMetadataUniversalIdentifier:
         PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 5,
+      position: 6,
       isVisible: true,
       size: 120,
     },
@@ -72,9 +82,17 @@ export default defineView({
       universalIdentifier: '864b9429-3f4a-4c2c-a11c-6077cef97f52',
       fieldMetadataUniversalIdentifier:
         PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 6,
+      position: 7,
       isVisible: true,
       size: 140,
+    },
+    {
+      universalIdentifier: '422e45b5-5808-4d48-8b1a-f5f1eeab5073',
+      fieldMetadataUniversalIdentifier:
+        PROGRAM_EXERCISE_TARGET_PERCENT_1RM_FIELD_UNIVERSAL_IDENTIFIER,
+      position: 8,
+      isVisible: true,
+      size: 120,
     },
   ],
 });

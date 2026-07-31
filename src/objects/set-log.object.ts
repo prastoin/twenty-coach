@@ -1,7 +1,5 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { Tempo } from 'src/constants/training';
-
 export enum SetEquipment {
   CHALK = 'CHALK',
   BANDS = 'BANDS',
@@ -26,7 +24,7 @@ export const SET_LOG_RIR_FIELD_UNIVERSAL_IDENTIFIER =
 export const SET_LOG_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER =
   '47214760-e138-41a7-8095-c898015863c1';
 export const SET_LOG_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
-  'dfc50b11-e185-4306-ae0b-7fd40017f301';
+  '5d41cf9c-fe33-4192-8836-1e15e95cad53';
 export const SET_LOG_EQUIPMENT_FIELD_UNIVERSAL_IDENTIFIER =
   'ad8c8320-7f7b-4706-a21e-37e75db1cca6';
 export const SET_LOG_COMMENT_FIELD_UNIVERSAL_IDENTIFIER =
@@ -94,34 +92,12 @@ export default defineObject({
     },
     {
       universalIdentifier: SET_LOG_TEMPO_FIELD_UNIVERSAL_IDENTIFIER,
-      type: FieldType.SELECT,
+      type: FieldType.TEXT,
       name: 'tempo',
       label: 'Tempo',
+      description: 'Free notation, e.g. "0-3-3-0" or "slow+"',
       icon: 'IconWaveSine',
       isNullable: true,
-      options: [
-        {
-          id: 'f63a1ac8-d0e7-429f-ab81-56c8400995fd',
-          value: Tempo.SLOW_MINUS,
-          label: 'Slow-',
-          position: 0,
-          color: 'sky',
-        },
-        {
-          id: 'c35db4c7-465d-477e-bc41-7d231d6e83ed',
-          value: Tempo.SLOW,
-          label: 'Slow',
-          position: 1,
-          color: 'blue',
-        },
-        {
-          id: '889d388b-efdc-439a-9bca-e2f88a915c5a',
-          value: Tempo.SLOW_PLUS,
-          label: 'Slow+',
-          position: 2,
-          color: 'purple',
-        },
-      ],
     },
     {
       universalIdentifier: SET_LOG_EQUIPMENT_FIELD_UNIVERSAL_IDENTIFIER,
