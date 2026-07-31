@@ -4,7 +4,9 @@ import {
   PROGRAM_EXERCISE_DAY_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_NAME_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER,
+  PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
+  PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
 } from 'src/objects/program-exercise.object';
 import { PROGRAM_ON_PROGRAM_EXERCISE_ID } from 'src/fields/program-on-program-exercise.field';
 import { EXERCISE_ON_PROGRAM_EXERCISE_ID } from 'src/fields/exercise-on-program-exercise.field';
@@ -51,12 +53,28 @@ export default defineView({
       size: 120,
     },
     {
+      universalIdentifier: '0c3ddc2a-6560-4bd1-9723-3c471f79f620',
+      fieldMetadataUniversalIdentifier:
+        PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
+      position: 4,
+      isVisible: true,
+      size: 100,
+    },
+    {
       universalIdentifier: 'f42ad9ca-dc36-46d7-bbbd-010d06af02e7',
       fieldMetadataUniversalIdentifier:
         PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 4,
+      position: 5,
       isVisible: true,
       size: 120,
+    },
+    {
+      universalIdentifier: '864b9429-3f4a-4c2c-a11c-6077cef97f52',
+      fieldMetadataUniversalIdentifier:
+        PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER,
+      position: 6,
+      isVisible: true,
+      size: 140,
     },
   ],
 });

@@ -15,6 +15,8 @@ export const SESSION_NAME_FIELD_UNIVERSAL_IDENTIFIER =
   '0f1eacc9-992e-4858-887f-b25aaa7f870a';
 export const SESSION_DAY_FIELD_UNIVERSAL_IDENTIFIER =
   '0560a6f7-51f1-482f-a51e-3d7ca4a1cdb1';
+export const SESSION_WEEK_FIELD_UNIVERSAL_IDENTIFIER =
+  '8b63d7e8-717f-4beb-b6cf-8e1799e6bb62';
 export const SESSION_STATUS_FIELD_UNIVERSAL_IDENTIFIER =
   '08baa9ac-8804-4486-b655-ade088736b54';
 export const SESSION_STARTED_AT_FIELD_UNIVERSAL_IDENTIFIER =
@@ -97,6 +99,15 @@ export default defineObject({
           color: 'turquoise',
         },
       ],
+    },
+    {
+      universalIdentifier: SESSION_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
+      type: FieldType.NUMBER,
+      name: 'week',
+      label: 'Week',
+      description: 'Cycle week this session instantiates',
+      icon: 'IconCalendarStats',
+      isNullable: true,
     },
     {
       universalIdentifier: SESSION_STATUS_FIELD_UNIVERSAL_IDENTIFIER,
