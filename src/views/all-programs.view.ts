@@ -6,7 +6,7 @@ import {
   PROGRAM_STATUS_FIELD_UNIVERSAL_IDENTIFIER,
   PROGRAM_UNIVERSAL_IDENTIFIER,
 } from 'src/objects/program.object';
-import { PROGRAM_EXERCISES_ON_PROGRAM_ID } from 'src/fields/program-on-program-exercise.field';
+import { WORKOUTS_ON_PROGRAM_ID } from 'src/fields/program-on-workout.field';
 import { SESSIONS_ON_PROGRAM_ID } from 'src/fields/program-on-session.field';
 
 export const ALL_PROGRAMS_VIEW_ID = '64da3f07-edfb-4526-bf81-052c9d88d5bf';
@@ -43,8 +43,8 @@ export default defineView({
       size: 180,
     },
     {
-      universalIdentifier: '5145d9cb-0bfd-497b-8e43-ad1baa640439',
-      fieldMetadataUniversalIdentifier: PROGRAM_EXERCISES_ON_PROGRAM_ID,
+      universalIdentifier: 'd18d6124-f85c-40b2-9928-785d5ba3bd92',
+      fieldMetadataUniversalIdentifier: WORKOUTS_ON_PROGRAM_ID,
       position: 3,
       isVisible: true,
       size: 220,

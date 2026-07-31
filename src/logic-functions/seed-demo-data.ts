@@ -4,19 +4,13 @@ import { defineLogicFunction } from 'twenty-sdk/define';
 import {
   BLOCK3_PROGRAM_NAME,
   BLOCK3_PROGRAM_NOTES,
-  BLOCK3_SESSIONS,
+  BLOCK3_WORKOUTS,
 } from 'src/constants/block3-program';
 import { seedExerciseLibrary } from 'src/utils/seed-exercise-library';
 
-const DAY_LABEL: Record<string, string> = {
-  DAY_A: 'Mon',
-  DAY_B: 'Wed',
-  DAY_C: 'Fri',
-  DAY_D: 'Sat',
-};
-
 // Manually triggered (yarn twenty dev:function:exec -n seed-demo-data):
-// seeds the exercise library, then the PWRBLDNG Block 3 demo program.
+// seeds the exercise library, then the PWRBLDNG Block 3 demo program as
+// 16 workouts (4 weeks x 4 days) holding their prescriptions.
 // Idempotent: no-op when the program already exists.
 const handler = async () => {
   const client = new CoreApiClient();
@@ -62,11 +56,37 @@ const handler = async () => {
   } as any)) as any;
   const programId = createProgram.id;
 
-  const rows = BLOCK3_SESSIONS.flatMap((session) =>
-    session.prescriptions.map((prescription, index) => {
+  const { createWorkouts } = (await client.mutation({
+    createWorkouts: {
+      __args: {
+        data: BLOCK3_WORKOUTS.map((workout) => ({
+          name: workout.name,
+          day: workout.day,
+          week: workout.week,
+          order: workout.order,
+          programId,
+        })) as any,
+      },
+      id: true,
+      name: true,
+    },
+  } as any)) as any;
+  const workoutIdByName = new Map<string, string>(
+    createWorkouts.map((workout: { id: string; name: string }) => [
+      workout.name,
+      workout.id,
+    ]),
+  );
+
+  const rows = BLOCK3_WORKOUTS.flatMap((workout) =>
+    workout.prescriptions.map((prescription, index) => {
       const exerciseId = exerciseIdByName.get(prescription.exercise);
       if (!exerciseId) {
         throw new Error(`Unknown exercise "${prescription.exercise}"`);
+      }
+      const workoutId = workoutIdByName.get(workout.name);
+      if (!workoutId) {
+        throw new Error(`Unknown workout "${workout.name}"`);
       }
       const suffix =
         prescription.scheme === 'TOP_SET'
@@ -75,11 +95,9 @@ const handler = async () => {
             ? ' (backoff)'
             : '';
       return {
-        name: `${prescription.exercise}${suffix} — W${session.week} ${DAY_LABEL[session.day]}`,
-        day: session.day,
-        week: session.week,
+        name: `${prescription.exercise}${suffix}`,
         order: index + 1,
-        programId,
+        workoutId,
         exerciseId,
         ...(prescription.scheme ? { setScheme: prescription.scheme } : {}),
         ...(prescription.sets !== undefined ? { targetSets: prescription.sets } : {}),
@@ -106,7 +124,7 @@ const handler = async () => {
   }
 
   console.log(
-    `Seeded "${BLOCK3_PROGRAM_NAME}": ${rows.length} prescriptions across 4 weeks.`,
+    `Seeded "${BLOCK3_PROGRAM_NAME}": ${createWorkouts.length} workouts, ${rows.length} prescriptions across 4 weeks.`,
   );
 
   return {};
