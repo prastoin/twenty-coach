@@ -1,14 +1,12 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { SetScheme, TrainingDay } from 'src/constants/training';
+import { SetScheme } from 'src/constants/training';
 
 export const PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER =
   '6de406da-7680-4496-83a9-b90ed2eb2604';
 
 export const PROGRAM_EXERCISE_NAME_FIELD_UNIVERSAL_IDENTIFIER =
   '2045ab10-3ebc-4c9a-a722-8942de311522';
-export const PROGRAM_EXERCISE_DAY_FIELD_UNIVERSAL_IDENTIFIER =
-  'aabdff5e-07f5-48fa-a0df-99892a3b172f';
 export const PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER =
   '2738b87c-ff97-4d8d-a187-6a0648dfbbf8';
 export const PROGRAM_EXERCISE_ORDER_FIELD_UNIVERSAL_IDENTIFIER =
@@ -25,8 +23,6 @@ export const PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
   '00c938d7-0eb6-4789-b193-75d4a124f62b';
 export const PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER =
   'c2b629eb-c1f9-4586-aac5-2f4080b60a83';
-export const PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER =
-  '7bdbf94a-afc4-40d3-8edc-9d1d4f973b8f';
 export const PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER =
   '0e22dfd0-4c77-492c-a89d-54c5dc5de36d';
 export const PROGRAM_EXERCISE_TARGET_PERCENT_1RM_FIELD_UNIVERSAL_IDENTIFIER =
@@ -51,70 +47,8 @@ export default defineObject({
       type: FieldType.TEXT,
       name: 'name',
       label: 'Name',
-      description: 'e.g. "Squat — Day A"',
+      description: 'e.g. "Back Squat (top set)"',
       icon: 'IconAbc',
-    },
-    {
-      universalIdentifier: PROGRAM_EXERCISE_DAY_FIELD_UNIVERSAL_IDENTIFIER,
-      type: FieldType.SELECT,
-      name: 'day',
-      label: 'Day',
-      icon: 'IconCalendarWeek',
-      isNullable: true,
-      options: [
-        {
-          id: 'efd47616-8f33-4101-9907-f829a06f9367',
-          value: TrainingDay.DAY_A,
-          label: 'Day A',
-          position: 0,
-          color: 'blue',
-        },
-        {
-          id: 'f291f0ce-7263-4515-9009-d0c8d1e83c05',
-          value: TrainingDay.DAY_B,
-          label: 'Day B',
-          position: 1,
-          color: 'green',
-        },
-        {
-          id: 'bcf0da74-1caf-4979-aeb4-66fefc5437a5',
-          value: TrainingDay.DAY_C,
-          label: 'Day C',
-          position: 2,
-          color: 'orange',
-        },
-        {
-          id: '2caa8e39-6db3-4c32-ac91-9ef317e6b587',
-          value: TrainingDay.DAY_D,
-          label: 'Day D',
-          position: 3,
-          color: 'purple',
-        },
-        {
-          id: 'ce94435a-1db2-4221-bd38-f05c5eca9d7c',
-          value: TrainingDay.DAY_E,
-          label: 'Day E',
-          position: 4,
-          color: 'pink',
-        },
-        {
-          id: 'd2723086-3550-4d6d-8920-409783f4db13',
-          value: TrainingDay.DAY_F,
-          label: 'Day F',
-          position: 5,
-          color: 'turquoise',
-        },
-      ],
-    },
-    {
-      universalIdentifier: PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
-      type: FieldType.NUMBER,
-      name: 'week',
-      label: 'Week',
-      description:
-        'Cycle week this prescription applies to (empty = every week)',
-      icon: 'IconCalendarStats',
-      isNullable: true,
     },
     {
       universalIdentifier: PROGRAM_EXERCISE_ORDER_FIELD_UNIVERSAL_IDENTIFIER,

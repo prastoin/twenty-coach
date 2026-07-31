@@ -107,26 +107,35 @@ const SATURDAY_B: Block3Prescription[] = [
   { exercise: 'Hip Abduction', scheme: SetScheme.EMOM, sets: 4, repsMin: 15, rir: 0, notes: 'Abductors, EMOM' },
 ];
 
-export type Block3Session = {
+export type Block3Workout = {
+  name: string;
   day: TrainingDay;
   week: number;
+  order: number;
   prescriptions: Block3Prescription[];
 };
 
 const TEMPLATE_A_WEEKS = [1, 3];
 const TEMPLATE_B_WEEKS = [2, 4];
 
-export const BLOCK3_SESSIONS: Block3Session[] = [
-  ...TEMPLATE_A_WEEKS.flatMap((week): Block3Session[] => [
-    { day: TrainingDay.DAY_A, week, prescriptions: MONDAY_A },
-    { day: TrainingDay.DAY_B, week, prescriptions: WEDNESDAY_A },
-    { day: TrainingDay.DAY_C, week, prescriptions: [...DEADLIFT_BY_WEEK[week], ...FRIDAY_ACCESSORIES_A] },
-    { day: TrainingDay.DAY_D, week, prescriptions: SATURDAY_A },
-  ]),
-  ...TEMPLATE_B_WEEKS.flatMap((week): Block3Session[] => [
-    { day: TrainingDay.DAY_A, week, prescriptions: MONDAY_B },
-    { day: TrainingDay.DAY_B, week, prescriptions: WEDNESDAY_B },
-    { day: TrainingDay.DAY_C, week, prescriptions: [...DEADLIFT_BY_WEEK[week], ...FRIDAY_ACCESSORIES_B] },
-    { day: TrainingDay.DAY_D, week, prescriptions: SATURDAY_B },
-  ]),
+const buildWeek = (
+  week: number,
+  monday: Block3Prescription[],
+  wednesday: Block3Prescription[],
+  fridayAccessories: Block3Prescription[],
+  saturday: Block3Prescription[],
+): Block3Workout[] => [
+  { name: `Monday W${week} — squat & back`, day: TrainingDay.DAY_A, week, order: 1, prescriptions: monday },
+  { name: `Wednesday W${week} — bench & posterior chain`, day: TrainingDay.DAY_B, week, order: 2, prescriptions: wednesday },
+  { name: `Friday W${week} — deadlift`, day: TrainingDay.DAY_C, week, order: 3, prescriptions: [...DEADLIFT_BY_WEEK[week], ...fridayAccessories] },
+  { name: `Saturday W${week} — upper volume`, day: TrainingDay.DAY_D, week, order: 4, prescriptions: saturday },
+];
+
+export const BLOCK3_WORKOUTS: Block3Workout[] = [
+  ...TEMPLATE_A_WEEKS.flatMap((week) =>
+    buildWeek(week, MONDAY_A, WEDNESDAY_A, FRIDAY_ACCESSORIES_A, SATURDAY_A),
+  ),
+  ...TEMPLATE_B_WEEKS.flatMap((week) =>
+    buildWeek(week, MONDAY_B, WEDNESDAY_B, FRIDAY_ACCESSORIES_B, SATURDAY_B),
+  ),
 ];
