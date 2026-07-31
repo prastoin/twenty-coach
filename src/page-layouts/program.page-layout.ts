@@ -2,6 +2,7 @@ import { definePageLayout, PageLayoutTabLayoutMode } from 'twenty-sdk/define';
 
 import { PROGRAM_UNIVERSAL_IDENTIFIER } from 'src/objects/program.object';
 import { PROGRAM_RECORD_PAGE_FIELDS_VIEW_ID } from 'src/views/program-record-page-fields.view';
+import { PROGRAM_OVERVIEW_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER } from 'src/front-components/program-overview.front-component';
 
 export default definePageLayout({
   universalIdentifier: 'ba603220-3030-4f31-8ffc-727cbdbf761c',
@@ -23,6 +24,25 @@ export default definePageLayout({
           configuration: {
             configurationType: 'FIELDS',
             viewUniversalIdentifier: PROGRAM_RECORD_PAGE_FIELDS_VIEW_ID,
+          },
+        },
+      ],
+    },
+    {
+      universalIdentifier: '7c720422-9f2b-485f-9028-b33f8b10df76',
+      title: 'Plan',
+      position: 15,
+      icon: 'IconLayoutGrid',
+      widgets: [
+        {
+          universalIdentifier: '4995cbb4-b1e2-4dae-b6d4-c600a24150e8',
+          title: 'Program Plan',
+          type: 'FRONT_COMPONENT',
+          gridPosition: { row: 0, column: 0, rowSpan: 40, columnSpan: 12 },
+          configuration: {
+            configurationType: 'FRONT_COMPONENT',
+            frontComponentUniversalIdentifier:
+              PROGRAM_OVERVIEW_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER,
           },
         },
       ],
