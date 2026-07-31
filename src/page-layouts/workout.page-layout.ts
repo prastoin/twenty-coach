@@ -2,6 +2,7 @@ import { definePageLayout, PageLayoutTabLayoutMode } from 'twenty-sdk/define';
 
 import { WORKOUT_UNIVERSAL_IDENTIFIER } from 'src/objects/workout.object';
 import { WORKOUT_RECORD_PAGE_FIELDS_VIEW_ID } from 'src/views/workout-record-page-fields.view';
+import { WORKOUT_SHEET_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER } from 'src/front-components/workout-sheet.front-component';
 
 export default definePageLayout({
   universalIdentifier: 'de3fc83d-df40-49d5-bb37-a0cff40e644e',
@@ -23,6 +24,25 @@ export default definePageLayout({
           configuration: {
             configurationType: 'FIELDS',
             viewUniversalIdentifier: WORKOUT_RECORD_PAGE_FIELDS_VIEW_ID,
+          },
+        },
+      ],
+    },
+    {
+      universalIdentifier: '16ad44b0-86c1-4956-b0f6-f1e56dda3c86',
+      title: 'Sheet',
+      position: 15,
+      icon: 'IconClipboardText',
+      widgets: [
+        {
+          universalIdentifier: '70a62a80-c022-41fa-941f-167285f1118c',
+          title: 'Workout Sheet',
+          type: 'FRONT_COMPONENT',
+          gridPosition: { row: 0, column: 0, rowSpan: 24, columnSpan: 12 },
+          configuration: {
+            configurationType: 'FRONT_COMPONENT',
+            frontComponentUniversalIdentifier:
+              WORKOUT_SHEET_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER,
           },
         },
       ],
