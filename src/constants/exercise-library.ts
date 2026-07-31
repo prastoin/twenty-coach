@@ -302,4 +302,34 @@ export const EXERCISE_LIBRARY: ExerciseSeed[] = [
     muscleGroups: [MuscleGroup.FOREARMS, MuscleGroup.CORE],
     equipmentType: EquipmentType.DUMBBELL,
   },
+  {
+    name: 'Paused Squat',
+    muscleGroups: [MuscleGroup.QUADS, MuscleGroup.GLUTES, MuscleGroup.CORE],
+    equipmentType: EquipmentType.BARBELL,
+  },
+  {
+    name: 'Machine Row',
+    muscleGroups: [MuscleGroup.BACK],
+    equipmentType: EquipmentType.MACHINE,
+  },
+  {
+    name: 'Hip Abduction',
+    muscleGroups: [MuscleGroup.GLUTES],
+    equipmentType: EquipmentType.MACHINE,
+  },
+  {
+    name: 'Good Morning',
+    muscleGroups: [MuscleGroup.HAMSTRINGS, MuscleGroup.GLUTES, MuscleGroup.BACK],
+    equipmentType: EquipmentType.BARBELL,
+  },
+  {
+    name: 'Back Extension',
+    muscleGroups: [MuscleGroup.GLUTES, MuscleGroup.HAMSTRINGS, MuscleGroup.BACK],
+    equipmentType: EquipmentType.BODYWEIGHT,
+  },
+  {
+    name: 'Neck Flexion',
+    muscleGroups: [MuscleGroup.CORE],
+    equipmentType: EquipmentType.BODYWEIGHT,
+  },
 ];

@@ -1,47 +1,22 @@
 import { CoreApiClient } from 'twenty-client-sdk/core';
 import { definePostInstallLogicFunction } from 'twenty-sdk/define';
 
-import { EXERCISE_LIBRARY } from 'src/constants/exercise-library';
+import { seedExerciseLibrary } from 'src/utils/seed-exercise-library';
 
-// Idempotent: post-install runs again on reinstall/upgrade, so only the
-// exercises missing from the workspace (matched by name) are inserted.
 const handler = async () => {
   const client = new CoreApiClient();
 
-  const { exercises } = (await client.query({
-    exercises: {
-      edges: { node: { name: true } },
-      __args: { first: 500 },
-    },
-  } as any)) as any;
+  const { inserted, existing } = await seedExerciseLibrary(client);
 
-  const existingNames = new Set<string>(
-    (exercises?.edges ?? []).map(
-      (edge: { node: { name: string } }) => edge.node.name,
-    ),
-  );
-
-  const missing = EXERCISE_LIBRARY.filter(
-    (exercise) => !existingNames.has(exercise.name),
-  );
-
-  if (missing.length === 0) {
+  if (inserted === 0) {
     console.log(
-      `Exercise library already seeded (${existingNames.size} exercises present), nothing to do.`,
+      `Exercise library already seeded (${existing} exercises present), nothing to do.`,
     );
-    return {};
+  } else {
+    console.log(
+      `Seeded ${inserted} exercises (${existing} were already present).`,
+    );
   }
-
-  await client.mutation({
-    createExercises: {
-      __args: { data: missing as any },
-      id: true,
-    },
-  } as any);
-
-  console.log(
-    `Seeded ${missing.length} exercises (${existingNames.size} were already present).`,
-  );
 
   return {};
 };
