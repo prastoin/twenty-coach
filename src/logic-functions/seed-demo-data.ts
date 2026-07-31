@@ -9,10 +9,10 @@ import {
 import { seedExerciseLibrary } from 'src/utils/seed-exercise-library';
 
 const DAY_LABEL: Record<string, string> = {
-  DAY_A: 'lun',
-  DAY_B: 'mer',
-  DAY_C: 'ven',
-  DAY_D: 'sam',
+  DAY_A: 'Mon',
+  DAY_B: 'Wed',
+  DAY_C: 'Fri',
+  DAY_D: 'Sat',
 };
 
 // Manually triggered (yarn twenty dev:function:exec -n seed-demo-data):
@@ -75,7 +75,7 @@ const handler = async () => {
             ? ' (backoff)'
             : '';
       return {
-        name: `${prescription.exercise}${suffix} — S${session.week} ${DAY_LABEL[session.day]}`,
+        name: `${prescription.exercise}${suffix} — W${session.week} ${DAY_LABEL[session.day]}`,
         day: session.day,
         week: session.week,
         order: index + 1,
