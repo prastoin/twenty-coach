@@ -7,6 +7,7 @@ import {
   SESSION_STARTED_AT_FIELD_UNIVERSAL_IDENTIFIER,
   SESSION_STATUS_FIELD_UNIVERSAL_IDENTIFIER,
   SESSION_UNIVERSAL_IDENTIFIER,
+  SESSION_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
 } from 'src/objects/session.object';
 import { PROGRAM_ON_SESSION_ID } from 'src/fields/program-on-session.field';
 import { SET_LOGS_ON_SESSION_ID } from 'src/fields/session-on-set-log.field';
@@ -43,10 +44,17 @@ export default defineView({
       size: 120,
     },
     {
+      universalIdentifier: 'a412a470-e9fe-44c6-b65b-a117b5228f72',
+      fieldMetadataUniversalIdentifier: SESSION_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
+      position: 3,
+      isVisible: true,
+      size: 100,
+    },
+    {
       universalIdentifier: 'c05dffae-41d1-41e5-90fe-f088b1234d94',
       fieldMetadataUniversalIdentifier:
         SESSION_STATUS_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 3,
+      position: 4,
       isVisible: true,
       size: 150,
     },
@@ -54,7 +62,7 @@ export default defineView({
       universalIdentifier: '96cc7c14-5a62-4807-8c40-ef0a9f31e82d',
       fieldMetadataUniversalIdentifier:
         SESSION_STARTED_AT_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 4,
+      position: 5,
       isVisible: true,
       size: 180,
     },
@@ -62,14 +70,14 @@ export default defineView({
       universalIdentifier: '315d51b1-7f19-4c74-8bcc-4467603cc131',
       fieldMetadataUniversalIdentifier:
         SESSION_DURATION_MINUTES_FIELD_UNIVERSAL_IDENTIFIER,
-      position: 5,
+      position: 6,
       isVisible: true,
       size: 150,
     },
     {
       universalIdentifier: '4e1efdcc-1052-456b-a2ed-eb0d7664aac8',
       fieldMetadataUniversalIdentifier: SET_LOGS_ON_SESSION_ID,
-      position: 6,
+      position: 7,
       isVisible: true,
       size: 200,
     },

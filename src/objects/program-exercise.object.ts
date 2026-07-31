@@ -25,6 +25,10 @@ export const PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
   '9df498e9-13d7-4649-afe6-1fbd548187e1';
 export const PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER =
   'c2b629eb-c1f9-4586-aac5-2f4080b60a83';
+export const PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER =
+  '7bdbf94a-afc4-40d3-8edc-9d1d4f973b8f';
+export const PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER =
+  '0e22dfd0-4c77-492c-a89d-54c5dc5de36d';
 
 export default defineObject({
   universalIdentifier: PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
@@ -99,6 +103,16 @@ export default defineObject({
       ],
     },
     {
+      universalIdentifier: PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER,
+      type: FieldType.NUMBER,
+      name: 'week',
+      label: 'Week',
+      description:
+        'Cycle week this prescription applies to (empty = every week)',
+      icon: 'IconCalendarStats',
+      isNullable: true,
+    },
+    {
       universalIdentifier: PROGRAM_EXERCISE_ORDER_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'order',
@@ -132,6 +146,16 @@ export default defineObject({
       name: 'targetRepsMax',
       label: 'Target reps (max)',
       icon: 'IconRepeat',
+      isNullable: true,
+    },
+    {
+      universalIdentifier:
+        PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER,
+      type: FieldType.NUMBER,
+      name: 'targetWeightKg',
+      label: 'Target weight (kg)',
+      description: 'Expected load for the prescribed sets',
+      icon: 'IconWeight',
       isNullable: true,
     },
     {
