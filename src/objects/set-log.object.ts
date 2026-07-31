@@ -23,6 +23,14 @@ export const SET_LOG_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER =
   '108941f9-a86a-4721-907e-23234d5715a0';
 export const SET_LOG_RIR_FIELD_UNIVERSAL_IDENTIFIER =
   'a703ffd8-d1b6-4ed6-9327-72e9d934f60d';
+export const SET_LOG_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER =
+  '47214760-e138-41a7-8095-c898015863c1';
+export const SET_LOG_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
+  'dfc50b11-e185-4306-ae0b-7fd40017f301';
+export const SET_LOG_EQUIPMENT_FIELD_UNIVERSAL_IDENTIFIER =
+  'ad8c8320-7f7b-4706-a21e-37e75db1cca6';
+export const SET_LOG_COMMENT_FIELD_UNIVERSAL_IDENTIFIER =
+  'a51bc2a9-a074-4b98-ac66-93209f890875';
 
 export default defineObject({
   universalIdentifier: SET_LOG_UNIVERSAL_IDENTIFIER,
@@ -77,7 +85,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '47214760-e138-41a7-8095-c898015863c1',
+      universalIdentifier: SET_LOG_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'restSeconds',
       label: 'Rest (seconds)',
@@ -85,7 +93,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: 'dfc50b11-e185-4306-ae0b-7fd40017f301',
+      universalIdentifier: SET_LOG_TEMPO_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.SELECT,
       name: 'tempo',
       label: 'Tempo',
@@ -116,7 +124,7 @@ export default defineObject({
       ],
     },
     {
-      universalIdentifier: 'ad8c8320-7f7b-4706-a21e-37e75db1cca6',
+      universalIdentifier: SET_LOG_EQUIPMENT_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.MULTI_SELECT,
       name: 'equipment',
       label: 'Equipment',
@@ -162,7 +170,7 @@ export default defineObject({
       ],
     },
     {
-      universalIdentifier: 'a51bc2a9-a074-4b98-ac66-93209f890875',
+      universalIdentifier: SET_LOG_COMMENT_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.TEXT,
       name: 'comment',
       label: 'Comment',
