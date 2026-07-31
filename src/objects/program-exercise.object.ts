@@ -1,6 +1,6 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { Tempo, TrainingDay } from 'src/constants/training';
+import { SetScheme, TrainingDay } from 'src/constants/training';
 
 export const PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER =
   '6de406da-7680-4496-83a9-b90ed2eb2604';
@@ -22,13 +22,17 @@ export const PROGRAM_EXERCISE_TARGET_RIR_FIELD_UNIVERSAL_IDENTIFIER =
 export const PROGRAM_EXERCISE_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER =
   'eed9667d-5062-46ef-8d75-ded453baaf80';
 export const PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
-  '9df498e9-13d7-4649-afe6-1fbd548187e1';
+  '00c938d7-0eb6-4789-b193-75d4a124f62b';
 export const PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER =
   'c2b629eb-c1f9-4586-aac5-2f4080b60a83';
 export const PROGRAM_EXERCISE_WEEK_FIELD_UNIVERSAL_IDENTIFIER =
   '7bdbf94a-afc4-40d3-8edc-9d1d4f973b8f';
 export const PROGRAM_EXERCISE_TARGET_WEIGHT_KG_FIELD_UNIVERSAL_IDENTIFIER =
   '0e22dfd0-4c77-492c-a89d-54c5dc5de36d';
+export const PROGRAM_EXERCISE_TARGET_PERCENT_1RM_FIELD_UNIVERSAL_IDENTIFIER =
+  '182bfd1a-ca2b-40da-90bb-0cda7296c6b1';
+export const PROGRAM_EXERCISE_SET_SCHEME_FIELD_UNIVERSAL_IDENTIFIER =
+  '214029a9-c134-4725-ad01-d4cdd2b86b8e';
 
 export default defineObject({
   universalIdentifier: PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
@@ -122,6 +126,24 @@ export default defineObject({
       isNullable: true,
     },
     {
+      universalIdentifier: PROGRAM_EXERCISE_SET_SCHEME_FIELD_UNIVERSAL_IDENTIFIER,
+      type: FieldType.SELECT,
+      name: 'setScheme',
+      label: 'Set scheme',
+      description: 'How the prescribed sets are performed (empty = straight)',
+      icon: 'IconStack2',
+      isNullable: true,
+      options: [
+        { id: 'bcc76153-bd84-4f64-82b7-3093b5c33a37', value: SetScheme.STRAIGHT, label: 'Straight', position: 0, color: 'gray' },
+        { id: 'a7705329-b17d-4974-afd4-a32556a1603e', value: SetScheme.TOP_SET, label: 'Top set', position: 1, color: 'red' },
+        { id: 'aedaf39b-ee80-48dd-9769-25e006b533e2', value: SetScheme.BACKOFF, label: 'Backoff', position: 2, color: 'orange' },
+        { id: '58ce2682-b224-4e9e-8bcb-2def60cd4903', value: SetScheme.DROPSET, label: 'Dropset', position: 3, color: 'purple' },
+        { id: '6f1ef0d4-0718-456b-a3b1-94065e76c195', value: SetScheme.CLUSTER, label: 'Cluster', position: 4, color: 'blue' },
+        { id: '939406fe-0d3b-4c1f-ac6c-3fae8a0c85ac', value: SetScheme.AMRAP, label: 'AMRAP', position: 5, color: 'pink' },
+        { id: 'ec3da605-308f-4be8-a63d-9c70c1f27cee', value: SetScheme.EMOM, label: 'EMOM', position: 6, color: 'turquoise' },
+      ],
+    },
+    {
       universalIdentifier:
         PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
@@ -160,6 +182,16 @@ export default defineObject({
     },
     {
       universalIdentifier:
+        PROGRAM_EXERCISE_TARGET_PERCENT_1RM_FIELD_UNIVERSAL_IDENTIFIER,
+      type: FieldType.NUMBER,
+      name: 'targetPercent1Rm',
+      label: 'Target %1RM',
+      description: 'Expected load as a percentage of the one-rep max',
+      icon: 'IconPercentage',
+      isNullable: true,
+    },
+    {
+      universalIdentifier:
         PROGRAM_EXERCISE_TARGET_RIR_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'targetRir',
@@ -179,34 +211,12 @@ export default defineObject({
     },
     {
       universalIdentifier: PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER,
-      type: FieldType.SELECT,
+      type: FieldType.TEXT,
       name: 'tempo',
       label: 'Tempo',
+      description: 'Free notation, e.g. "0-3-3-0" or "slow+"',
       icon: 'IconWaveSine',
       isNullable: true,
-      options: [
-        {
-          id: '48aeb6ac-b2cb-4257-8f1a-96b1b5bc6289',
-          value: Tempo.SLOW_MINUS,
-          label: 'Slow-',
-          position: 0,
-          color: 'sky',
-        },
-        {
-          id: '42305e47-b525-42d6-a437-bfa96c320994',
-          value: Tempo.SLOW,
-          label: 'Slow',
-          position: 1,
-          color: 'blue',
-        },
-        {
-          id: '27b83eb5-0baf-4d7a-aca9-14d38c40028e',
-          value: Tempo.SLOW_PLUS,
-          label: 'Slow+',
-          position: 2,
-          color: 'purple',
-        },
-      ],
     },
     {
       universalIdentifier: PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER,
