@@ -9,7 +9,7 @@ import { ALL_EXERCISES_VIEW_ID } from 'src/views/all-exercises.view';
 // currently misses relation columns for fields created in the same batch as
 // their object (https://github.com/twentyhq/core-team-issues/issues/2749).
 export default defineNavigationMenuItem({
-  universalIdentifier: '0ab5b00d-38e9-41a0-b278-6832aa14e819',
+  universalIdentifier: 'e5b5219a-d3ce-4db4-8c59-13c05f9463eb',
   position: 1,
   type: NavigationMenuItemType.VIEW,
   name: 'Exercises',

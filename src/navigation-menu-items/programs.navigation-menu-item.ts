@@ -9,7 +9,7 @@ import { ALL_PROGRAMS_VIEW_ID } from 'src/views/all-programs.view';
 // currently misses relation columns for fields created in the same batch as
 // their object (https://github.com/twentyhq/core-team-issues/issues/2749).
 export default defineNavigationMenuItem({
-  universalIdentifier: '1c7bd1fa-c0ea-43eb-9e2c-614fbdcbb928',
+  universalIdentifier: '07f9fcb8-a8bd-4045-a3aa-faf25c3c14a0',
   position: 0,
   type: NavigationMenuItemType.VIEW,
   name: 'Programs',
