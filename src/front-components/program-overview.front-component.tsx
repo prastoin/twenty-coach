@@ -8,6 +8,7 @@ import {
   DAY_LABEL,
   fetchPrescriptionsForWorkouts,
   PrescriptionList,
+  RecordLink,
   type PrescriptionRow,
   type WorkoutRow,
 } from 'src/front-components/training-plan-shared';
@@ -188,7 +189,13 @@ const ProgramOverview = () => {
                     }}
                   >
                     <span style={{ fontSize: '13px', fontWeight: 600 }}>
-                      {workout.name}
+                      <RecordLink
+                        objectNameSingular="workout"
+                        recordId={workout.id}
+                        style={{ textDecorationColor: palette.textMuted }}
+                      >
+                        {workout.name}
+                      </RecordLink>
                     </span>
                     <span style={{ flex: 1 }} />
                     {workout.day && (

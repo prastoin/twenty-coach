@@ -1,9 +1,11 @@
-import type {} from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { CoreApiClient } from 'twenty-client-sdk/core';
+import { AppPath, navigate } from 'twenty-sdk/front-component';
 
 export type PrescriptionRow = {
   id: string;
   name: string;
+  exerciseId: string | null;
   order: number | null;
   setScheme: string | null;
   targetSets: number | null;
@@ -105,6 +107,50 @@ export const formatLoad = (row: PrescriptionRow): string | null => {
   return null;
 };
 
+
+// Rendered as a role="link" span instead of an anchor: raw anchors have
+// known rendering issues inside front components, so navigation goes
+// exclusively through the host navigate API.
+export const RecordLink = ({
+  objectNameSingular,
+  recordId,
+  children,
+  style,
+}: {
+  objectNameSingular: string;
+  recordId: string;
+  children: ReactNode;
+  style?: CSSProperties;
+}) => {
+  const goToRecord = () =>
+    navigate(AppPath.RecordShowPage, {
+      objectNameSingular,
+      objectRecordId: recordId,
+    });
+  return (
+    <span
+      role="link"
+      tabIndex={0}
+      onClick={goToRecord}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          goToRecord();
+        }
+      }}
+      style={{
+        color: 'inherit',
+        textDecoration: 'underline',
+        textDecorationStyle: 'dotted',
+        textUnderlineOffset: '3px',
+        cursor: 'pointer',
+        ...style,
+      }}
+    >
+      {children}
+    </span>
+  );
+};
+
 const SchemeBadge = ({ scheme }: { scheme: string | null }) => {
   if (!scheme) {
     return null;
@@ -170,7 +216,17 @@ export const PrescriptionList = ({
                   color: palette.textPrimary,
                 }}
               >
-                {row.exerciseName ?? row.name}
+                {row.exerciseId ? (
+                  <RecordLink
+                    objectNameSingular="exercise"
+                    recordId={row.exerciseId}
+                    style={{ textDecorationColor: palette.textMuted }}
+                  >
+                    {row.exerciseName ?? row.name}
+                  </RecordLink>
+                ) : (
+                  (row.exerciseName ?? row.name)
+                )}
               </span>
               <SchemeBadge scheme={row.setScheme} />
               <span style={{ flex: 1 }} />
@@ -244,12 +300,13 @@ const PRESCRIPTION_SELECTION = {
   tempo: true,
   notes: true,
   workoutId: true,
-  exercise: { name: true },
+  exercise: { id: true, name: true },
 };
 
 const toPrescriptionRow = (node: any): PrescriptionRow => ({
   id: node.id,
   name: node.name ?? '',
+  exerciseId: node.exercise?.id ?? null,
   order: node.order ?? null,
   setScheme: node.setScheme ?? null,
   targetSets: node.targetSets ?? null,

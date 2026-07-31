@@ -8,6 +8,7 @@ import {
   DAY_LABEL,
   fetchPrescriptionsForWorkouts,
   PrescriptionList,
+  RecordLink,
   type PrescriptionRow,
 } from 'src/front-components/training-plan-shared';
 
@@ -20,6 +21,7 @@ type WorkoutData = {
   week: number | null;
   notes: string | null;
   programName: string | null;
+  programId: string | null;
   prescriptions: PrescriptionRow[];
 };
 
@@ -50,7 +52,7 @@ const WorkoutSheet = () => {
           day: true,
           week: true,
           notes: true,
-          program: { name: true },
+          program: { id: true, name: true },
         },
       } as any)) as any;
 
@@ -64,6 +66,7 @@ const WorkoutSheet = () => {
         week: result?.workout?.week ?? null,
         notes: result?.workout?.notes ?? null,
         programName: result?.workout?.program?.name ?? null,
+        programId: result?.workout?.program?.id ?? null,
         prescriptions,
       });
       setError(null);
@@ -95,7 +98,6 @@ const WorkoutSheet = () => {
   }
 
   const meta = [
-    data.programName,
     data.week !== null ? `Week ${data.week}` : null,
     data.day ? (DAY_LABEL[data.day] ?? data.day) : null,
     `${data.prescriptions.length} exercise${data.prescriptions.length === 1 ? '' : 's'}`,
@@ -117,6 +119,18 @@ const WorkoutSheet = () => {
           marginBottom: '12px',
         }}
       >
+        {data.programId && data.programName ? (
+          <>
+            <RecordLink
+              objectNameSingular="program"
+              recordId={data.programId}
+              style={{ textDecorationColor: palette.textMuted }}
+            >
+              {data.programName}
+            </RecordLink>
+            {' · '}
+          </>
+        ) : null}
         {meta.join(' · ')}
       </div>
       <div
