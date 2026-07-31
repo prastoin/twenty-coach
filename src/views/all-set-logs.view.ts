@@ -10,6 +10,7 @@ import {
 } from 'src/objects/set-log.object';
 import { SESSION_ON_SET_LOG_ID } from 'src/fields/session-on-set-log.field';
 import { EXERCISE_ON_SET_LOG_ID } from 'src/fields/exercise-on-set-log.field';
+import { PROGRAM_EXERCISE_ON_SET_LOG_ID } from 'src/fields/program-exercise-on-set-log.field';
 
 export const ALL_SET_LOGS_VIEW_ID = '0f45251e-4070-4428-96cf-db4b18f126d8';
 
@@ -71,6 +72,13 @@ export default defineView({
       position: 6,
       isVisible: true,
       size: 100,
+    },
+    {
+      universalIdentifier: 'f2d618c9-aea3-417f-b531-f7c35e60aaba',
+      fieldMetadataUniversalIdentifier: PROGRAM_EXERCISE_ON_SET_LOG_ID,
+      position: 7,
+      isVisible: true,
+      size: 200,
     },
   ],
 });

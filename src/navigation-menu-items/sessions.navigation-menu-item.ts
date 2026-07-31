@@ -3,11 +3,16 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
-import { SESSION_UNIVERSAL_IDENTIFIER } from 'src/objects/session.object';
+import { ALL_SESSIONS_VIEW_ID } from 'src/views/all-sessions.view';
 
+// Targets the app view rather than the object: the engine-owned INDEX view
+// currently misses relation columns for fields created in the same batch as
+// their object (https://github.com/twentyhq/core-team-issues/issues/2749).
 export default defineNavigationMenuItem({
-  universalIdentifier: 'c0b2d4d6-b3ef-45b2-9ef7-b38d51642980',
+  universalIdentifier: '64988463-75ae-4968-b4f3-64fbd232543e',
   position: 2,
-  type: NavigationMenuItemType.OBJECT,
-  targetObjectUniversalIdentifier: SESSION_UNIVERSAL_IDENTIFIER,
+  type: NavigationMenuItemType.VIEW,
+  name: 'Sessions',
+  icon: 'IconRun',
+  viewUniversalIdentifier: ALL_SESSIONS_VIEW_ID,
 });

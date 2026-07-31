@@ -9,6 +9,7 @@ import {
   SESSION_UNIVERSAL_IDENTIFIER,
 } from 'src/objects/session.object';
 import { PROGRAM_ON_SESSION_ID } from 'src/fields/program-on-session.field';
+import { SET_LOGS_ON_SESSION_ID } from 'src/fields/session-on-set-log.field';
 
 export const ALL_SESSIONS_VIEW_ID = '2874eefd-00d9-473a-a5d4-9aa88d639526';
 
@@ -64,6 +65,13 @@ export default defineView({
       position: 5,
       isVisible: true,
       size: 150,
+    },
+    {
+      universalIdentifier: '4e1efdcc-1052-456b-a2ed-eb0d7664aac8',
+      fieldMetadataUniversalIdentifier: SET_LOGS_ON_SESSION_ID,
+      position: 6,
+      isVisible: true,
+      size: 200,
     },
   ],
 });
