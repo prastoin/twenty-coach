@@ -11,6 +11,20 @@ export const PROGRAM_EXERCISE_DAY_FIELD_UNIVERSAL_IDENTIFIER =
   'aabdff5e-07f5-48fa-a0df-99892a3b172f';
 export const PROGRAM_EXERCISE_TARGET_SETS_FIELD_UNIVERSAL_IDENTIFIER =
   '2738b87c-ff97-4d8d-a187-6a0648dfbbf8';
+export const PROGRAM_EXERCISE_ORDER_FIELD_UNIVERSAL_IDENTIFIER =
+  'de4839c9-cf8e-4d42-be66-0ac5c7aeb0f5';
+export const PROGRAM_EXERCISE_TARGET_REPS_MIN_FIELD_UNIVERSAL_IDENTIFIER =
+  '5c13bc7b-2f3c-4336-b92a-2646951c2923';
+export const PROGRAM_EXERCISE_TARGET_REPS_MAX_FIELD_UNIVERSAL_IDENTIFIER =
+  'b32107b5-35d6-494f-a0da-c21d25cd3ace';
+export const PROGRAM_EXERCISE_TARGET_RIR_FIELD_UNIVERSAL_IDENTIFIER =
+  '080c82d7-4a31-4a1e-89bb-d5262197ecfb';
+export const PROGRAM_EXERCISE_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER =
+  'eed9667d-5062-46ef-8d75-ded453baaf80';
+export const PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER =
+  '9df498e9-13d7-4649-afe6-1fbd548187e1';
+export const PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER =
+  'c2b629eb-c1f9-4586-aac5-2f4080b60a83';
 
 export default defineObject({
   universalIdentifier: PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
@@ -85,7 +99,7 @@ export default defineObject({
       ],
     },
     {
-      universalIdentifier: 'de4839c9-cf8e-4d42-be66-0ac5c7aeb0f5',
+      universalIdentifier: PROGRAM_EXERCISE_ORDER_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'order',
       label: 'Order',
@@ -103,7 +117,8 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '5c13bc7b-2f3c-4336-b92a-2646951c2923',
+      universalIdentifier:
+        PROGRAM_EXERCISE_TARGET_REPS_MIN_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'targetRepsMin',
       label: 'Target reps (min)',
@@ -111,7 +126,8 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: 'b32107b5-35d6-494f-a0da-c21d25cd3ace',
+      universalIdentifier:
+        PROGRAM_EXERCISE_TARGET_REPS_MAX_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'targetRepsMax',
       label: 'Target reps (max)',
@@ -119,7 +135,8 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '080c82d7-4a31-4a1e-89bb-d5262197ecfb',
+      universalIdentifier:
+        PROGRAM_EXERCISE_TARGET_RIR_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'targetRir',
       label: 'Target RIR',
@@ -128,7 +145,8 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: 'eed9667d-5062-46ef-8d75-ded453baaf80',
+      universalIdentifier:
+        PROGRAM_EXERCISE_REST_SECONDS_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.NUMBER,
       name: 'restSeconds',
       label: 'Rest (seconds)',
@@ -136,7 +154,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '9df498e9-13d7-4649-afe6-1fbd548187e1',
+      universalIdentifier: PROGRAM_EXERCISE_TEMPO_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.SELECT,
       name: 'tempo',
       label: 'Tempo',
@@ -167,7 +185,7 @@ export default defineObject({
       ],
     },
     {
-      universalIdentifier: 'c2b629eb-c1f9-4586-aac5-2f4080b60a83',
+      universalIdentifier: PROGRAM_EXERCISE_NOTES_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.TEXT,
       name: 'notes',
       label: 'Notes',

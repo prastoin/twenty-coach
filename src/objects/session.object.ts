@@ -21,6 +21,10 @@ export const SESSION_STARTED_AT_FIELD_UNIVERSAL_IDENTIFIER =
   'b5d8c00d-e487-40f0-8a31-268c65d4d62f';
 export const SESSION_DURATION_MINUTES_FIELD_UNIVERSAL_IDENTIFIER =
   '4615ba9c-a56d-46b0-9b51-daec7b61efb8';
+export const SESSION_ENDED_AT_FIELD_UNIVERSAL_IDENTIFIER =
+  '9740649f-3b68-4829-ab7a-691410f18ef0';
+export const SESSION_COMMENT_FIELD_UNIVERSAL_IDENTIFIER =
+  'e53420de-42e6-4676-8052-f718f8198ff7';
 
 export default defineObject({
   universalIdentifier: SESSION_UNIVERSAL_IDENTIFIER,
@@ -134,7 +138,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '9740649f-3b68-4829-ab7a-691410f18ef0',
+      universalIdentifier: SESSION_ENDED_AT_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.DATE_TIME,
       name: 'endedAt',
       label: 'Ended at',
@@ -151,7 +155,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: 'e53420de-42e6-4676-8052-f718f8198ff7',
+      universalIdentifier: SESSION_COMMENT_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.TEXT,
       name: 'comment',
       label: 'Comment',

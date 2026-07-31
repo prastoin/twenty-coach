@@ -32,6 +32,8 @@ export const EXERCISE_MUSCLE_GROUPS_FIELD_UNIVERSAL_IDENTIFIER =
   'fc3e56fa-d8d3-4dd0-b5ed-897a96682501';
 export const EXERCISE_EQUIPMENT_TYPE_FIELD_UNIVERSAL_IDENTIFIER =
   'f335d569-b733-4ba1-980f-ac553f6a3947';
+export const EXERCISE_INSTRUCTIONS_FIELD_UNIVERSAL_IDENTIFIER =
+  'c37393e8-4e05-4451-afdd-e0a268d6ae05';
 
 export default defineObject({
   universalIdentifier: EXERCISE_UNIVERSAL_IDENTIFIER,
@@ -191,7 +193,7 @@ export default defineObject({
       ],
     },
     {
-      universalIdentifier: 'c37393e8-4e05-4451-afdd-e0a268d6ae05',
+      universalIdentifier: EXERCISE_INSTRUCTIONS_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.TEXT,
       name: 'instructions',
       label: 'Instructions',

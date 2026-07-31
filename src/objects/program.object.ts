@@ -15,6 +15,8 @@ export const PROGRAM_STATUS_FIELD_UNIVERSAL_IDENTIFIER =
   'd05aab98-8625-44d6-bf13-08b8f3699d0e';
 export const PROGRAM_STARTED_AT_FIELD_UNIVERSAL_IDENTIFIER =
   'b78b604a-5d5b-4bd5-b7b0-d7f24feed41e';
+export const PROGRAM_NOTES_FIELD_UNIVERSAL_IDENTIFIER =
+  '17d77e76-e4ce-4d25-9944-f00b3084710f';
 
 export default defineObject({
   universalIdentifier: PROGRAM_UNIVERSAL_IDENTIFIER,
@@ -74,7 +76,7 @@ export default defineObject({
       isNullable: true,
     },
     {
-      universalIdentifier: '17d77e76-e4ce-4d25-9944-f00b3084710f',
+      universalIdentifier: PROGRAM_NOTES_FIELD_UNIVERSAL_IDENTIFIER,
       type: FieldType.TEXT,
       name: 'notes',
       label: 'Notes',
