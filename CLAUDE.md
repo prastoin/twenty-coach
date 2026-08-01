@@ -2,7 +2,8 @@
 
 - `packages/twenty-app` — the Twenty application (npm name `coach-twenty`): objects, fields, roles, views, front components. All `yarn twenty …` commands run here; the root `yarn twenty` script delegates to it.
 - `packages/trainee-pwa` — the trainee client (Vite + React). `yarn pwa:build` outputs into `packages/twenty-app/public/pwa` (gitignored), so `twenty apply` ships it as public assets. Build it before any apply/publish.
-- `packages/shared` — domain core shared by both. Boundary rule: imports nothing from the other packages and nothing from twenty-sdk.
+- `packages/shared` — domain core shared by both. Boundary rule: imports nothing from the other packages and nothing from twenty-sdk. Its row types derive from `src/generated/schema.ts`, the committed workspace GraphQL types.
+- **Schema types**: `yarn schema:types` re-emits `packages/shared/src/generated/schema.ts` from the client the SDK generates into `packages/twenty-app/node_modules` — so run `yarn twenty -r <remote> apply` first, and commit the result when metadata changes. `yarn schema:types --check` fails on drift. Committed because the generated client is gitignored and only exists after generating against a live instance, while CI typechecks without one. Upstream ask for a native `--output`: twentyhq/core-team-issues#2752.
 - Root scripts (`lint`, `typecheck`, `test`, `test:unit`, `twenty`, `pwa:*`) delegate to the right workspace — CI relies on them.
 
 ## Base documentation

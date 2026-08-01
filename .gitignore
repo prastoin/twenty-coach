@@ -13,6 +13,8 @@ node_modules/
 
 # codegen
 generated
+# ...except the schema types committed for the workspace packages
+!/packages/shared/src/generated/
 
 # testing
 /coverage

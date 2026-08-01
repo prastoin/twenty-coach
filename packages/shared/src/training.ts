@@ -1,12 +1,23 @@
-// Host-agnostic training domain: row shapes as the API returns them,
-// display formatting, and the canonical ordering used by every surface.
+// Host-agnostic training domain: row shapes projected from the workspace
+// schema, display formatting, and the canonical ordering used by every
+// surface.
 //
-// The rows are deliberately a projection of the API entities — the fields
-// the UI reads, with nulls instead of the generated schema's optionals.
-// Deriving them from `CoreSchema` is not possible here: those types only
-// exist once the client is generated against a live instance (the
-// published package ships `type CoreSchema = {}`), and this package must
-// stay dependency-free. See #31.
+// The row types derive from the committed schema types (`yarn schema:types`)
+// so field names, value sets and scalar types come from the metadata rather
+// than being retyped by hand. Only the UI's field selection and the
+// null-instead-of-optional convention live here.
+
+import type { ProgramExercise, Workout } from './generated/schema';
+
+// The API omits empty fields (`field?: T`) but returns null over the wire.
+type Nullable<T> = {
+  [K in keyof T]-?: undefined extends T[K] ? NonNullable<T[K]> | null : T[K];
+};
+
+type AssertEmpty<T extends never> = T;
+
+export type TrainingDay = NonNullable<Workout['day']>;
+export type SetScheme = NonNullable<ProgramExercise['setScheme']>;
 
 export const TRAINING_DAYS = [
   'DAY_A',
@@ -15,8 +26,7 @@ export const TRAINING_DAYS = [
   'DAY_D',
   'DAY_E',
   'DAY_F',
-] as const;
-export type TrainingDay = (typeof TRAINING_DAYS)[number];
+] as const satisfies readonly TrainingDay[];
 
 export const SET_SCHEMES = [
   'STRAIGHT',
@@ -26,8 +36,15 @@ export const SET_SCHEMES = [
   'CLUSTER',
   'AMRAP',
   'EMOM',
-] as const;
-export type SetScheme = (typeof SET_SCHEMES)[number];
+] as const satisfies readonly SetScheme[];
+
+// Compile errors if the metadata gains a value the runtime lists miss.
+export type TrainingDaysAreExhaustive = AssertEmpty<
+  Exclude<TrainingDay, (typeof TRAINING_DAYS)[number]>
+>;
+export type SetSchemesAreExhaustive = AssertEmpty<
+  Exclude<SetScheme, (typeof SET_SCHEMES)[number]>
+>;
 
 const parseUnion = <T extends string>(
   allowed: readonly T[],
@@ -45,32 +62,34 @@ export const parseTrainingDay = (value: unknown): TrainingDay | null =>
 export const parseSetScheme = (value: unknown): SetScheme | null =>
   parseUnion(SET_SCHEMES, value);
 
-export type WorkoutRow = {
-  id: string;
-  name: string;
-  day: TrainingDay | null;
-  week: number | null;
-  order: number | null;
-  notes: string | null;
-};
+// `name` is the label identifier: always rendered, so consumers default it
+// rather than carrying a null through every list and comparator.
+export type WorkoutRow = Nullable<
+  Pick<Workout, 'id' | 'day' | 'week' | 'order' | 'notes'>
+> & { name: string };
 
-export type PrescriptionRow = {
-  id: string;
+export type PrescriptionRow = Nullable<
+  Pick<
+    ProgramExercise,
+    | 'id'
+    | 'exerciseId'
+    | 'order'
+    | 'setScheme'
+    | 'targetSets'
+    | 'targetRepsMin'
+    | 'targetRepsMax'
+    | 'targetWeightKg'
+    | 'targetPercent1Rm'
+    | 'targetRir'
+    | 'restSeconds'
+    | 'tempo'
+    | 'notes'
+    | 'workoutId'
+  >
+> & {
   name: string;
-  exerciseId: string | null;
-  order: number | null;
-  setScheme: SetScheme | null;
-  targetSets: number | null;
-  targetRepsMin: number | null;
-  targetRepsMax: number | null;
-  targetWeightKg: number | null;
-  targetPercent1Rm: number | null;
-  targetRir: number | null;
-  restSeconds: number | null;
-  tempo: string | null;
-  notes: string | null;
+  /** Joined from the related exercise, not a field of the prescription. */
   exerciseName: string | null;
-  workoutId: string | null;
 };
 
 export const DAY_LABEL: Record<TrainingDay, string> = {

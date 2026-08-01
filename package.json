@@ -20,7 +20,8 @@
     "test:watch": "yarn workspace coach-twenty test:watch",
     "test:unit": "yarn workspace coach-twenty test:unit",
     "pwa:dev": "yarn workspace @coach-twenty/trainee-pwa dev",
-    "pwa:build": "yarn workspace @coach-twenty/trainee-pwa build"
+    "pwa:build": "yarn workspace @coach-twenty/trainee-pwa build",
+    "schema:types": "yarn workspace coach-twenty schema:types"
   },
   "devDependencies": {
     "@types/node": "^24.7.2",
