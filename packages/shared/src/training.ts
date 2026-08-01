@@ -7,6 +7,7 @@
 // than being retyped by hand. Only the UI's field selection and the
 // null-instead-of-optional convention live here.
 
+import { SCHEMA_ENUMS } from './generated/enums';
 import type { ProgramExercise, Workout } from './generated/schema';
 
 // The API omits empty fields (`field?: T`) but returns null over the wire.
@@ -14,53 +15,33 @@ type Nullable<T> = {
   [K in keyof T]-?: undefined extends T[K] ? NonNullable<T[K]> | null : T[K];
 };
 
-type AssertEmpty<T extends never> = T;
-
 export type TrainingDay = NonNullable<Workout['day']>;
 export type SetScheme = NonNullable<ProgramExercise['setScheme']>;
 
-export const TRAINING_DAYS = [
-  'DAY_A',
-  'DAY_B',
-  'DAY_C',
-  'DAY_D',
-  'DAY_E',
-  'DAY_F',
-] as const satisfies readonly TrainingDay[];
-
-export const SET_SCHEMES = [
-  'STRAIGHT',
-  'TOP_SET',
-  'BACKOFF',
-  'DROPSET',
-  'CLUSTER',
-  'AMRAP',
-  'EMOM',
-] as const satisfies readonly SetScheme[];
-
-// Compile errors if the metadata gains a value the runtime lists miss.
-export type TrainingDaysAreExhaustive = AssertEmpty<
-  Exclude<TrainingDay, (typeof TRAINING_DAYS)[number]>
+// Values and labels come from the metadata; `satisfies` ties each map to the
+// field that uses it, so a renamed enum or a new option is a compile error.
+export const DAY_LABEL = SCHEMA_ENUMS.WorkoutDayEnum satisfies Record<
+  TrainingDay,
+  string
 >;
-export type SetSchemesAreExhaustive = AssertEmpty<
-  Exclude<SetScheme, (typeof SET_SCHEMES)[number]>
->;
+export const SET_SCHEME_LABEL =
+  SCHEMA_ENUMS.ProgramExerciseSetSchemeEnum satisfies Record<SetScheme, string>;
 
 const parseUnion = <T extends string>(
-  allowed: readonly T[],
+  labels: Record<T, string>,
   value: unknown,
 ): T | null =>
-  typeof value === 'string' && (allowed as readonly string[]).includes(value)
+  typeof value === 'string' && Object.hasOwn(labels, value)
     ? (value as T)
     : null;
 
 /** Narrows an API value to a known day, or null for unknown/empty. */
 export const parseTrainingDay = (value: unknown): TrainingDay | null =>
-  parseUnion(TRAINING_DAYS, value);
+  parseUnion(DAY_LABEL, value);
 
 /** Narrows an API value to a known set scheme, or null for unknown/empty. */
 export const parseSetScheme = (value: unknown): SetScheme | null =>
-  parseUnion(SET_SCHEMES, value);
+  parseUnion(SET_SCHEME_LABEL, value);
 
 // `name` is the label identifier: always rendered, so consumers default it
 // rather than carrying a null through every list and comparator.
@@ -90,15 +71,6 @@ export type PrescriptionRow = Nullable<
   name: string;
   /** Joined from the related exercise, not a field of the prescription. */
   exerciseName: string | null;
-};
-
-export const DAY_LABEL: Record<TrainingDay, string> = {
-  DAY_A: 'Day A',
-  DAY_B: 'Day B',
-  DAY_C: 'Day C',
-  DAY_D: 'Day D',
-  DAY_E: 'Day E',
-  DAY_F: 'Day F',
 };
 
 export const formatRest = (restSeconds: number | null): string | null => {
