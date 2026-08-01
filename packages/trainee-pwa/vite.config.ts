@@ -8,7 +8,7 @@ export default defineConfig({
   base: './',
   plugins: [react()],
   build: {
-    outDir: '../public/pwa',
+    outDir: '../twenty-app/public/pwa',
     emptyOutDir: true,
   },
   server: {

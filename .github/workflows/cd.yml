@@ -17,6 +17,10 @@ concurrency:
   group: cd-${{ github.ref }}
   cancel-in-progress: true
 
+# The upstream deploy/install actions expect .nvmrc and yarn.lock inside
+# app-path, which doesn't hold in a yarn-workspaces layout — so their steps
+# are inlined here against the repo root, plus the PWA build that must land
+# in packages/twenty-app/public/pwa before the app is published.
 jobs:
   deploy-and-install:
     if: >-
@@ -29,14 +33,37 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
-      - name: Deploy
-        uses: twentyhq/twenty/.github/actions/deploy-twenty-app@main
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          api-url: ${{ env.TWENTY_DEPLOY_URL }}
-          api-key: ${{ secrets.TWENTY_DEPLOY_API_KEY }}
+          node-version-file: '.nvmrc'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build trainee PWA
+        run: yarn pwa:build
+
+      - name: Configure remote
+        run: |
+          mkdir -p ~/.twenty
+          node -e "
+            const fs = require('fs'), path = require('path'), os = require('os');
+            fs.writeFileSync(path.join(os.homedir(), '.twenty', 'config.json'), JSON.stringify({
+              version: 1,
+              remotes: { target: { apiUrl: process.env.API_URL, apiKey: process.env.API_KEY, accessToken: process.env.API_KEY } }
+            }, null, 2));
+          "
+        env:
+          API_URL: ${{ env.TWENTY_DEPLOY_URL }}
+          API_KEY: ${{ secrets.TWENTY_DEPLOY_API_KEY }}
+
+      - name: Deploy
+        run: yarn twenty app:publish --private --remote target
 
       - name: Install
-        uses: twentyhq/twenty/.github/actions/install-twenty-app@main
-        with:
-          api-url: ${{ env.TWENTY_DEPLOY_URL }}
-          api-key: ${{ secrets.TWENTY_DEPLOY_API_KEY }}
+        run: yarn twenty app:install --remote target

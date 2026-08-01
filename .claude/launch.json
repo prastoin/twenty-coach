@@ -4,7 +4,7 @@
     {
       "name": "pwa",
       "runtimeExecutable": "yarn",
-      "runtimeArgs": ["pwa:dev"],
+      "runtimeArgs": ["workspace", "@coach-twenty/trainee-pwa", "dev"],
       "port": 5173
     }
   ]
