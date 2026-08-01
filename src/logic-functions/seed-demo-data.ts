@@ -56,14 +56,22 @@ const handler = async () => {
   } as any)) as any;
   const programId = createProgram.id;
 
+  // The system position field drives every native ordering surface
+  // (relation chips, tables, boards); it is written from the semantic
+  // order so display never depends on creation sequence.
+  const sortedWorkouts = [...BLOCK3_WORKOUTS].sort(
+    (left, right) => left.week - right.week || left.order - right.order,
+  );
+
   const { createWorkouts } = (await client.mutation({
     createWorkouts: {
       __args: {
-        data: BLOCK3_WORKOUTS.map((workout) => ({
+        data: sortedWorkouts.map((workout, index) => ({
           name: workout.name,
           day: workout.day,
           week: workout.week,
           order: workout.order,
+          position: index + 1,
           programId,
         })) as any,
       },
@@ -78,7 +86,8 @@ const handler = async () => {
     ]),
   );
 
-  const rows = BLOCK3_WORKOUTS.flatMap((workout) =>
+  let runningPosition = 0;
+  const rows = sortedWorkouts.flatMap((workout) =>
     workout.prescriptions.map((prescription, index) => {
       const exerciseId = exerciseIdByName.get(prescription.exercise);
       if (!exerciseId) {
@@ -94,9 +103,11 @@ const handler = async () => {
           : prescription.scheme === 'BACKOFF'
             ? ' (backoff)'
             : '';
+      runningPosition += 1;
       return {
         name: `${prescription.exercise}${suffix}`,
         order: index + 1,
+        position: runningPosition,
         workoutId,
         exerciseId,
         ...(prescription.scheme ? { setScheme: prescription.scheme } : {}),
