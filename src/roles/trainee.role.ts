@@ -12,8 +12,10 @@ import { SET_LOG_UNIVERSAL_IDENTIFIER } from 'src/objects/set-log.object';
 import { WORKOUT_UNIVERSAL_IDENTIFIER } from 'src/objects/workout.object';
 import { WORKSPACE_MEMBER_ON_PERSON_ID } from 'src/fields/workspace-member-on-person.field';
 import { TRAINEE_MEMBER_ON_PROGRAM_ID } from 'src/fields/trainee-member-on-program.field';
+import { TRAINEE_MEMBER_ON_PROGRAM_EXERCISE_ID } from 'src/fields/trainee-member-on-program-exercise.field';
 import { TRAINEE_MEMBER_ON_SESSION_ID } from 'src/fields/trainee-member-on-session.field';
 import { TRAINEE_MEMBER_ON_SET_LOG_ID } from 'src/fields/trainee-member-on-set-log.field';
+import { TRAINEE_MEMBER_ON_WORKOUT_ID } from 'src/fields/trainee-member-on-workout.field';
 
 export const TRAINEE_ROLE_UNIVERSAL_IDENTIFIER =
   '71effe55-6ace-44bd-b197-80a8a4f77ea0';
@@ -27,8 +29,7 @@ const CURRENT_MEMBER_ID =
 // Trainees see only their own data: object permissions are limited to the
 // training objects, and row-level predicates match each record's
 // (denormalized) workspace-member link against the logged-in member.
-// Workout and program exercise stay readable across trainees for now:
-// predicates cannot traverse their program relation (tracked in #28).
+// Only the exercise library is shared across trainees.
 export default defineRole({
   universalIdentifier: TRAINEE_ROLE_UNIVERSAL_IDENTIFIER,
   label: 'Trainee',
@@ -85,6 +86,20 @@ export default defineRole({
       universalIdentifier: '585c8a09-9843-413a-b871-4d4638f752d1',
       objectUniversalIdentifier: PROGRAM_UNIVERSAL_IDENTIFIER,
       fieldUniversalIdentifier: TRAINEE_MEMBER_ON_PROGRAM_ID,
+      operand: RowLevelPermissionPredicateOperand.IS,
+      workspaceMemberFieldUniversalIdentifier: CURRENT_MEMBER_ID,
+    },
+    {
+      universalIdentifier: '3cbd7d20-025b-4735-8f25-a16e1cc23eca',
+      objectUniversalIdentifier: WORKOUT_UNIVERSAL_IDENTIFIER,
+      fieldUniversalIdentifier: TRAINEE_MEMBER_ON_WORKOUT_ID,
+      operand: RowLevelPermissionPredicateOperand.IS,
+      workspaceMemberFieldUniversalIdentifier: CURRENT_MEMBER_ID,
+    },
+    {
+      universalIdentifier: '16dde70a-1068-484c-a08a-00b87bacde66',
+      objectUniversalIdentifier: PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER,
+      fieldUniversalIdentifier: TRAINEE_MEMBER_ON_PROGRAM_EXERCISE_ID,
       operand: RowLevelPermissionPredicateOperand.IS,
       workspaceMemberFieldUniversalIdentifier: CURRENT_MEMBER_ID,
     },
