@@ -86,6 +86,7 @@ __metadata:
     "@vitejs/plugin-react": "npm:^6.0.5"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
+    twenty-client-sdk: "npm:2.26.0"
     vite: "npm:^8.2.0"
   languageName: unknown
   linkType: soft

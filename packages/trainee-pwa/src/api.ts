@@ -1,28 +1,36 @@
+import type { MetadataSchema } from 'twenty-client-sdk/metadata';
+
 import { authorizedFetch } from './client';
 
-export type CurrentUser = {
-  firstName: string;
-  lastName: string;
-  email: string;
-};
+// The metadata schema is the server's own, so unlike the core client it
+// ships fully generated in the SDK — these types need no emit step.
+export type CurrentUser = Pick<
+  MetadataSchema.User,
+  'firstName' | 'lastName' | 'email'
+>;
 
-// The /metadata schema has its own generated client upstream, which we don't
-// emit — this is the only query the PWA needs from it, so it stays a plain
-// request rather than vendoring a second client.
+// Type-only import above: `MetadataApiClient` itself cannot be used here,
+// as it evaluates `process.env.TWENTY_API_URL` at module scope and throws
+// on import in a browser, and the underlying `createClient` is not exported
+// from the package entry. One query doesn't justify vendoring a second
+// generated client, so the request stays explicit.
 export const fetchCurrentUser = async (): Promise<CurrentUser> => {
-  const response = await authorizedFetch(
-    `${window.location.origin}/metadata`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: '{ currentUser { firstName lastName email } }',
-      }),
-    },
-  );
-  const result = await response.json();
+  const response = await authorizedFetch(`${window.location.origin}/metadata`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      query: '{ currentUser { firstName lastName email } }',
+    }),
+  });
+  const result = (await response.json()) as {
+    data?: { currentUser: CurrentUser };
+    errors?: { message: string }[];
+  };
   if (result.errors?.length) {
     throw new Error(result.errors[0].message);
+  }
+  if (!result.data) {
+    throw new Error('No data returned for currentUser');
   }
   return result.data.currentUser;
 };
