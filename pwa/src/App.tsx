@@ -1,0 +1,81 @@
+import { useEffect, useState } from 'react';
+
+import { fetchCurrentUser, type CurrentUser } from './api';
+import {
+  getStoredTokens,
+  handleAuthorizationCallback,
+  login,
+  logout,
+} from './auth';
+
+type State =
+  | { step: 'loading' }
+  | { step: 'signedOut' }
+  | { step: 'signedIn'; user: CurrentUser }
+  | { step: 'error'; message: string };
+
+export const App = () => {
+  const [state, setState] = useState<State>({ step: 'loading' });
+
+  useEffect(() => {
+    const bootstrap = async () => {
+      try {
+        const tokens =
+          (await handleAuthorizationCallback()) ?? getStoredTokens();
+        if (!tokens) {
+          setState({ step: 'signedOut' });
+          return;
+        }
+        setState({ step: 'signedIn', user: await fetchCurrentUser() });
+      } catch (error) {
+        setState({
+          step: 'error',
+          message: error instanceof Error ? error.message : String(error),
+        });
+      }
+    };
+    void bootstrap();
+  }, []);
+
+  const signIn = () => {
+    void login().catch((error) =>
+      setState({ step: 'error', message: String(error) }),
+    );
+  };
+
+  const signOut = () => {
+    logout();
+    setState({ step: 'signedOut' });
+  };
+
+  return (
+    <main className="screen">
+      <h1 className="brand">🏋️ Coach</h1>
+      {state.step === 'loading' && <p className="muted">Loading…</p>}
+      {state.step === 'signedOut' && (
+        <button className="primary" onClick={signIn}>
+          Sign in with Twenty
+        </button>
+      )}
+      {state.step === 'signedIn' && (
+        <>
+          <p className="hello">
+            Hello {state.user.firstName} {state.user.lastName}!
+          </p>
+          <p className="muted">{state.user.email}</p>
+          <button className="ghost" onClick={signOut}>
+            Sign out
+          </button>
+        </>
+      )}
+      {state.step === 'error' && (
+        <>
+          <p className="error">{state.message}</p>
+          <button className="primary" onClick={signIn}>
+            Try again
+          </button>
+        </>
+      )}
+    </main>
+  );
+};
