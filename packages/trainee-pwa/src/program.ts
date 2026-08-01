@@ -1,6 +1,8 @@
 import {
   comparePrescriptions,
   compareWorkouts,
+  parseSetScheme,
+  parseTrainingDay,
   type PrescriptionRow,
   type WorkoutRow,
 } from '@coach-twenty/shared';
@@ -53,7 +55,7 @@ export const fetchActiveProgram = async (): Promise<ActiveProgram | null> => {
     .map(({ node }) => ({
       id: node.id,
       name: node.name ?? '',
-      day: node.day ?? null,
+      day: parseTrainingDay(node.day),
       week: node.week ?? null,
       order: node.order ?? null,
       notes: node.notes || null,
@@ -73,7 +75,7 @@ export const fetchActiveProgram = async (): Promise<ActiveProgram | null> => {
         name: node.name ?? '',
         exerciseId: node.exercise?.id ?? null,
         order: node.order ?? null,
-        setScheme: node.setScheme ?? null,
+        setScheme: parseSetScheme(node.setScheme),
         targetSets: node.targetSets ?? null,
         targetRepsMin: node.targetRepsMin ?? null,
         targetRepsMax: node.targetRepsMax ?? null,

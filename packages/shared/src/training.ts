@@ -1,10 +1,54 @@
 // Host-agnostic training domain: row shapes as the API returns them,
 // display formatting, and the canonical ordering used by every surface.
+//
+// The rows are deliberately a projection of the API entities — the fields
+// the UI reads, with nulls instead of the generated schema's optionals.
+// Deriving them from `CoreSchema` is not possible here: those types only
+// exist once the client is generated against a live instance (the
+// published package ships `type CoreSchema = {}`), and this package must
+// stay dependency-free. See #31.
+
+export const TRAINING_DAYS = [
+  'DAY_A',
+  'DAY_B',
+  'DAY_C',
+  'DAY_D',
+  'DAY_E',
+  'DAY_F',
+] as const;
+export type TrainingDay = (typeof TRAINING_DAYS)[number];
+
+export const SET_SCHEMES = [
+  'STRAIGHT',
+  'TOP_SET',
+  'BACKOFF',
+  'DROPSET',
+  'CLUSTER',
+  'AMRAP',
+  'EMOM',
+] as const;
+export type SetScheme = (typeof SET_SCHEMES)[number];
+
+const parseUnion = <T extends string>(
+  allowed: readonly T[],
+  value: unknown,
+): T | null =>
+  typeof value === 'string' && (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : null;
+
+/** Narrows an API value to a known day, or null for unknown/empty. */
+export const parseTrainingDay = (value: unknown): TrainingDay | null =>
+  parseUnion(TRAINING_DAYS, value);
+
+/** Narrows an API value to a known set scheme, or null for unknown/empty. */
+export const parseSetScheme = (value: unknown): SetScheme | null =>
+  parseUnion(SET_SCHEMES, value);
 
 export type WorkoutRow = {
   id: string;
   name: string;
-  day: string | null;
+  day: TrainingDay | null;
   week: number | null;
   order: number | null;
   notes: string | null;
@@ -15,7 +59,7 @@ export type PrescriptionRow = {
   name: string;
   exerciseId: string | null;
   order: number | null;
-  setScheme: string | null;
+  setScheme: SetScheme | null;
   targetSets: number | null;
   targetRepsMin: number | null;
   targetRepsMax: number | null;
@@ -29,7 +73,7 @@ export type PrescriptionRow = {
   workoutId: string | null;
 };
 
-export const DAY_LABEL: Record<string, string> = {
+export const DAY_LABEL: Record<TrainingDay, string> = {
   DAY_A: 'Day A',
   DAY_B: 'Day B',
   DAY_C: 'Day C',
