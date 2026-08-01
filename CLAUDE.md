@@ -41,6 +41,24 @@
 
 - All generated UUIDs must be valid UUID v4.
 
+## Metadata & sync rules
+
+- Universal identifiers are valid, unique **UUID v4** (`uuidgen | tr 'A-Z' 'a-z'`). Check duplicates before applying.
+- **Field metadata type is immutable.** To change a type, create a new field under a new universal identifier and destroy the old one (`apply --force`) — data-lossy, acceptable pre-release. The sync error is a misleading "Options are required for enum fields".
+- **View-field universal identifiers are identities, not slots.** Never re-point an existing viewField identifier at a different field — the sync rejects duplicate (view, field) pairs. When refactoring a view, keep each identifier attached to its original field.
+- Workspace-created viewFields collide with app-declared ones for the same (view, field) pair — delete the manual one before applying.
+- **The engine owns INDEX views** — apps cannot declare `key: INDEX` (rejected by the validator). Engine INDEX views currently miss relation columns for same-batch fields (twentyhq/core-team-issues#2749); workaround: app-declared views + VIEW-type navigation menu items pointing at them (removal tracked in #7).
+- **Record pages show relations only via a `FIELDS_WIDGET` view + `RECORD_PAGE` page layout per object** (removal tracked in #11 once twentyhq/twenty#23651 ships).
+- `FRONT_COMPONENT` page-layout widgets need an explicit `gridPosition` (e.g. `{ row: 0, column: 0, rowSpan: 40, columnSpan: 12 }`) or they render in a tiny default cell.
+- On v2.26.x, updating a navigationMenuItem from OBJECT to VIEW type fails validation (update path loses `viewUniversalIdentifier`); ship such switches as delete + recreate with fresh identifiers.
+
+## Front components
+
+- **Never render raw anchors** — known rendering issues. Navigation goes through the host API: `navigate(AppPath.RecordShowPage, { objectNameSingular, objectRecordId })` on a keyboard-accessible `role="link"` span.
+- **twenty-ui is adopted** (alpha): `Tag` for select-chip styling (same ThemeColor names as SELECT options), `Chip` + `Avatar` (`placeholderColorSeed` = record id) composed as record chips, `ThemeProvider` + `useTheme` for tokens, color scheme from `useColorScheme`.
+- twenty-ui styling requires importing `twenty-ui/style.css`, `twenty-ui/theme-light.css` and `twenty-ui/theme-dark.css` in the component bundle — `ThemeProvider` only toggles classes and reads CSS variables from those stylesheets; without them everything renders unstyled with zero errors. The SDK build inlines and injects css imports. `src/types/css.d.ts` declares `*.css` for the typechecker.
+- Fetch data client-side with `twenty-client-sdk` from `useRecordId()`; sort client-side (don't rely on API ordering).
+
 ## Common Pitfalls
 
 - Creating an object without an index view associated. Unless this is a technical object, user will need to visualize it.
