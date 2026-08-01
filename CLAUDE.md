@@ -1,3 +1,10 @@
+## Repo layout (yarn workspaces)
+
+- `packages/twenty-app` — the Twenty application (npm name `coach-twenty`): objects, fields, roles, views, front components. All `yarn twenty …` commands run here; the root `yarn twenty` script delegates to it.
+- `packages/trainee-pwa` — the trainee client (Vite + React). `yarn pwa:build` outputs into `packages/twenty-app/public/pwa` (gitignored), so `twenty apply` ships it as public assets. Build it before any apply/publish.
+- `packages/shared` — domain core shared by both. Boundary rule: imports nothing from the other packages and nothing from twenty-sdk.
+- Root scripts (`lint`, `typecheck`, `test`, `test:unit`, `twenty`, `pwa:*`) delegate to the right workspace — CI relies on them.
+
 ## Base documentation
 
 - Getting started:

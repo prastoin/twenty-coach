@@ -44,6 +44,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      - name: Build trainee PWA
+        # Ships inside the app package as public assets (public/pwa).
+        run: yarn pwa:build
+
       - name: Publish to npm
         # Uncomment if publishing from a private source repo: npm rejects
         # OIDC provenance for private repos

@@ -67,6 +67,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@coach-twenty/shared@workspace:*, @coach-twenty/shared@workspace:packages/shared":
+  version: 0.0.0-use.local
+  resolution: "@coach-twenty/shared@workspace:packages/shared"
+  dependencies:
+    "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"
+  languageName: unknown
+  linkType: soft
+
+"@coach-twenty/trainee-pwa@workspace:packages/trainee-pwa":
+  version: 0.0.0-use.local
+  resolution: "@coach-twenty/trainee-pwa@workspace:packages/trainee-pwa"
+  dependencies:
+    "@coach-twenty/shared": "workspace:*"
+    "@types/react": "npm:^19.0.0"
+    "@types/react-dom": "npm:^19"
+    "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"
+    "@vitejs/plugin-react": "npm:^6.0.5"
+    react: "npm:^19.0.0"
+    react-dom: "npm:^19.0.0"
+    vite: "npm:^8.2.0"
+  languageName: unknown
+  linkType: soft
+
 "@emnapi/core@npm:2.0.0-alpha.3":
   version: 2.0.0-alpha.3
   resolution: "@emnapi/core@npm:2.0.0-alpha.3"
@@ -1540,23 +1563,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"coach-twenty@workspace:.":
+"coach-twenty-monorepo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "coach-twenty@workspace:."
+  resolution: "coach-twenty-monorepo@workspace:."
   dependencies:
     "@types/node": "npm:^24.7.2"
+    "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"
+    oxlint: "npm:^0.16.0"
+    typescript: "npm:^5.9.3"
+  languageName: unknown
+  linkType: soft
+
+"coach-twenty@workspace:packages/twenty-app":
+  version: 0.0.0-use.local
+  resolution: "coach-twenty@workspace:packages/twenty-app"
+  dependencies:
+    "@coach-twenty/shared": "workspace:*"
     "@types/react": "npm:^19.0.0"
     "@types/react-dom": "npm:^19"
     "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"
-    "@vitejs/plugin-react": "npm:^6.0.5"
-    oxlint: "npm:^0.16.0"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
     twenty-client-sdk: "npm:2.26.0"
     twenty-sdk: "npm:2.26.0"
     twenty-ui: "npm:1.0.0-alpha.1"
-    typescript: "npm:^5.9.3"
-    vite: "npm:^8.2.0"
     vite-tsconfig-paths: "npm:^4.2.1"
     vitest: "npm:^4.0.0"
   languageName: unknown
