@@ -42,3 +42,6 @@ yarn-error.log*
 *.tsbuildinfo
 *.d.ts
 !src/types/*.d.ts
+
+# pwa build output (rebuilt by pwa:build before apply)
+/public/pwa/
