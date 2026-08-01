@@ -1578,7 +1578,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "coach-twenty@workspace:packages/twenty-app"
   dependencies:
-    "@coach-twenty/shared": "workspace:*"
     "@types/react": "npm:^19.0.0"
     "@types/react-dom": "npm:^19"
     "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"

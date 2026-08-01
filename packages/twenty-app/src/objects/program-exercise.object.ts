@@ -1,6 +1,6 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { SetScheme } from 'src/constants/training';
+import { SET_SCHEME_LABEL, SetScheme } from 'src/constants/training';
 
 export const PROGRAM_EXERCISE_UNIVERSAL_IDENTIFIER =
   '6de406da-7680-4496-83a9-b90ed2eb2604';
@@ -68,13 +68,13 @@ export default defineObject({
       icon: 'IconStack2',
       isNullable: true,
       options: [
-        { id: 'bcc76153-bd84-4f64-82b7-3093b5c33a37', value: SetScheme.STRAIGHT, label: 'Straight', position: 0, color: 'gray' },
-        { id: 'a7705329-b17d-4974-afd4-a32556a1603e', value: SetScheme.TOP_SET, label: 'Top set', position: 1, color: 'red' },
-        { id: 'aedaf39b-ee80-48dd-9769-25e006b533e2', value: SetScheme.BACKOFF, label: 'Backoff', position: 2, color: 'orange' },
-        { id: '58ce2682-b224-4e9e-8bcb-2def60cd4903', value: SetScheme.DROPSET, label: 'Dropset', position: 3, color: 'purple' },
-        { id: '6f1ef0d4-0718-456b-a3b1-94065e76c195', value: SetScheme.CLUSTER, label: 'Cluster', position: 4, color: 'blue' },
-        { id: '939406fe-0d3b-4c1f-ac6c-3fae8a0c85ac', value: SetScheme.AMRAP, label: 'AMRAP', position: 5, color: 'pink' },
-        { id: 'ec3da605-308f-4be8-a63d-9c70c1f27cee', value: SetScheme.EMOM, label: 'EMOM', position: 6, color: 'turquoise' },
+        { id: 'bcc76153-bd84-4f64-82b7-3093b5c33a37', value: SetScheme.STRAIGHT, label: SET_SCHEME_LABEL[SetScheme.STRAIGHT], position: 0, color: 'gray' },
+        { id: 'a7705329-b17d-4974-afd4-a32556a1603e', value: SetScheme.TOP_SET, label: SET_SCHEME_LABEL[SetScheme.TOP_SET], position: 1, color: 'red' },
+        { id: 'aedaf39b-ee80-48dd-9769-25e006b533e2', value: SetScheme.BACKOFF, label: SET_SCHEME_LABEL[SetScheme.BACKOFF], position: 2, color: 'orange' },
+        { id: '58ce2682-b224-4e9e-8bcb-2def60cd4903', value: SetScheme.DROPSET, label: SET_SCHEME_LABEL[SetScheme.DROPSET], position: 3, color: 'purple' },
+        { id: '6f1ef0d4-0718-456b-a3b1-94065e76c195', value: SetScheme.CLUSTER, label: SET_SCHEME_LABEL[SetScheme.CLUSTER], position: 4, color: 'blue' },
+        { id: '939406fe-0d3b-4c1f-ac6c-3fae8a0c85ac', value: SetScheme.AMRAP, label: SET_SCHEME_LABEL[SetScheme.AMRAP], position: 5, color: 'pink' },
+        { id: 'ec3da605-308f-4be8-a63d-9c70c1f27cee', value: SetScheme.EMOM, label: SET_SCHEME_LABEL[SetScheme.EMOM], position: 6, color: 'turquoise' },
       ],
     },
     {

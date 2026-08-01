@@ -7,6 +7,11 @@ export default defineConfig({
   root: import.meta.dirname,
   base: './',
   plugins: [react()],
+  // The app package pins its own react copy (hoistingLimits), so without
+  // deduping, dev pre-bundles two of them and hooks blow up.
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
   build: {
     outDir: '../twenty-app/public/pwa',
     emptyOutDir: true,
