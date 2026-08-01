@@ -8,7 +8,7 @@ import {
   fetchPrescriptionsForWorkouts,
   PlanThemeProvider,
   PrescriptionList,
-  RecordLink,
+  RecordChipLink,
   usePlanPalette,
   type PrescriptionRow,
   type WorkoutRow,
@@ -197,15 +197,11 @@ const ProgramOverviewContent = () => {
                       marginBottom: '6px',
                     }}
                   >
-                    <span style={{ fontSize: '13px', fontWeight: 600 }}>
-                      <RecordLink
-                        objectNameSingular="workout"
-                        recordId={workout.id}
-                        style={{ textDecorationColor: palette.textMuted }}
-                      >
-                        {workout.name}
-                      </RecordLink>
-                    </span>
+                    <RecordChipLink
+                      objectNameSingular="workout"
+                      recordId={workout.id}
+                      name={workout.name}
+                    />
                     <span style={{ flex: 1 }} />
                     {workout.day && (
                       <span

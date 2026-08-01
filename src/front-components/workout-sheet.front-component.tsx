@@ -8,7 +8,7 @@ import {
   fetchPrescriptionsForWorkouts,
   PlanThemeProvider,
   PrescriptionList,
-  RecordLink,
+  RecordChipLink,
   usePlanPalette,
   type PrescriptionRow,
 } from 'src/front-components/training-plan-shared';
@@ -126,21 +126,23 @@ const WorkoutSheetContent = () => {
           fontSize: '12px',
           color: palette.textSecondary,
           marginBottom: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          flexWrap: 'wrap',
         }}
       >
         {data.programId && data.programName ? (
           <>
-            <RecordLink
+            <RecordChipLink
               objectNameSingular="program"
               recordId={data.programId}
-              style={{ textDecorationColor: palette.textMuted }}
-            >
-              {data.programName}
-            </RecordLink>
-            {' · '}
+              name={data.programName}
+            />
+            <span>·</span>
           </>
         ) : null}
-        {meta.join(' · ')}
+        <span>{meta.join(' · ')}</span>
       </div>
       <div
         style={{
