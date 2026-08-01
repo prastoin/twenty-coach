@@ -1,13 +1,13 @@
-// Host-agnostic training domain: row shapes projected from the workspace
-// schema, display formatting, and the canonical ordering used by every
-// surface.
+// Host-agnostic training domain: the training vocabulary, the row shapes
+// read from the API, display formatting, and the canonical ordering.
 //
-// The row types derive from the committed schema types (`yarn schema:types`)
-// so field names, value sets and scalar types come from the metadata rather
-// than being retyped by hand. Only the UI's field selection and the
-// null-instead-of-optional convention live here.
+// Direction of truth: the vocabulary below is declared here and the app
+// builds its SELECT options from it, so values flow shared → app → schema.
+// The generated schema types are downstream of that, and are used only for
+// what they legitimately describe — the shape of API responses — plus the
+// assertions further down, which check that what is deployed still matches
+// what is declared here.
 
-import { SCHEMA_ENUMS } from './generated/enums';
 import type { ProgramExercise, Workout } from './generated/schema';
 
 // The API omits empty fields (`field?: T`) but returns null over the wire.
@@ -15,23 +15,66 @@ type Nullable<T> = {
   [K in keyof T]-?: undefined extends T[K] ? NonNullable<T[K]> | null : T[K];
 };
 
-export type TrainingDay = NonNullable<Workout['day']>;
-export type SetScheme = NonNullable<ProgramExercise['setScheme']>;
+type AssertEmpty<T extends never> = T;
 
-// Values and labels come from the metadata; `satisfies` ties each map to the
-// field that uses it, so a renamed enum or a new option is a compile error.
-export const DAY_LABEL = SCHEMA_ENUMS.WorkoutDayEnum satisfies Record<
-  TrainingDay,
-  string
+export const TrainingDay = {
+  DAY_A: 'DAY_A',
+  DAY_B: 'DAY_B',
+  DAY_C: 'DAY_C',
+  DAY_D: 'DAY_D',
+  DAY_E: 'DAY_E',
+  DAY_F: 'DAY_F',
+} as const;
+export type TrainingDay = (typeof TrainingDay)[keyof typeof TrainingDay];
+
+export const DAY_LABEL: Record<TrainingDay, string> = {
+  DAY_A: 'Day A',
+  DAY_B: 'Day B',
+  DAY_C: 'Day C',
+  DAY_D: 'Day D',
+  DAY_E: 'Day E',
+  DAY_F: 'Day F',
+};
+
+export const SetScheme = {
+  STRAIGHT: 'STRAIGHT',
+  TOP_SET: 'TOP_SET',
+  BACKOFF: 'BACKOFF',
+  DROPSET: 'DROPSET',
+  CLUSTER: 'CLUSTER',
+  AMRAP: 'AMRAP',
+  EMOM: 'EMOM',
+} as const;
+export type SetScheme = (typeof SetScheme)[keyof typeof SetScheme];
+
+export const SET_SCHEME_LABEL: Record<SetScheme, string> = {
+  STRAIGHT: 'Straight',
+  TOP_SET: 'Top set',
+  BACKOFF: 'Backoff',
+  DROPSET: 'Dropset',
+  CLUSTER: 'Cluster',
+  AMRAP: 'AMRAP',
+  EMOM: 'EMOM',
+};
+
+// Compile errors if the deployed metadata drifts from the vocabulary above
+// — i.e. if an option was added or removed on the instance without the
+// declaration here changing (re-run `yarn schema:types` after `apply`).
+export type DeployedDaysMatch = AssertEmpty<
+  | Exclude<TrainingDay, NonNullable<Workout['day']>>
+  | Exclude<NonNullable<Workout['day']>, TrainingDay>
 >;
-export const SET_SCHEME_LABEL =
-  SCHEMA_ENUMS.ProgramExerciseSetSchemeEnum satisfies Record<SetScheme, string>;
+export type DeployedSetSchemesMatch = AssertEmpty<
+  | Exclude<SetScheme, NonNullable<ProgramExercise['setScheme']>>
+  | Exclude<NonNullable<ProgramExercise['setScheme']>, SetScheme>
+>;
 
 const parseUnion = <T extends string>(
   labels: Record<T, string>,
   value: unknown,
 ): T | null =>
-  typeof value === 'string' && Object.hasOwn(labels, value)
+  typeof value === 'string' &&
+  Object.prototype.hasOwnProperty.call(labels, value)
     ? (value as T)
     : null;
 
@@ -46,8 +89,8 @@ export const parseSetScheme = (value: unknown): SetScheme | null =>
 // `name` is the label identifier: always rendered, so consumers default it
 // rather than carrying a null through every list and comparator.
 export type WorkoutRow = Nullable<
-  Pick<Workout, 'id' | 'day' | 'week' | 'order' | 'notes'>
-> & { name: string };
+  Pick<Workout, 'id' | 'week' | 'order' | 'notes'>
+> & { name: string; day: TrainingDay | null };
 
 export type PrescriptionRow = Nullable<
   Pick<
@@ -55,7 +98,6 @@ export type PrescriptionRow = Nullable<
     | 'id'
     | 'exerciseId'
     | 'order'
-    | 'setScheme'
     | 'targetSets'
     | 'targetRepsMin'
     | 'targetRepsMax'
@@ -69,6 +111,7 @@ export type PrescriptionRow = Nullable<
   >
 > & {
   name: string;
+  setScheme: SetScheme | null;
   /** Joined from the related exercise, not a field of the prescription. */
   exerciseName: string | null;
 };

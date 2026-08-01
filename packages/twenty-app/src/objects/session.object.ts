@@ -1,6 +1,6 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { TrainingDay } from 'src/constants/training';
+import { DAY_LABEL, TrainingDay } from 'src/constants/training';
 
 export enum SessionStatus {
   PLANNED = 'PLANNED',
@@ -59,42 +59,42 @@ export default defineObject({
         {
           id: '18ae4bea-4184-4943-af70-470d6b9840a8',
           value: TrainingDay.DAY_A,
-          label: 'Day A',
+          label: DAY_LABEL[TrainingDay.DAY_A],
           position: 0,
           color: 'blue',
         },
         {
           id: 'af0fdaa3-0d32-4119-acf7-efc4d4d9374e',
           value: TrainingDay.DAY_B,
-          label: 'Day B',
+          label: DAY_LABEL[TrainingDay.DAY_B],
           position: 1,
           color: 'green',
         },
         {
           id: 'fb770305-274e-456e-a17c-dae9edb9e28c',
           value: TrainingDay.DAY_C,
-          label: 'Day C',
+          label: DAY_LABEL[TrainingDay.DAY_C],
           position: 2,
           color: 'orange',
         },
         {
           id: 'c60c59d8-c827-4f8a-8183-e383575ef858',
           value: TrainingDay.DAY_D,
-          label: 'Day D',
+          label: DAY_LABEL[TrainingDay.DAY_D],
           position: 3,
           color: 'purple',
         },
         {
           id: 'be38ba2c-fa21-4f6a-a377-8504feb165e7',
           value: TrainingDay.DAY_E,
-          label: 'Day E',
+          label: DAY_LABEL[TrainingDay.DAY_E],
           position: 4,
           color: 'pink',
         },
         {
           id: '63728003-aa28-4cd9-a390-a99c4578c113',
           value: TrainingDay.DAY_F,
-          label: 'Day F',
+          label: DAY_LABEL[TrainingDay.DAY_F],
           position: 5,
           color: 'turquoise',
         },

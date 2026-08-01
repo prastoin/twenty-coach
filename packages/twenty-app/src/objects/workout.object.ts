@@ -1,6 +1,6 @@
 import { defineObject, FieldType } from 'twenty-sdk/define';
 
-import { TrainingDay } from 'src/constants/training';
+import { DAY_LABEL, TrainingDay } from 'src/constants/training';
 
 export const WORKOUT_UNIVERSAL_IDENTIFIER =
   '0bdf0dec-70e5-4bec-bec2-753a0510314e';
@@ -47,42 +47,42 @@ export default defineObject({
         {
           id: '84f42bc2-2023-4b2a-bfb9-5bb5d8d3fcd6',
           value: TrainingDay.DAY_A,
-          label: 'Day A',
+          label: DAY_LABEL[TrainingDay.DAY_A],
           position: 0,
           color: 'blue',
         },
         {
           id: 'ac938b79-1066-4419-b6d4-54d614515c24',
           value: TrainingDay.DAY_B,
-          label: 'Day B',
+          label: DAY_LABEL[TrainingDay.DAY_B],
           position: 1,
           color: 'green',
         },
         {
           id: '8ea922c9-7481-4be8-93b1-0e2db51eafc7',
           value: TrainingDay.DAY_C,
-          label: 'Day C',
+          label: DAY_LABEL[TrainingDay.DAY_C],
           position: 2,
           color: 'orange',
         },
         {
           id: '7b9345c4-22fe-4a36-bf28-5e157b60761f',
           value: TrainingDay.DAY_D,
-          label: 'Day D',
+          label: DAY_LABEL[TrainingDay.DAY_D],
           position: 3,
           color: 'purple',
         },
         {
           id: '3c8baf4c-7f7a-402f-addc-11d8c4dec92f',
           value: TrainingDay.DAY_E,
-          label: 'Day E',
+          label: DAY_LABEL[TrainingDay.DAY_E],
           position: 4,
           color: 'pink',
         },
         {
           id: '290b4992-6183-40af-9080-d615b84f1a2c',
           value: TrainingDay.DAY_F,
-          label: 'Day F',
+          label: DAY_LABEL[TrainingDay.DAY_F],
           position: 5,
           color: 'turquoise',
         },
