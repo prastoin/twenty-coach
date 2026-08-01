@@ -7,6 +7,7 @@ import {
   login,
   logout,
 } from './auth';
+import { ProgramScreen } from './ProgramScreen';
 
 type State =
   | { step: 'loading' }
@@ -48,6 +49,26 @@ export const App = () => {
     setState({ step: 'signedOut' });
   };
 
+  if (state.step === 'signedIn') {
+    return (
+      <div className="app">
+        <header className="topbar">
+          <span className="topbar-brand">🏋️ Coach</span>
+          <button
+            className="topbar-signout"
+            onClick={signOut}
+            title={state.user.email}
+          >
+            {state.user.firstName} · Sign out
+          </button>
+        </header>
+        <main className="content">
+          <ProgramScreen />
+        </main>
+      </div>
+    );
+  }
+
   return (
     <main className="screen">
       <h1 className="brand">🏋️ Coach</h1>
@@ -56,17 +77,6 @@ export const App = () => {
         <button className="primary" onClick={signIn}>
           Sign in with Twenty
         </button>
-      )}
-      {state.step === 'signedIn' && (
-        <>
-          <p className="hello">
-            Hello {state.user.firstName} {state.user.lastName}!
-          </p>
-          <p className="muted">{state.user.email}</p>
-          <button className="ghost" onClick={signOut}>
-            Sign out
-          </button>
-        </>
       )}
       {state.step === 'error' && (
         <>

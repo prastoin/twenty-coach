@@ -3,7 +3,9 @@
 // nothing from the other packages and nothing from twenty-sdk — types,
 // state machines, validation and progression logic only.
 //
-// Code moves here when session acquisition lands (see issue #31);
-// until then this is the wiring seed.
+// NOTE: the Twenty app cannot declare a workspace dependency on this
+// package yet — the server-side logic-function executor installs the app
+// package in isolation and fails to resolve `workspace:*` (see #31).
+// Until a vendoring step exists, only the PWA consumes it.
 
-export const SHARED_PACKAGE_SEED = true;
+export * from './training';

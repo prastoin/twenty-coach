@@ -10,9 +10,6 @@
     "test:watch": "vitest",
     "test:unit": "vitest run --config vitest.unit.config.ts"
   },
-  "dependencies": {
-    "@coach-twenty/shared": "workspace:*"
-  },
   "devDependencies": {
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19",
