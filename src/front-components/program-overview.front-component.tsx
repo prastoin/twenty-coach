@@ -4,11 +4,12 @@ import { defineFrontComponent } from 'twenty-sdk/define';
 import { useColorScheme, useRecordId } from 'twenty-sdk/front-component';
 
 import {
-  buildPalette,
   DAY_LABEL,
   fetchPrescriptionsForWorkouts,
+  PlanThemeProvider,
   PrescriptionList,
   RecordLink,
+  usePlanPalette,
   type PrescriptionRow,
   type WorkoutRow,
 } from 'src/front-components/training-plan-shared';
@@ -25,12 +26,20 @@ type ProgramData = {
 };
 
 const ProgramOverview = () => {
-  const recordId = useRecordId();
   const colorScheme = useColorScheme();
   const isDark = String(colorScheme ?? '')
     .toLowerCase()
     .includes('dark');
-  const palette = buildPalette(isDark);
+  return (
+    <PlanThemeProvider isDark={isDark}>
+      <ProgramOverviewContent />
+    </PlanThemeProvider>
+  );
+};
+
+const ProgramOverviewContent = () => {
+  const recordId = useRecordId();
+  const palette = usePlanPalette();
 
   const [data, setData] = useState<ProgramData | null>(null);
   const [error, setError] = useState<string | null>(null);

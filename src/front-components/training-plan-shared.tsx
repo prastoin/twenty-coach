@@ -1,6 +1,11 @@
+import 'twenty-ui/style.css';
+import 'twenty-ui/theme-light.css';
+import 'twenty-ui/theme-dark.css';
 import type { CSSProperties, ReactNode } from 'react';
 import { CoreApiClient } from 'twenty-client-sdk/core';
 import { AppPath, navigate } from 'twenty-sdk/front-component';
+import { Tag, type TagColor } from 'twenty-ui/data-display';
+import { ThemeProvider, useTheme } from 'twenty-ui/theme-constants';
 
 export type PrescriptionRow = {
   id: string;
@@ -39,33 +44,40 @@ export type Palette = {
   sectionBg: string;
 };
 
-export const buildPalette = (isDark: boolean): Palette =>
-  isDark
-    ? {
-        cardBg: '#1d1d1d',
-        border: '#333333',
-        textPrimary: '#ebebeb',
-        textSecondary: '#a3a3a3',
-        textMuted: '#737373',
-        sectionBg: '#161616',
-      }
-    : {
-        cardBg: '#ffffff',
-        border: '#e5e5e5',
-        textPrimary: '#1a1a1a',
-        textSecondary: '#666666',
-        textMuted: '#999999',
-        sectionBg: '#fafafa',
-      };
+// Wraps a front component in the twenty-ui css-variable theme so Tag and
+// the useTheme tokens resolve for the host color scheme.
+export const PlanThemeProvider = ({
+  isDark,
+  children,
+}: {
+  isDark: boolean;
+  children: ReactNode;
+}) => (
+  <ThemeProvider colorScheme={isDark ? 'dark' : 'light'}>
+    {children}
+  </ThemeProvider>
+);
 
-const SCHEME_STYLE: Record<string, { label: string; color: string }> = {
-  TOP_SET: { label: 'top set', color: '#e05252' },
-  BACKOFF: { label: 'backoff', color: '#e88c30' },
-  DROPSET: { label: 'dropset', color: '#8e6cc9' },
-  CLUSTER: { label: 'cluster', color: '#3f83d1' },
-  AMRAP: { label: 'AMRAP', color: '#d4537e' },
-  EMOM: { label: 'EMOM', color: '#1d9e75' },
-  STRAIGHT: { label: 'straight', color: '#888888' },
+export const usePlanPalette = (): Palette => {
+  const theme = useTheme();
+  return {
+    cardBg: theme.background.secondary,
+    border: theme.border.color.medium,
+    textPrimary: theme.font.color.primary,
+    textSecondary: theme.font.color.secondary,
+    textMuted: theme.font.color.light,
+    sectionBg: theme.background.tertiary,
+  };
+};
+
+const SCHEME_TAG: Record<string, { label: string; color: TagColor }> = {
+  TOP_SET: { label: 'Top set', color: 'red' },
+  BACKOFF: { label: 'Backoff', color: 'orange' },
+  DROPSET: { label: 'Dropset', color: 'purple' },
+  CLUSTER: { label: 'Cluster', color: 'blue' },
+  AMRAP: { label: 'AMRAP', color: 'pink' },
+  EMOM: { label: 'EMOM', color: 'turquoise' },
+  STRAIGHT: { label: 'Straight', color: 'gray' },
 };
 
 export const formatRest = (restSeconds: number | null): string | null => {
@@ -155,22 +167,8 @@ const SchemeBadge = ({ scheme }: { scheme: string | null }) => {
   if (!scheme) {
     return null;
   }
-  const style = SCHEME_STYLE[scheme] ?? { label: scheme, color: '#888888' };
-  return (
-    <span
-      style={{
-        fontSize: '10px',
-        fontWeight: 600,
-        padding: '1px 7px',
-        borderRadius: '999px',
-        color: '#ffffff',
-        backgroundColor: style.color,
-        whiteSpace: 'nowrap',
-      }}
-    >
-      {style.label}
-    </span>
-  );
+  const tag = SCHEME_TAG[scheme] ?? { label: scheme, color: 'gray' as TagColor };
+  return <Tag color={tag.color} text={tag.label} preventShrink />;
 };
 
 export const PrescriptionList = ({
