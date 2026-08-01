@@ -8,7 +8,7 @@
 // assertions further down, which check that what is deployed still matches
 // what is declared here.
 
-import type { ProgramExercise, Workout } from './generated/schema';
+import type { ProgramExercise, Workout } from './generated/client/schema';
 
 // The API omits empty fields (`field?: T`) but returns null over the wire.
 type Nullable<T> = {

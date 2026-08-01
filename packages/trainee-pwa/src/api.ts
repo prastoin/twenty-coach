@@ -1,4 +1,4 @@
-import { graphqlRequest } from './graphql';
+import { authorizedFetch } from './client';
 
 export type CurrentUser = {
   firstName: string;
@@ -6,12 +6,23 @@ export type CurrentUser = {
   email: string;
 };
 
-// currentUser lives on the /metadata GraphQL schema, not /graphql
-// (which only exposes workspace record queries).
+// The /metadata schema has its own generated client upstream, which we don't
+// emit — this is the only query the PWA needs from it, so it stays a plain
+// request rather than vendoring a second client.
 export const fetchCurrentUser = async (): Promise<CurrentUser> => {
-  const data = await graphqlRequest<{ currentUser: CurrentUser }>(
-    '/metadata',
-    '{ currentUser { firstName lastName email } }',
+  const response = await authorizedFetch(
+    `${window.location.origin}/metadata`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: '{ currentUser { firstName lastName email } }',
+      }),
+    },
   );
-  return data.currentUser;
+  const result = await response.json();
+  if (result.errors?.length) {
+    throw new Error(result.errors[0].message);
+  }
+  return result.data.currentUser;
 };
