@@ -16,17 +16,28 @@ type DemoTrainee = {
   traineeMemberId: string | null;
 };
 
-// Finds or creates the demo trainee person, linked to the first workspace
-// member so row-level permissions can be exercised right after seeding.
+// Finds or creates the demo trainee person, linked to a workspace member so
+// row-level permissions can be exercised right after seeding. Prefers a
+// member with "trainee" in their email, then the second member (the first
+// one is typically the coach/admin, whose role bypasses the predicates),
+// then whoever is left.
 const ensureDemoTrainee = async (client: CoreApiClient): Promise<DemoTrainee> => {
   const { workspaceMembers } = (await client.query({
     workspaceMembers: {
-      edges: { node: { id: true } },
-      __args: { first: 1 },
+      edges: { node: { id: true, userEmail: true } },
+      __args: { first: 10 },
     },
   } as any)) as any;
+  const members = (workspaceMembers?.edges ?? []).map(
+    (edge: { node: { id: string; userEmail: string | null } }) => edge.node,
+  );
   const memberId: string | null =
-    workspaceMembers?.edges?.[0]?.node?.id ?? null;
+    members.find((member: { userEmail: string | null }) =>
+      member.userEmail?.toLowerCase().includes('trainee'),
+    )?.id ??
+    members[1]?.id ??
+    members[0]?.id ??
+    null;
 
   const { people } = (await client.query({
     people: {
@@ -65,20 +76,18 @@ const ensureDemoTrainee = async (client: CoreApiClient): Promise<DemoTrainee> =>
     return { traineeId: createPerson.id, traineeMemberId: memberId };
   }
 
-  if (memberId && !demo.workspaceMemberId) {
+  // The demo person is seed-owned: converge its member link to the
+  // preferred member so re-runs pick up membership changes.
+  if (memberId && demo.workspaceMemberId !== memberId) {
     await client.mutation({
       updatePerson: {
         __args: { id: demo.id, data: { workspaceMemberId: memberId } },
         id: true,
       },
     } as any);
-    return { traineeId: demo.id, traineeMemberId: memberId };
   }
 
-  return {
-    traineeId: demo.id,
-    traineeMemberId: demo.workspaceMemberId ?? memberId,
-  };
+  return { traineeId: demo.id, traineeMemberId: memberId };
 };
 
 // Stamps the trainee links onto a program seeded before the trainee model
@@ -148,14 +157,17 @@ const handler = async () => {
 
   const { programs } = (await client.query({
     programs: {
-      edges: { node: { id: true, traineeId: true } },
+      edges: { node: { id: true, traineeId: true, traineeMemberId: true } },
       __args: { filter: { name: { eq: BLOCK3_PROGRAM_NAME } } },
     },
   } as any)) as any;
 
   const existingProgram = programs?.edges?.[0]?.node;
   if (existingProgram) {
-    if (!existingProgram.traineeId) {
+    if (
+      !existingProgram.traineeId ||
+      existingProgram.traineeMemberId !== trainee.traineeMemberId
+    ) {
       await backfillTrainee(client, existingProgram.id, trainee);
       console.log(
         `"${BLOCK3_PROGRAM_NAME}" already seeded: backfilled trainee links.`,
