@@ -4,7 +4,13 @@ import 'twenty-ui/theme-dark.css';
 import type { CSSProperties, ReactNode } from 'react';
 import { CoreApiClient } from 'twenty-client-sdk/core';
 import { AppPath, navigate } from 'twenty-sdk/front-component';
-import { Tag, type TagColor } from 'twenty-ui/data-display';
+import {
+  Avatar,
+  Chip,
+  ChipVariant,
+  Tag,
+  type TagColor,
+} from 'twenty-ui/data-display';
 import { ThemeProvider, useTheme } from 'twenty-ui/theme-constants';
 
 export type PrescriptionRow = {
@@ -120,10 +126,10 @@ export const formatLoad = (row: PrescriptionRow): string | null => {
 };
 
 
-// Rendered as a role="link" span instead of an anchor: raw anchors have
-// known rendering issues inside front components, so navigation goes
-// exclusively through the host navigate API.
-export const RecordLink = ({
+// Click handling lives on a role="link" span instead of an anchor: raw
+// anchors have known rendering issues inside front components, so
+// navigation goes exclusively through the host navigate API.
+const NavigateSpan = ({
   objectNameSingular,
   recordId,
   children,
@@ -149,19 +155,45 @@ export const RecordLink = ({
           goToRecord();
         }
       }}
-      style={{
-        color: 'inherit',
-        textDecoration: 'underline',
-        textDecorationStyle: 'dotted',
-        textUnderlineOffset: '3px',
-        cursor: 'pointer',
-        ...style,
-      }}
+      style={{ display: 'inline-flex', cursor: 'pointer', ...style }}
     >
       {children}
     </span>
   );
 };
+
+// The record-chip look (avatar + name) composed from twenty-ui primitives,
+// matching how records render in relation cells across Twenty.
+export const RecordChipLink = ({
+  objectNameSingular,
+  recordId,
+  name,
+  style,
+}: {
+  objectNameSingular: string;
+  recordId: string;
+  name: string;
+  style?: CSSProperties;
+}) => (
+  <NavigateSpan
+    objectNameSingular={objectNameSingular}
+    recordId={recordId}
+    style={style}
+  >
+    <Chip
+      label={name}
+      variant={ChipVariant.Highlighted}
+      clickable
+      leftComponent={
+        <Avatar
+          placeholder={name}
+          placeholderColorSeed={recordId}
+          type="squared"
+        />
+      }
+    />
+  </NavigateSpan>
+);
 
 const SchemeBadge = ({ scheme }: { scheme: string | null }) => {
   if (!scheme) {
@@ -207,25 +239,23 @@ export const PrescriptionList = ({
                 flexWrap: 'wrap',
               }}
             >
-              <span
-                style={{
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  color: palette.textPrimary,
-                }}
-              >
-                {row.exerciseId ? (
-                  <RecordLink
-                    objectNameSingular="exercise"
-                    recordId={row.exerciseId}
-                    style={{ textDecorationColor: palette.textMuted }}
-                  >
-                    {row.exerciseName ?? row.name}
-                  </RecordLink>
-                ) : (
-                  (row.exerciseName ?? row.name)
-                )}
-              </span>
+              {row.exerciseId ? (
+                <RecordChipLink
+                  objectNameSingular="exercise"
+                  recordId={row.exerciseId}
+                  name={row.exerciseName ?? row.name}
+                />
+              ) : (
+                <span
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    color: palette.textPrimary,
+                  }}
+                >
+                  {row.exerciseName ?? row.name}
+                </span>
+              )}
               <SchemeBadge scheme={row.setScheme} />
               <span style={{ flex: 1 }} />
               <span
