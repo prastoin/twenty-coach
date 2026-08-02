@@ -9,7 +9,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:unit": "vitest run --config vitest.unit.config.ts",
-    "schema:types": "node scripts/emit-schema-types.mjs"
+    "api:client": "node scripts/emit-api-client.mjs"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
