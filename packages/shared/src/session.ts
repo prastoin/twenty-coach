@@ -17,6 +17,29 @@ export type LoggedSet = {
   id: string;
   programExerciseId: string | null;
   setNumber: number | null;
+  reps: number | null;
+  weightKg: number | null;
+  rir: number | null;
+  comment: string | null;
+};
+
+/** Weight to offer for the next set, most specific source first. */
+export const prefillWeight = (
+  logs: LoggedSet[],
+  prescription: PrescriptionRow,
+  lastWeightByExercise: Map<string, number>,
+): number | null => {
+  const sets = setsForPrescription(logs, prescription.id);
+  const inSession = sets.length > 0 ? sets[sets.length - 1] : undefined;
+  if (inSession?.weightKg !== null && inSession?.weightKg !== undefined) {
+    return inSession.weightKg;
+  }
+  if (prescription.targetWeightKg !== null) {
+    return prescription.targetWeightKg;
+  }
+  return prescription.exerciseId
+    ? (lastWeightByExercise.get(prescription.exerciseId) ?? null)
+    : null;
 };
 
 /**

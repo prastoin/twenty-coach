@@ -11,13 +11,15 @@ import {
   type SessionRow,
 } from '@coach-twenty/shared';
 
-import { SetRow } from './SetRow';
+import { SetRow, type SetValues } from './SetRow';
 import {
+  fetchLastWeights,
   fetchProgramState,
   fetchTraineeIds,
   finishSession,
   logSet,
   startSession,
+  updateSet,
   type NextSession,
   type ProgramState,
 } from './session';
@@ -40,6 +42,7 @@ export const TrainingScreen = () => {
   });
   const [session, setSession] = useState<SessionRow | null>(null);
   const [logged, setLogged] = useState<LoggedSet[]>([]);
+  const [lastWeights, setLastWeights] = useState<Map<string, number>>(new Map());
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -54,6 +57,13 @@ export const TrainingScreen = () => {
       if (state.step === 'ready') {
         setSession(state.next.openSession);
         setLogged(state.next.loggedSets);
+        setLastWeights(
+          await fetchLastWeights(
+            state.next.prescriptions
+              .map((prescription) => prescription.exerciseId)
+              .filter((id): id is string => Boolean(id)),
+          ),
+        );
       }
     } catch (error) {
       setScreen({
@@ -171,7 +181,9 @@ export const TrainingScreen = () => {
               logged={setsForPrescription(logged, prescription.id)}
               setNumber={nextSetNumber(logged, prescription.id)}
               isComplete={isPrescriptionComplete(logged, prescription)}
-              onLog={async (values) => {
+              allLogged={logged}
+              lastWeightByExercise={lastWeights}
+              onLog={async (values: SetValues) => {
                 const set = await logSet({
                   sessionId: session.id,
                   prescription,
@@ -180,6 +192,14 @@ export const TrainingScreen = () => {
                   ...values,
                 });
                 setLogged((current) => [...current, set]);
+              }}
+              onUpdate={async (setId: string, values: SetValues) => {
+                const set = await updateSet({ id: setId, ...values });
+                setLogged((current) =>
+                  current.map((existing) =>
+                    existing.id === set.id ? set : existing,
+                  ),
+                );
               }}
             />
           ))}

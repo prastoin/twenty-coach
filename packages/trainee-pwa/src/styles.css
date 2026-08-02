@@ -217,21 +217,96 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.logged-sets {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 10px 0 0;
-  padding: 0;
+.coach-note {
+  color: #94a3b8;
+  font-size: 12px;
+  font-style: italic;
+  margin: 6px 0 0;
 }
 
-.logged-set {
+.logged-sets {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logged-set-button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(74, 222, 128, 0.1);
+  color: #86efac;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.logged-set-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.logged-set-values {
+  flex: 1;
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+}
+
+.logged-set-edit {
+  color: #64748b;
   font-size: 12px;
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.12);
-  border-radius: 999px;
-  padding: 3px 10px;
+}
+
+.logged-set-note {
+  color: #64748b;
+  font-size: 12px;
+  margin: 2px 0 0 10px;
+}
+
+.logged-set.editing {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.set-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.set-numbers {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.note-input {
+  width: 100%;
+  margin-top: 8px;
+  font: inherit;
+  font-size: 14px;
+  color: #e2e8f0;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.note-input::placeholder {
+  color: #475569;
+}
+
+.link-button {
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  padding: 8px 0 0;
 }
 
 .exercise-complete {
@@ -242,7 +317,7 @@ button {
 
 .set-entry {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 8px;
   margin-top: 12px;
 }
@@ -250,7 +325,7 @@ button {
 .set-entry-label {
   font-size: 12px;
   color: #64748b;
-  padding-bottom: 12px;
+  padding-top: 26px;
   white-space: nowrap;
 }
 

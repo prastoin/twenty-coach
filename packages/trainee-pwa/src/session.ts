@@ -194,20 +194,75 @@ export const fetchProgramState = async (): Promise<ProgramState> => {
   };
 };
 
+const SET_LOG_FIELDS = {
+  id: true,
+  programExerciseId: true,
+  setNumber: true,
+  reps: true,
+  weightKg: true,
+  rir: true,
+  comment: true,
+} as const;
+
+const toLoggedSet = (node: {
+  id: string;
+  programExerciseId?: string;
+  setNumber?: number;
+  reps?: number;
+  weightKg?: number;
+  rir?: number;
+  comment?: string;
+}): LoggedSet => ({
+  id: node.id,
+  programExerciseId: node.programExerciseId ?? null,
+  setNumber: node.setNumber ?? null,
+  reps: node.reps ?? null,
+  weightKg: node.weightKg ?? null,
+  rir: node.rir ?? null,
+  comment: node.comment || null,
+});
+
 export const fetchLoggedSets = async (
   sessionId: string,
 ): Promise<LoggedSet[]> => {
   const { setLogs } = await coreClient.query({
     setLogs: {
       __args: { filter: { sessionId: { eq: sessionId } }, first: 500 },
-      edges: { node: { id: true, programExerciseId: true, setNumber: true } },
+      edges: { node: SET_LOG_FIELDS },
     },
   });
-  return (setLogs?.edges ?? []).map(({ node }) => ({
-    id: node.id,
-    programExerciseId: node.programExerciseId ?? null,
-    setNumber: node.setNumber ?? null,
-  }));
+  return (setLogs?.edges ?? []).map(({ node }) => toLoggedSet(node));
+};
+
+/**
+ * Last weight lifted per exercise, across every past session. The demo
+ * programs prescribe reps and RIR but leave load to the trainee, so this is
+ * usually the only expectation there is to offer.
+ */
+export const fetchLastWeights = async (
+  exerciseIds: string[],
+): Promise<Map<string, number>> => {
+  const ids = exerciseIds.filter(Boolean);
+  if (ids.length === 0) {
+    return new Map();
+  }
+  const { setLogs } = await coreClient.query({
+    setLogs: {
+      __args: {
+        filter: { exerciseId: { in: ids } },
+        orderBy: [{ createdAt: 'DescNullsLast' }],
+        first: 200,
+      },
+      edges: { node: { exerciseId: true, weightKg: true } },
+    },
+  });
+  const latest = new Map<string, number>();
+  for (const { node } of setLogs?.edges ?? []) {
+    if (node.exerciseId && node.weightKg != null && !latest.has(node.exerciseId)) {
+      latest.set(node.exerciseId, node.weightKg);
+    }
+  }
+  return latest;
 };
 
 export const startSession = async (
@@ -256,6 +311,7 @@ export const logSet = async (args: {
   reps: number | null;
   weightKg: number | null;
   rir: number | null;
+  comment: string | null;
   traineeMemberId: string | null;
 }): Promise<LoggedSet> => {
   const { createSetLog } = await coreClient.mutation({
@@ -267,6 +323,7 @@ export const logSet = async (args: {
           reps: args.reps,
           weightKg: args.weightKg,
           rir: args.rir,
+          comment: args.comment,
           sessionId: args.sessionId,
           programExerciseId: args.prescription.id,
           ...(args.prescription.exerciseId
@@ -277,19 +334,40 @@ export const logSet = async (args: {
             : {}),
         },
       },
-      id: true,
-      programExerciseId: true,
-      setNumber: true,
+      ...SET_LOG_FIELDS,
     },
   });
   if (!createSetLog) {
     throw new Error('Set could not be saved');
   }
-  return {
-    id: createSetLog.id,
-    programExerciseId: createSetLog.programExerciseId ?? null,
-    setNumber: createSetLog.setNumber ?? null,
-  };
+  return toLoggedSet(createSetLog);
+};
+
+export const updateSet = async (args: {
+  id: string;
+  reps: number | null;
+  weightKg: number | null;
+  rir: number | null;
+  comment: string | null;
+}): Promise<LoggedSet> => {
+  const { updateSetLog } = await coreClient.mutation({
+    updateSetLog: {
+      __args: {
+        id: args.id,
+        data: {
+          reps: args.reps,
+          weightKg: args.weightKg,
+          rir: args.rir,
+          comment: args.comment,
+        },
+      },
+      ...SET_LOG_FIELDS,
+    },
+  });
+  if (!updateSetLog) {
+    throw new Error('Set could not be updated');
+  }
+  return toLoggedSet(updateSetLog);
 };
 
 export const finishSession = async (session: SessionRow): Promise<void> => {
