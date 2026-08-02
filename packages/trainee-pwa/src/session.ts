@@ -201,7 +201,9 @@ const SET_LOG_FIELDS = {
   reps: true,
   weightKg: true,
   rir: true,
+  restSeconds: true,
   comment: true,
+  createdAt: true,
 } as const;
 
 const toLoggedSet = (node: {
@@ -211,7 +213,9 @@ const toLoggedSet = (node: {
   reps?: number;
   weightKg?: number;
   rir?: number;
+  restSeconds?: number;
   comment?: string;
+  createdAt?: string;
 }): LoggedSet => ({
   id: node.id,
   programExerciseId: node.programExerciseId ?? null,
@@ -219,7 +223,9 @@ const toLoggedSet = (node: {
   reps: node.reps ?? null,
   weightKg: node.weightKg ?? null,
   rir: node.rir ?? null,
+  restSeconds: node.restSeconds ?? null,
   comment: node.comment || null,
+  createdAt: node.createdAt ?? null,
 });
 
 export const fetchLoggedSets = async (
@@ -311,6 +317,7 @@ export const logSet = async (args: {
   reps: number | null;
   weightKg: number | null;
   rir: number | null;
+  restSeconds: number | null;
   comment: string | null;
   traineeMemberId: string | null;
 }): Promise<LoggedSet> => {
@@ -323,6 +330,7 @@ export const logSet = async (args: {
           reps: args.reps,
           weightKg: args.weightKg,
           rir: args.rir,
+          restSeconds: args.restSeconds,
           comment: args.comment,
           sessionId: args.sessionId,
           programExerciseId: args.prescription.id,
@@ -348,6 +356,7 @@ export const updateSet = async (args: {
   reps: number | null;
   weightKg: number | null;
   rir: number | null;
+  restSeconds: number | null;
   comment: string | null;
 }): Promise<LoggedSet> => {
   const { updateSetLog } = await coreClient.mutation({
@@ -358,6 +367,7 @@ export const updateSet = async (args: {
           reps: args.reps,
           weightKg: args.weightKg,
           rir: args.rir,
+          restSeconds: args.restSeconds,
           comment: args.comment,
         },
       },

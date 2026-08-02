@@ -20,7 +20,30 @@ export type LoggedSet = {
   reps: number | null;
   weightKg: number | null;
   rir: number | null;
+  restSeconds: number | null;
   comment: string | null;
+  createdAt: string | null;
+};
+
+/**
+ * Seconds since the last set of this prescription was logged. The app
+ * measures rest rather than asking for it: the trainee logs a set when it
+ * ends, so the gap to the next one is the rest they actually took.
+ */
+export const restSinceLastSet = (
+  logs: LoggedSet[],
+  prescriptionId: string,
+  now: Date,
+): number | null => {
+  const sets = setsForPrescription(logs, prescriptionId);
+  const last = sets.length > 0 ? sets[sets.length - 1] : undefined;
+  if (!last?.createdAt) {
+    return null;
+  }
+  const seconds = Math.round(
+    (now.getTime() - new Date(last.createdAt).getTime()) / 1000,
+  );
+  return seconds >= 0 ? seconds : null;
 };
 
 /** Weight to offer for the next set, most specific source first. */

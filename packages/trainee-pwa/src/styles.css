@@ -315,6 +315,22 @@ button {
   margin: 10px 0 0;
 }
 
+.rest-clock {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-reached {
+  background: rgba(74, 222, 128, 0.14);
+  color: #86efac;
+}
+
 .set-entry {
   display: flex;
   align-items: flex-start;

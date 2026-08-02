@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   formatLoad,
+  formatRest,
   formatSetsAndReps,
   prefillWeight,
+  restSinceLastSet,
   type LoggedSet,
   type PrescriptionRow,
 } from '@coach-twenty/shared';
@@ -11,7 +13,43 @@ export type SetValues = {
   reps: number | null;
   weightKg: number | null;
   rir: number | null;
+  restSeconds: number | null;
   comment: string | null;
+};
+
+/** Ticks while the trainee rests, so the number being recorded is visible. */
+const RestClock = ({
+  logged,
+  prescription,
+}: {
+  logged: LoggedSet[];
+  prescription: PrescriptionRow;
+}) => {
+  const [seconds, setSeconds] = useState(() =>
+    restSinceLastSet(logged, prescription.id, new Date()),
+  );
+
+  useEffect(() => {
+    const tick = () =>
+      setSeconds(restSinceLastSet(logged, prescription.id, new Date()));
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [logged, prescription.id]);
+
+  if (seconds === null) {
+    return null;
+  }
+  const target = formatRest(prescription.restSeconds);
+  const reached =
+    prescription.restSeconds !== null && seconds >= prescription.restSeconds;
+
+  return (
+    <p className={`rest-clock${reached ? ' rest-reached' : ''}`}>
+      Resting {formatRest(seconds)}
+      {target ? ` / ${target}` : ''}
+    </p>
+  );
 };
 
 const numberOrNull = (value: string): number | null =>
@@ -24,17 +62,21 @@ const text = (value: number | null): string =>
 const SetFields = ({
   initial,
   submitLabel,
+  showRest = false,
   onSubmit,
   onCancel,
 }: {
   initial: SetValues;
   submitLabel: string;
+  /** Rest is measured when logging; only a correction can set it by hand. */
+  showRest?: boolean;
   onSubmit: (values: SetValues) => Promise<void>;
   onCancel?: () => void;
 }) => {
   const [reps, setReps] = useState(text(initial.reps));
   const [weight, setWeight] = useState(text(initial.weightKg));
   const [rir, setRir] = useState(text(initial.rir));
+  const [rest, setRest] = useState(text(initial.restSeconds));
   const [comment, setComment] = useState(initial.comment ?? '');
   const [saving, setSaving] = useState(false);
 
@@ -45,6 +87,7 @@ const SetFields = ({
         reps: numberOrNull(reps),
         weightKg: numberOrNull(weight),
         rir: numberOrNull(rir),
+        restSeconds: numberOrNull(rest),
         comment: comment.trim() === '' ? null : comment.trim(),
       });
     } finally {
@@ -79,6 +122,16 @@ const SetFields = ({
             onChange={(event) => setRir(event.target.value)}
           />
         </label>
+        {showRest && (
+          <label className="field">
+            <span>rest s</span>
+            <input
+              inputMode="numeric"
+              value={rest}
+              onChange={(event) => setRest(event.target.value)}
+            />
+          </label>
+        )}
         <button className="log-set" onClick={submit} disabled={saving}>
           {saving ? '…' : submitLabel}
         </button>
@@ -114,6 +167,7 @@ const LoggedSetRow = ({
         <SetFields
           initial={set}
           submitLabel="Save"
+          showRest
           onCancel={() => setEditing(false)}
           onSubmit={async (values) => {
             await onSave(values);
@@ -124,10 +178,12 @@ const LoggedSetRow = ({
     );
   }
 
+  const rest = formatRest(set.restSeconds);
   const parts = [
     set.reps !== null ? `${set.reps} reps` : null,
     set.weightKg !== null ? `${set.weightKg} kg` : null,
     set.rir !== null ? `RIR ${set.rir}` : null,
+    rest ? `rest ${rest}` : null,
   ].filter(Boolean);
 
   return (
@@ -200,8 +256,10 @@ export const SetRow = ({
       {isComplete ? (
         <p className="exercise-complete">All sets logged</p>
       ) : (
-        <div className="set-entry">
-          <span className="set-entry-label">Set {setNumber}</span>
+        <>
+          <RestClock logged={logged} prescription={prescription} />
+          <div className="set-entry">
+            <span className="set-entry-label">Set {setNumber}</span>
           <SetFields
             // Remount when the set number or the suggested weight changes,
             // so logging or correcting a set updates what the next one
@@ -211,12 +269,23 @@ export const SetRow = ({
               reps: prescription.targetRepsMin,
               weightKg: suggestedWeight,
               rir: prescription.targetRir,
+              restSeconds: null,
               comment: null,
             }}
             submitLabel="Log"
-            onSubmit={onLog}
-          />
-        </div>
+            onSubmit={(values) =>
+              onLog({
+                ...values,
+                restSeconds: restSinceLastSet(
+                  logged,
+                  prescription.id,
+                  new Date(),
+                ),
+              })
+              }
+            />
+          </div>
+        </>
       )}
     </article>
   );
