@@ -11,10 +11,10 @@ import {
   type SessionRow,
 } from '@coach-twenty/shared';
 
-import { fetchCurrentUser } from './api';
+import { fetchCurrentUser } from '../services/user';
 import { SetRow, type SetValues } from './SetRow';
-import { fetchTraineeIds, type NextSession, type TraineeIds } from './session';
-import { startAutoSync, type SyncState } from './sync';
+import { fetchTraineeIds, type NextSession, type TraineeIds } from '../services/session';
+import { startAutoSync, type SyncState } from '../services/sync';
 import {
   editSetLocally,
   finishSessionLocally,
@@ -22,7 +22,7 @@ import {
   logSetLocally,
   startSessionLocally,
   type TrainingView,
-} from './training';
+} from '../services/training';
 
 type Screen =
   | { step: 'loading' }

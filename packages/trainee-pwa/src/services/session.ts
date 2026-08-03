@@ -10,7 +10,7 @@ import {
   type WorkoutRow,
 } from '@coach-twenty/shared';
 
-import { coreClient } from './client';
+import { coreClient } from '../lib/coreClient';
 
 export type NextSession = {
   programId: string;

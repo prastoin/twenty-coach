@@ -1,6 +1,6 @@
 import type { MetadataSchema } from 'twenty-client-sdk/metadata';
 
-import { authorizedFetch } from './client';
+import { authorizedFetch } from '../lib/coreClient';
 
 // The metadata schema is the server's own, so unlike the core client it
 // ships fully generated in the SDK — these types need no emit step.

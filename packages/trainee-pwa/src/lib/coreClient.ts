@@ -1,6 +1,6 @@
 import { createClient } from '@coach-twenty/shared/api';
 
-import { getStoredTokens, logout, refreshTokens } from './auth';
+import { getStoredTokens, logout, refreshTokens } from '../services/auth';
 
 type GraphqlBody = {
   errors?: { message?: string; extensions?: { code?: string } }[];

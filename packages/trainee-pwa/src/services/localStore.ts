@@ -7,7 +7,7 @@ import {
   type SessionRow,
 } from '@coach-twenty/shared';
 
-import { allRecords, CACHE, getRecord, putRecord, RECORDS } from './db';
+import { allRecords, CACHE, getRecord, putRecord, RECORDS } from '../lib/db';
 import type { ProgramState } from './session';
 
 const PROGRAM_STATE_KEY = 'programState';

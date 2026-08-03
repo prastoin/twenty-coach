@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { fetchCurrentUser, type CurrentUser } from './api';
+import { fetchCurrentUser, type CurrentUser } from '../services/user';
 import {
   getStoredTokens,
   handleAuthorizationCallback,
   login,
   logout,
-} from './auth';
+} from '../services/auth';
 import { TrainingScreen } from './TrainingScreen';
 
 type State =
