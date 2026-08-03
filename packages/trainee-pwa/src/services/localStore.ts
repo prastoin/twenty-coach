@@ -1,8 +1,11 @@
 import {
   withValues,
   type LocalRecord,
-  type LocalRecordKind,
+  type LocalSessionRecord,
+  type LocalSetLogRecord,
   type LoggedSet,
+  type SessionCreateInput,
+  type SetLogCreateInput,
   type PrescriptionRow,
   type SessionRow,
 } from '@coach-twenty/shared';
@@ -24,28 +27,35 @@ export const saveRecord = async (record: LocalRecord): Promise<LocalRecord> => {
   return record;
 };
 
-const createRecord = (
-  kind: LocalRecordKind,
+export const recordSessionCreate = (
   id: string,
-  values: Record<string, unknown>,
-): LocalRecord => ({
-  id,
-  kind,
-  values,
-  serverKnown: false,
-  dirty: true,
-  updatedAt: nowIso(),
-});
+  values: SessionCreateInput,
+): Promise<LocalRecord> =>
+  saveRecord({
+    id,
+    kind: 'session',
+    values,
+    serverKnown: false,
+    dirty: true,
+    updatedAt: nowIso(),
+  });
 
-export const recordCreate = (
-  kind: LocalRecordKind,
+export const recordSetLogCreate = (
   id: string,
-  values: Record<string, unknown>,
-): Promise<LocalRecord> => saveRecord(createRecord(kind, id, values));
+  values: SetLogCreateInput,
+): Promise<LocalRecord> =>
+  saveRecord({
+    id,
+    kind: 'setLog',
+    values,
+    serverKnown: false,
+    dirty: true,
+    updatedAt: nowIso(),
+  });
 
 export const recordEdit = async (
   id: string,
-  values: Record<string, unknown>,
+  values: Partial<LocalRecord['values']>,
 ): Promise<LocalRecord | null> => {
   const existing = await getRecord<LocalRecord>(RECORDS, id);
   if (!existing) {
@@ -59,23 +69,47 @@ export const recordEdit = async (
  * this device had a local copy, so the local record starts as already known
  * to the server and only carries the change.
  */
-export const recordKnownEdit = async (
-  kind: LocalRecordKind,
+const knownEdit = async (
+  record: LocalRecord,
+): Promise<LocalRecord> => saveRecord(record);
+
+/**
+ * An edit to a record the server already returned — it was created before
+ * this device had a local copy, so the local record starts as already known
+ * to the server and only carries the change.
+ */
+export const recordKnownSessionEdit = async (
   id: string,
-  values: Record<string, unknown>,
+  values: Partial<SessionCreateInput>,
 ): Promise<LocalRecord> => {
   const existing = await getRecord<LocalRecord>(RECORDS, id);
-  if (existing) {
-    return saveRecord(withValues(existing, values, nowIso()));
-  }
-  return saveRecord({
-    id,
-    kind,
-    values,
-    serverKnown: true,
-    dirty: true,
-    updatedAt: nowIso(),
-  });
+  return existing
+    ? saveRecord(withValues(existing, values, nowIso()))
+    : knownEdit({
+        id,
+        kind: 'session',
+        values,
+        serverKnown: true,
+        dirty: true,
+        updatedAt: nowIso(),
+      });
+};
+
+export const recordKnownSetLogEdit = async (
+  id: string,
+  values: Partial<SetLogCreateInput>,
+): Promise<LocalRecord> => {
+  const existing = await getRecord<LocalRecord>(RECORDS, id);
+  return existing
+    ? saveRecord(withValues(existing, values, nowIso()))
+    : knownEdit({
+        id,
+        kind: 'setLog',
+        values,
+        serverKnown: true,
+        dirty: true,
+        updatedAt: nowIso(),
+      });
 };
 
 export const markSynced = async (record: LocalRecord): Promise<void> => {
@@ -97,22 +131,26 @@ export const cacheProgramState = (state: ProgramState): Promise<unknown> =>
 export const cachedProgramState = (): Promise<ProgramState | undefined> =>
   getRecord<ProgramState>(CACHE, PROGRAM_STATE_KEY);
 
-const asNumber = (value: unknown): number | null =>
-  typeof value === 'number' ? value : null;
+const sessionRecords = (records: LocalRecord[]): LocalSessionRecord[] =>
+  records.filter(
+    (record): record is LocalSessionRecord => record.kind === 'session',
+  );
 
-const asString = (value: unknown): string | null =>
-  typeof value === 'string' && value !== '' ? value : null;
+const setLogRecords = (records: LocalRecord[]): LocalSetLogRecord[] =>
+  records.filter(
+    (record): record is LocalSetLogRecord => record.kind === 'setLog',
+  );
 
-export const toLoggedSetFromRecord = (record: LocalRecord): LoggedSet => ({
+export const toLoggedSetFromRecord = (record: LocalSetLogRecord): LoggedSet => ({
   id: record.id,
-  programExerciseId: asString(record.values.programExerciseId),
-  setNumber: asNumber(record.values.setNumber),
-  reps: asNumber(record.values.reps),
-  weightKg: asNumber(record.values.weightKg),
-  rir: asNumber(record.values.rir),
-  restSeconds: asNumber(record.values.restSeconds),
-  comment: asString(record.values.comment),
-  createdAt: asString(record.values.createdAt),
+  programExerciseId: record.values.programExerciseId ?? null,
+  setNumber: record.values.setNumber ?? null,
+  reps: record.values.reps ?? null,
+  weightKg: record.values.weightKg ?? null,
+  rir: record.values.rir ?? null,
+  restSeconds: record.values.restSeconds ?? null,
+  comment: record.values.comment || null,
+  createdAt: record.values.createdAt ?? null,
 });
 
 /** Local writes win: they are newer than anything the server returned. */
@@ -121,9 +159,8 @@ export const overlaySets = (
   records: LocalRecord[],
   sessionId: string,
 ): LoggedSet[] => {
-  const local = records.filter(
-    (record) =>
-      record.kind === 'setLog' && record.values.sessionId === sessionId,
+  const local = setLogRecords(records).filter(
+    (record) => record.values.sessionId === sessionId,
   );
   const byId = new Map(fromServer.map((set) => [set.id, set]));
   for (const record of local) {
@@ -134,27 +171,23 @@ export const overlaySets = (
 
 /** A session started on this device that the server has not confirmed yet. */
 export const localOpenSession = (records: LocalRecord[]): SessionRow | null => {
-  const record = records.find(
-    (candidate) =>
-      candidate.kind === 'session' && candidate.values.status === 'IN_PROGRESS',
+  const record = sessionRecords(records).find(
+    (candidate) => candidate.values.status === 'IN_PROGRESS',
   );
   return record
     ? {
         id: record.id,
         status: 'IN_PROGRESS',
-        workoutId: asString(record.values.workoutId),
-        startedAt: asString(record.values.startedAt),
+        workoutId: record.values.workoutId ?? null,
+        startedAt: record.values.startedAt ?? null,
       }
     : null;
 };
 
 export const localCompletedWorkoutIds = (records: LocalRecord[]): string[] =>
-  records
-    .filter(
-      (record) =>
-        record.kind === 'session' && record.values.status === 'COMPLETED',
-    )
-    .map((record) => asString(record.values.workoutId) ?? '')
+  sessionRecords(records)
+    .filter((record) => record.values.status === 'COMPLETED')
+    .map((record) => record.values.workoutId ?? '')
     .filter(Boolean);
 
 export const prescriptionSetCount = (

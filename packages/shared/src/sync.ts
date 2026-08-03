@@ -9,14 +9,23 @@
 // Last-write-wins is correct rather than a compromise here: a record has one
 // writer, the trainee's own device during their own session.
 
-export type LocalRecordKind = 'session' | 'setLog';
+import type {
+  SessionCreateInput,
+  SessionUpdateInput,
+  SetLogCreateInput,
+  SetLogUpdateInput,
+} from './generated/client/schema';
 
-export type LocalRecord = {
+export type {
+  SessionCreateInput,
+  SessionUpdateInput,
+  SetLogCreateInput,
+  SetLogUpdateInput,
+};
+
+type RecordBase = {
   /** Generated on the device, so replay after an ambiguous failure is idempotent. */
   id: string;
-  kind: LocalRecordKind;
-  /** Current values, as the API expects them. */
-  values: Record<string, unknown>;
   /** Whether a create for this record has been acknowledged by the server. */
   serverKnown: boolean;
   /** Whether the local values are ahead of the server. */
@@ -25,49 +34,62 @@ export type LocalRecord = {
   updatedAt: string;
 };
 
-export type SyncOperation =
-  | { type: 'create'; record: LocalRecord }
-  | { type: 'update'; record: LocalRecord; values: Record<string, unknown> };
-
-/** Fields a record can change after creation; the rest are set once. */
-const MUTABLE_FIELDS: Record<LocalRecordKind, string[]> = {
-  session: ['status', 'endedAt', 'durationMinutes', 'comment'],
-  setLog: ['reps', 'weightKg', 'rir', 'restSeconds', 'comment'],
+/** Values are the API's own create inputs, so a typo cannot reach the queue. */
+export type LocalSessionRecord = RecordBase & {
+  kind: 'session';
+  values: SessionCreateInput;
 };
 
-export const operationFor = (record: LocalRecord): SyncOperation =>
-  record.serverKnown
-    ? {
-        type: 'update',
-        record,
-        values: Object.fromEntries(
-          MUTABLE_FIELDS[record.kind]
-            .filter((field) => field in record.values)
-            .map((field) => [field, record.values[field]]),
-        ),
-      }
-    : { type: 'create', record };
+export type LocalSetLogRecord = RecordBase & {
+  kind: 'setLog';
+  values: SetLogCreateInput;
+};
+
+export type LocalRecord = LocalSessionRecord | LocalSetLogRecord;
+export type LocalRecordKind = LocalRecord['kind'];
+
+export type LocalValues<K extends LocalRecordKind> = K extends 'session'
+  ? SessionCreateInput
+  : SetLogCreateInput;
+
+const pick = <T extends object, K extends keyof T>(
+  source: T,
+  keys: readonly K[],
+): Pick<T, K> =>
+  Object.fromEntries(
+    keys.filter((key) => key in source).map((key) => [key, source[key]]),
+  ) as Pick<T, K>;
+
+/** Fields a record can change after creation; the rest are set once. */
+export const sessionUpdateValues = (
+  values: SessionCreateInput,
+): SessionUpdateInput =>
+  pick(values, ['status', 'endedAt', 'durationMinutes', 'comment']);
+
+export const setLogUpdateValues = (
+  values: SetLogCreateInput,
+): SetLogUpdateInput =>
+  pick(values, ['reps', 'weightKg', 'rir', 'restSeconds', 'comment']);
 
 /**
- * Records to flush, oldest first: a session is always created before the
- * sets that reference it.
+ * Records to flush, sessions first and oldest first, so a set is never sent
+ * before the session it belongs to.
  */
-export const pendingOperations = (records: LocalRecord[]): SyncOperation[] =>
+export const pendingRecords = (records: LocalRecord[]): LocalRecord[] =>
   records
     .filter((record) => record.dirty)
     .sort(
       (a, b) =>
         (a.kind === 'session' ? 0 : 1) - (b.kind === 'session' ? 0 : 1) ||
         a.updatedAt.localeCompare(b.updatedAt),
-    )
-    .map(operationFor);
+    );
 
 /** Merges an edit into a record, keeping it queued as a single write. */
-export const withValues = (
-  record: LocalRecord,
-  values: Record<string, unknown>,
+export const withValues = <T extends LocalRecord>(
+  record: T,
+  values: Partial<T['values']>,
   updatedAt: string,
-): LocalRecord => ({
+): T => ({
   ...record,
   values: { ...record.values, ...values },
   dirty: true,

@@ -1,4 +1,9 @@
-import { pendingOperations, type LocalRecord } from '@coach-twenty/shared';
+import {
+  pendingRecords,
+  sessionUpdateValues,
+  setLogUpdateValues,
+  type LocalRecord,
+} from '@coach-twenty/shared';
 
 import { loadRecords, markSynced } from './localStore';
 import {
@@ -14,19 +19,16 @@ export type SyncState = {
   error: string | null;
 };
 
-const send = async (
-  operation: ReturnType<typeof pendingOperations>[number],
-): Promise<void> => {
-  const { record } = operation;
-  if (operation.type === 'create') {
-    await (record.kind === 'session'
-      ? createSessionRemote(record.id, record.values)
-      : createSetLogRemote(record.id, record.values));
+const send = async (record: LocalRecord): Promise<void> => {
+  if (record.kind === 'session') {
+    await (record.serverKnown
+      ? updateSessionRemote(record.id, sessionUpdateValues(record.values))
+      : createSessionRemote(record.id, record.values));
     return;
   }
-  await (record.kind === 'session'
-    ? updateSessionRemote(record.id, operation.values)
-    : updateSetLogRemote(record.id, operation.values));
+  await (record.serverKnown
+    ? updateSetLogRemote(record.id, setLogUpdateValues(record.values))
+    : createSetLogRemote(record.id, record.values));
 };
 
 let inFlight: Promise<SyncState> | null = null;
@@ -40,11 +42,10 @@ export const flush = async (): Promise<SyncState> => {
   inFlight ??= (async () => {
     try {
       const records = await loadRecords();
-      const operations = pendingOperations(records);
-      for (const operation of operations) {
+      for (const record of pendingRecords(records)) {
         try {
-          await send(operation);
-          await markSynced(operation.record);
+          await send(record);
+          await markSynced(record);
         } catch (error) {
           return {
             pending: (await loadRecords()).filter((record) => record.dirty)

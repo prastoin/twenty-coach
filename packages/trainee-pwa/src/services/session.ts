@@ -4,6 +4,10 @@ import {
   findNextWorkout,
   parseSetScheme,
   parseTrainingDay,
+  type SessionCreateInput,
+  type SessionUpdateInput,
+  type SetLogCreateInput,
+  type SetLogUpdateInput,
   type LoggedSet,
   type PrescriptionRow,
   type SessionRow,
@@ -305,42 +309,36 @@ export const fetchLastWeights = async (
  */
 export const createSessionRemote = async (
   id: string,
-  values: Record<string, unknown>,
+  values: SessionCreateInput,
 ): Promise<void> => {
   await coreClient.mutation({
-    createSession: {
-      __args: { data: { id, ...values } as never },
-      id: true,
-    },
+    createSession: { __args: { data: { ...values, id } }, id: true },
   });
 };
 
 export const updateSessionRemote = async (
   id: string,
-  values: Record<string, unknown>,
+  values: SessionUpdateInput,
 ): Promise<void> => {
   await coreClient.mutation({
-    updateSession: { __args: { id, data: values as never }, id: true },
+    updateSession: { __args: { id, data: values }, id: true },
   });
 };
 
 export const createSetLogRemote = async (
   id: string,
-  values: Record<string, unknown>,
+  values: SetLogCreateInput,
 ): Promise<void> => {
   await coreClient.mutation({
-    createSetLog: {
-      __args: { data: { id, ...values } as never },
-      id: true,
-    },
+    createSetLog: { __args: { data: { ...values, id } }, id: true },
   });
 };
 
 export const updateSetLogRemote = async (
   id: string,
-  values: Record<string, unknown>,
+  values: SetLogUpdateInput,
 ): Promise<void> => {
   await coreClient.mutation({
-    updateSetLog: { __args: { id, data: values as never }, id: true },
+    updateSetLog: { __args: { id, data: values }, id: true },
   });
 };

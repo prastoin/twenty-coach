@@ -2,6 +2,7 @@ import {
   sessionName,
   setLogName,
   durationMinutes,
+  type SessionCreateInput,
   type LoggedSet,
   type PrescriptionRow,
   type SessionRow,
@@ -15,9 +16,11 @@ import {
   localOpenSession,
   newId,
   overlaySets,
-  recordCreate,
+  recordKnownSessionEdit,
+  recordKnownSetLogEdit,
+  recordSessionCreate,
+  recordSetLogCreate,
   recordEdit,
-  recordKnownEdit,
 } from './localStore';
 import {
   fetchLastWeights,
@@ -107,7 +110,7 @@ export const startSessionLocally = async (
 ): Promise<SessionRow> => {
   const startedAt = new Date();
   const id = newId();
-  await recordCreate('session', id, {
+  await recordSessionCreate(id, {
     name: sessionName(next.workout, startedAt),
     status: 'IN_PROGRESS',
     startedAt: startedAt.toISOString(),
@@ -143,7 +146,7 @@ export const logSetLocally = async (args: {
 }): Promise<LoggedSet> => {
   const loggedAt = new Date().toISOString();
   const id = newId();
-  await recordCreate('setLog', id, {
+  await recordSetLogCreate(id, {
     name: setLogName(args.prescription, args.setNumber),
     setNumber: args.setNumber,
     reps: args.reps,
@@ -192,7 +195,7 @@ export const editSetLocally = async (
   // the server already has becomes an update.
   const record =
     (await recordEdit(setId, values)) ??
-    (await recordKnownEdit('setLog', setId, values));
+    (await recordKnownSetLogEdit(setId, values));
   void flush();
   return { ...existing, ...values, id: record.id };
 };
@@ -201,7 +204,7 @@ export const finishSessionLocally = async (
   session: SessionRow,
 ): Promise<void> => {
   const endedAt = new Date();
-  const values = {
+  const values: Partial<SessionCreateInput> = {
     status: 'COMPLETED',
     endedAt: endedAt.toISOString(),
     ...(session.startedAt
@@ -210,7 +213,7 @@ export const finishSessionLocally = async (
   };
   const edited = await recordEdit(session.id, values);
   if (!edited) {
-    await recordKnownEdit('session', session.id, values);
+    await recordKnownSessionEdit(session.id, values);
   }
   void flush();
 };
