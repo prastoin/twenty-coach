@@ -1,110 +1,121 @@
 import {
+  durationMinutes,
+  findNextWorkout,
   sessionName,
   setLogName,
-  durationMinutes,
-  type SessionCreateInput,
   type LoggedSet,
   type PrescriptionRow,
+  type SessionCreateInput,
   type SessionRow,
+  type WorkoutRow,
 } from '@coach-twenty/shared';
 
 import {
-  cachedProgramState,
+  cachedProgramSnapshot,
   cachedTraineeIds,
-  cacheProgramState,
+  cacheProgramSnapshot,
   cacheTraineeIds,
   loadRecords,
   localCompletedWorkoutIds,
   localOpenSession,
   newId,
   overlaySets,
+  recordEdit,
   recordKnownSessionEdit,
   recordKnownSetLogEdit,
   recordSessionCreate,
   recordSetLogCreate,
-  recordEdit,
 } from './localStore';
 import {
-  fetchLastWeights,
-  fetchProgramState,
+  fetchProgramSnapshot,
   fetchTraineeIds,
-  type NextSession,
-  type ProgramState,
+  type ProgramSnapshot,
   type TraineeIds,
 } from './session';
-import { fetchCurrentUser } from './user';
 import { flush } from './sync';
+import { fetchCurrentUser } from './user';
 
-export type TrainingView = {
-  state: ProgramState;
-  lastWeights: Map<string, number>;
-  /** True when the content came from cache because the network failed. */
-  offline: boolean;
-  /** Offline with the cached workout already finished on this device. */
-  awaitingSync: boolean;
-};
+export type TrainingView =
+  | { step: 'noProgram'; offline: boolean }
+  | { step: 'programComplete'; programName: string; offline: boolean }
+  | {
+      step: 'ready';
+      offline: boolean;
+      programId: string;
+      programName: string;
+      workout: WorkoutRow;
+      prescriptions: PrescriptionRow[];
+      openSession: SessionRow | null;
+      loggedSets: LoggedSet[];
+      lastWeights: Map<string, number>;
+    };
 
 /**
- * The training view, local-first: the server is asked, and whatever the
- * trainee has logged on this device is laid over the answer. With no
- * network, the last cached answer is used instead — so the app opens on the
- * right session in a basement.
+ * The training view, local-first. The whole program is cached, so which
+ * session comes next is worked out on the device from what has been
+ * completed — the same computation with or without a network, which is what
+ * lets a trainee finish one session and start the next with no signal in
+ * between.
  */
 export const loadTrainingView = async (): Promise<TrainingView> => {
   const records = await loadRecords();
   let offline = false;
-  let state: ProgramState | undefined;
-  let lastWeights = new Map<string, number>();
+  let snapshot: ProgramSnapshot | null | undefined;
 
   try {
-    state = await fetchProgramState();
-    await cacheProgramState(state);
-    if (state.step === 'ready') {
-      lastWeights = await fetchLastWeights(
-        state.next.prescriptions
-          .map((prescription) => prescription.exerciseId)
-          .filter((id): id is string => Boolean(id)),
-      );
+    snapshot = await fetchProgramSnapshot();
+    if (snapshot) {
+      await cacheProgramSnapshot(snapshot);
     }
   } catch {
     offline = true;
-    state = await cachedProgramState();
+    snapshot = await cachedProgramSnapshot();
   }
 
-  if (!state) {
-    throw new Error('No connection, and nothing saved on this device yet');
-  }
-  if (state.step !== 'ready') {
-    return { state, lastWeights, offline, awaitingSync: false };
-  }
-
-  // Which workout comes after the cached one is only known once the server
-  // answers again, so offline the app says so rather than guessing.
-  const finishedLocally = localCompletedWorkoutIds(records).includes(
-    state.next.workout.id,
-  );
-  if (offline && finishedLocally) {
-    return { state, lastWeights, offline, awaitingSync: true };
+  if (!snapshot) {
+    if (offline) {
+      throw new Error('No connection, and nothing saved on this device yet');
+    }
+    return { step: 'noProgram', offline };
   }
 
-  // A session started offline is absent from the server's answer.
-  const openSession = finishedLocally
-    ? null
-    : (state.next.openSession ?? localOpenSession(records));
+  const completed = [
+    ...snapshot.sessions
+      .filter((session) => session.status === 'COMPLETED')
+      .map((session) => session.workoutId ?? ''),
+    ...localCompletedWorkoutIds(records),
+  ].filter(Boolean);
 
-  const next: NextSession = openSession
-    ? {
-        ...state.next,
-        openSession,
-        loggedSets: overlaySets(state.next.loggedSets, records, openSession.id),
-      }
-    : { ...state.next, openSession: null, loggedSets: [] };
+  // A session started on this device may not have reached the server yet.
+  const openSession =
+    localOpenSession(records) ??
+    snapshot.sessions.find((session) => session.status === 'IN_PROGRESS') ??
+    null;
+
+  const workout = openSession
+    ? (snapshot.workouts.find(({ id }) => id === openSession.workoutId) ?? null)
+    : findNextWorkout(snapshot.workouts, completed);
+
+  if (!workout) {
+    return { step: 'programComplete', programName: snapshot.name, offline };
+  }
 
   return {
-    state: { step: 'ready', next },
-    lastWeights,
+    step: 'ready',
     offline,
-    awaitingSync: false,
+    programId: snapshot.id,
+    programName: snapshot.name,
+    workout,
+    prescriptions: snapshot.prescriptionsByWorkout[workout.id] ?? [],
+    openSession,
+    loggedSets: openSession
+      ? overlaySets(
+          snapshot.loggedSetsBySession[openSession.id] ?? [],
+          records,
+          openSession.id,
+        )
+      : [],
+    lastWeights: new Map(Object.entries(snapshot.lastWeightByExercise)),
   };
 };
 
@@ -126,20 +137,20 @@ export const resolveTraineeIds = async (): Promise<TraineeIds> => {
 };
 
 export const startSessionLocally = async (
-  next: NextSession,
+  program: { id: string; workout: WorkoutRow },
   trainee: TraineeIds,
 ): Promise<SessionRow> => {
   const startedAt = new Date();
   const id = newId();
   await recordSessionCreate(id, {
-    name: sessionName(next.workout, startedAt),
+    name: sessionName(program.workout, startedAt),
     status: 'IN_PROGRESS',
     startedAt: startedAt.toISOString(),
     createdAt: startedAt.toISOString(),
-    day: next.workout.day,
-    week: next.workout.week,
-    programId: next.programId,
-    workoutId: next.workout.id,
+    day: program.workout.day,
+    week: program.workout.week,
+    programId: program.id,
+    workoutId: program.workout.id,
     ...(trainee.personId ? { traineeId: trainee.personId } : {}),
     ...(trainee.workspaceMemberId
       ? { traineeMemberId: trainee.workspaceMemberId }
@@ -149,7 +160,7 @@ export const startSessionLocally = async (
   return {
     id,
     status: 'IN_PROGRESS',
-    workoutId: next.workout.id,
+    workoutId: program.workout.id,
     startedAt: startedAt.toISOString(),
   };
 };
@@ -183,9 +194,7 @@ export const logSetLocally = async (args: {
     ...(args.prescription.exerciseId
       ? { exerciseId: args.prescription.exerciseId }
       : {}),
-    ...(args.traineeMemberId
-      ? { traineeMemberId: args.traineeMemberId }
-      : {}),
+    ...(args.traineeMemberId ? { traineeMemberId: args.traineeMemberId } : {}),
   });
   void flush();
   return {

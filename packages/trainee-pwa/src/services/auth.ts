@@ -157,15 +157,29 @@ export const getStoredTokens = (): Tokens | null => {
   return raw ? JSON.parse(raw) : null;
 };
 
+let refreshInFlight: Promise<Tokens> | null = null;
+
+/**
+ * Single-flight: the instance rotates refresh tokens, so two requests that
+ * expire together must not each spend one. The second would present a token
+ * already consumed by the first, fail, and sign the trainee out mid-session.
+ */
 export const refreshTokens = async (): Promise<Tokens> => {
-  const tokens = getStoredTokens();
-  if (!tokens?.refreshToken) {
-    throw new Error('No refresh token');
-  }
-  return exchangeToken({
-    grant_type: 'refresh_token',
-    refresh_token: tokens.refreshToken,
-  });
+  refreshInFlight ??= (async () => {
+    try {
+      const tokens = getStoredTokens();
+      if (!tokens?.refreshToken) {
+        throw new Error('No refresh token');
+      }
+      return await exchangeToken({
+        grant_type: 'refresh_token',
+        refresh_token: tokens.refreshToken,
+      });
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
 };
 
 export const logout = (): void => {

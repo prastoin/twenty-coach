@@ -9,10 +9,11 @@ import {
   setsForPrescription,
   type LoggedSet,
   type SessionRow,
+  type WorkoutRow,
 } from '@coach-twenty/shared';
 
 import { SetRow, type SetValues } from './SetRow';
-import { type NextSession, type TraineeIds } from '../services/session';
+import { type TraineeIds } from '../services/session';
 import { startAutoSync, type SyncState } from '../services/sync';
 import {
   editSetLocally,
@@ -54,9 +55,9 @@ export const TrainingScreen = () => {
 
       const view = await loadTrainingView();
       setScreen({ step: 'program', view });
-      if (view.state.step === 'ready') {
-        setSession(view.state.next.openSession);
-        setLogged(view.state.next.loggedSets);
+      if (view.step === 'ready') {
+        setSession(view.openSession);
+        setLogged(view.loggedSets);
       }
     } catch (error) {
       fail(error);
@@ -69,10 +70,10 @@ export const TrainingScreen = () => {
 
   useEffect(() => startAutoSync(setSync), []);
 
-  const start = async (next: NextSession) => {
+  const start = async (program: { id: string; workout: WorkoutRow }) => {
     setBusy(true);
     try {
-      setSession(await startSessionLocally(next, trainee));
+      setSession(await startSessionLocally(program, trainee));
       setLogged([]);
     } catch (error) {
       fail(error);
@@ -111,75 +112,63 @@ export const TrainingScreen = () => {
       </>
     );
   }
-  if (screen.view.state.step === 'noProgram') {
+  if (screen.view.step === 'noProgram') {
     return (
       <p className="muted">
         No active program yet — ask your coach to assign one.
       </p>
     );
   }
-  if (screen.view.state.step === 'programComplete') {
+  if (screen.view.step === 'programComplete') {
     return (
       <div className="done-state">
         <p className="done-emoji">🎉</p>
-        <p className="done-title">
-          {screen.view.state.programName} complete
-        </p>
+        <p className="done-title">{screen.view.programName} complete</p>
         <p className="muted">Every session logged. Ask your coach what's next.</p>
       </div>
     );
   }
 
-  if (screen.view.state.step === 'ready' && screen.view.awaitingSync) {
-    return (
-      <div className="done-state">
-        <p className="done-emoji">📶</p>
-        <p className="done-title">Session saved on this device</p>
-        <p className="muted">
-          Reconnect to send it and get your next session.
-        </p>
-      </div>
-    );
-  }
-
-  const { next } = screen.view.state;
-  const progress = sessionProgress(logged, next.prescriptions);
+  const view = screen.view;
+  const progress = sessionProgress(logged, view.prescriptions);
 
   return (
     <>
-      {(screen.view.offline || sync.pending > 0) && (
+      {(view.offline || sync.pending > 0) && (
         <p
-          className={`sync-strip${screen.view.offline ? ' sync-offline' : ''}${
-            sync.error && !screen.view.offline ? ' sync-stuck' : ''
+          className={`sync-strip${view.offline ? ' sync-offline' : ''}${
+            sync.error && !view.offline ? ' sync-stuck' : ''
           }`}
         >
-          {screen.view.offline ? 'Offline' : 'Saving'}
+          {view.offline ? 'Offline' : 'Saving'}
           {sync.pending > 0
             ? ` · ${sync.pending} change${sync.pending > 1 ? 's' : ''} waiting`
             : ' · everything saved on this device'}
           {/* A record the server keeps refusing would otherwise retry
               forever with nothing to show for it. */}
-          {sync.error && !screen.view.offline ? ` · ${sync.error}` : ''}
+          {sync.error && !view.offline ? ` · ${sync.error}` : ''}
         </p>
       )}
-      <p className="program-name">{next.programName}</p>
+      <p className="program-name">{view.programName}</p>
 
       <section className="session-card">
         <div className="session-head">
-          {next.workout.day && (
-            <span className="workout-day">{DAY_LABEL[next.workout.day]}</span>
+          {view.workout.day && (
+            <span className="workout-day">{DAY_LABEL[view.workout.day]}</span>
           )}
-          <span className="workout-name">{next.workout.name}</span>
+          <span className="workout-name">{view.workout.name}</span>
         </div>
         <p className="session-meta">
-          {next.workout.week !== null ? `Week ${next.workout.week} · ` : ''}
-          {next.prescriptions.length} exercises
+          {view.workout.week !== null ? `Week ${view.workout.week} · ` : ''}
+          {view.prescriptions.length} exercises
           {session ? ` · ${progress.done}/${progress.total} sets` : ''}
         </p>
         {!session && (
           <button
             className="primary block"
-            onClick={() => void start(next)}
+            onClick={() =>
+              void start({ id: view.programId, workout: view.workout })
+            }
             disabled={busy}
           >
             {busy ? 'Starting…' : 'Start session'}
@@ -189,7 +178,7 @@ export const TrainingScreen = () => {
 
       {session ? (
         <>
-          {next.prescriptions.map((prescription) => {
+          {view.prescriptions.map((prescription) => {
             const setNumber = nextSetNumber(logged, prescription.id);
             return (
             <SetRow
@@ -199,7 +188,7 @@ export const TrainingScreen = () => {
               setNumber={setNumber}
               isComplete={isPrescriptionComplete(logged, prescription)}
               allLogged={logged}
-              lastWeightByExercise={screen.view.lastWeights}
+              lastWeightByExercise={view.lastWeights}
               onLog={async (values: SetValues) => {
                 const set = await logSetLocally({
                   sessionId: session.id,
@@ -235,7 +224,7 @@ export const TrainingScreen = () => {
         </>
       ) : (
         <ul className="preview">
-          {next.prescriptions.map((prescription) => {
+          {view.prescriptions.map((prescription) => {
             const load = formatLoad(prescription);
             return (
               <li key={prescription.id} className="preview-row">

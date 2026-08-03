@@ -1,7 +1,6 @@
 import {
   comparePrescriptions,
   compareWorkouts,
-  findNextWorkout,
   parseSetScheme,
   parseTrainingDay,
   type SessionCreateInput,
@@ -16,20 +15,22 @@ import {
 
 import { coreClient } from '../lib/coreClient';
 
-export type NextSession = {
-  programId: string;
-  programName: string;
-  workout: WorkoutRow;
-  prescriptions: PrescriptionRow[];
-  /** Set when a session for this workout is already in progress. */
-  openSession: SessionRow | null;
-  loggedSets: LoggedSet[];
+/**
+ * Everything about the active program the app needs to run without a
+ * network: every workout and its prescriptions, the sessions already
+ * recorded, and the loads last used. Which session comes next is derived
+ * from this on the device, so a trainee can finish one session and start
+ * the following one with no signal in between.
+ */
+export type ProgramSnapshot = {
+  id: string;
+  name: string;
+  workouts: WorkoutRow[];
+  prescriptionsByWorkout: Record<string, PrescriptionRow[]>;
+  sessions: SessionRow[];
+  loggedSetsBySession: Record<string, LoggedSet[]>;
+  lastWeightByExercise: Record<string, number>;
 };
-
-export type ProgramState =
-  | { step: 'noProgram' }
-  | { step: 'programComplete'; programName: string }
-  | { step: 'ready'; next: NextSession };
 
 export type TraineeIds = {
   personId: string | null;
@@ -82,6 +83,24 @@ const toWorkoutRow = (node: {
   notes: node.notes || null,
 });
 
+const PRESCRIPTION_FIELDS = {
+  id: true,
+  name: true,
+  order: true,
+  setScheme: true,
+  targetSets: true,
+  targetRepsMin: true,
+  targetRepsMax: true,
+  targetWeightKg: true,
+  targetPercent1Rm: true,
+  targetRir: true,
+  restSeconds: true,
+  tempo: true,
+  notes: true,
+  workoutId: true,
+  exercise: { id: true, name: true },
+} as const;
+
 const toPrescriptionRow = (node: {
   id: string;
   name?: string;
@@ -117,113 +136,105 @@ const toPrescriptionRow = (node: {
   workoutId: node.workoutId ?? null,
 });
 
-export const fetchProgramState = async (): Promise<ProgramState> => {
-  const { programs } = await coreClient.query({
-    programs: {
-      __args: { filter: { status: { eq: 'ACTIVE' } }, first: 1 },
-      edges: {
-        node: {
-          id: true,
-          name: true,
-          workouts: {
-            __args: { first: 100 },
-            edges: {
-              node: {
-                id: true,
-                name: true,
-                day: true,
-                week: true,
-                order: true,
-                notes: true,
+export const fetchProgramSnapshot =
+  async (): Promise<ProgramSnapshot | null> => {
+    const { programs } = await coreClient.query({
+      programs: {
+        __args: { filter: { status: { eq: 'ACTIVE' } }, first: 1 },
+        edges: {
+          node: {
+            id: true,
+            name: true,
+            workouts: {
+              __args: { first: 200 },
+              edges: {
+                node: {
+                  id: true,
+                  name: true,
+                  day: true,
+                  week: true,
+                  order: true,
+                  notes: true,
+                },
               },
             },
           },
         },
       },
-    },
-  });
+    });
 
-  const program = programs?.edges[0]?.node;
-  if (!program) {
-    return { step: 'noProgram' };
-  }
+    const program = programs?.edges[0]?.node;
+    if (!program) {
+      return null;
+    }
 
-  const workouts = (program.workouts?.edges ?? [])
-    .map(({ node }) => toWorkoutRow(node))
-    .sort(compareWorkouts);
+    const workouts = (program.workouts?.edges ?? [])
+      .map(({ node }) => toWorkoutRow(node))
+      .sort(compareWorkouts);
 
-  // Sessions already finished, plus any session left open mid-workout.
-  const { sessions } = await coreClient.query({
-    sessions: {
-      __args: { filter: { programId: { eq: program.id } }, first: 200 },
-      edges: { node: { id: true, status: true, workoutId: true, startedAt: true } },
-    },
-  });
-  const sessionRows: SessionRow[] = (sessions?.edges ?? []).map(({ node }) => ({
-    id: node.id,
-    status: node.status ?? null,
-    workoutId: node.workoutId ?? null,
-    startedAt: node.startedAt ?? null,
-  }));
-
-  const openSession =
-    sessionRows.find((session) => session.status === 'IN_PROGRESS') ?? null;
-  const completedWorkoutIds = sessionRows
-    .filter((session) => session.status === 'COMPLETED')
-    .map((session) => session.workoutId ?? '');
-
-  // An open session wins over program order: finish what was started.
-  const workout = openSession
-    ? (workouts.find(({ id }) => id === openSession.workoutId) ?? null)
-    : findNextWorkout(workouts, completedWorkoutIds);
-
-  if (!workout) {
-    return { step: 'programComplete', programName: program.name ?? '' };
-  }
-
-  const { programExercises } = await coreClient.query({
-    programExercises: {
-      __args: { filter: { workoutId: { eq: workout.id } }, first: 100 },
-      edges: {
-        node: {
-          id: true,
-          name: true,
-          order: true,
-          setScheme: true,
-          targetSets: true,
-          targetRepsMin: true,
-          targetRepsMax: true,
-          targetWeightKg: true,
-          targetPercent1Rm: true,
-          targetRir: true,
-          restSeconds: true,
-          tempo: true,
-          notes: true,
-          workoutId: true,
-          exercise: { id: true, name: true },
+    const [{ programExercises }, { sessions }] = await Promise.all([
+      coreClient.query({
+        programExercises: {
+          __args: {
+            filter: { workoutId: { in: workouts.map(({ id }) => id) } },
+            first: 1000,
+          },
+          edges: { node: PRESCRIPTION_FIELDS },
         },
-      },
-    },
-  });
+      }),
+      coreClient.query({
+        sessions: {
+          __args: { filter: { programId: { eq: program.id } }, first: 200 },
+          edges: {
+            node: { id: true, status: true, workoutId: true, startedAt: true },
+          },
+        },
+      }),
+    ]);
 
-  const prescriptions = (programExercises?.edges ?? [])
-    .map(({ node }) => toPrescriptionRow(node))
-    .sort(comparePrescriptions);
+    const prescriptionsByWorkout: Record<string, PrescriptionRow[]> = {};
+    for (const { node } of programExercises?.edges ?? []) {
+      const row = toPrescriptionRow(node);
+      const key = row.workoutId ?? '';
+      (prescriptionsByWorkout[key] ??= []).push(row);
+    }
+    for (const rows of Object.values(prescriptionsByWorkout)) {
+      rows.sort(comparePrescriptions);
+    }
 
-  const loggedSets = openSession ? await fetchLoggedSets(openSession.id) : [];
+    const sessionRows: SessionRow[] = (sessions?.edges ?? []).map(
+      ({ node }) => ({
+        id: node.id,
+        status: node.status ?? null,
+        workoutId: node.workoutId ?? null,
+        startedAt: node.startedAt ?? null,
+      }),
+    );
 
-  return {
-    step: 'ready',
-    next: {
-      programId: program.id,
-      programName: program.name ?? '',
-      workout,
-      prescriptions,
-      openSession,
-      loggedSets,
-    },
+    const openSession = sessionRows.find(
+      (session) => session.status === 'IN_PROGRESS',
+    );
+    const loggedSetsBySession: Record<string, LoggedSet[]> = openSession
+      ? { [openSession.id]: await fetchLoggedSets(openSession.id) }
+      : {};
+
+    const exerciseIds = Object.values(prescriptionsByWorkout)
+      .flat()
+      .map((prescription) => prescription.exerciseId)
+      .filter((id): id is string => Boolean(id));
+
+    return {
+      id: program.id,
+      name: program.name ?? '',
+      workouts,
+      prescriptionsByWorkout,
+      sessions: sessionRows,
+      loggedSetsBySession,
+      lastWeightByExercise: Object.fromEntries(
+        await fetchLastWeights([...new Set(exerciseIds)]),
+      ),
+    };
   };
-};
 
 const SET_LOG_FIELDS = {
   id: true,

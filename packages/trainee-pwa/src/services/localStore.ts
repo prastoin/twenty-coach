@@ -11,9 +11,9 @@ import {
 } from '@coach-twenty/shared';
 
 import { allRecords, CACHE, getRecord, putRecord, RECORDS } from '../lib/db';
-import type { ProgramState, TraineeIds } from './session';
+import type { ProgramSnapshot, TraineeIds } from './session';
 
-const PROGRAM_STATE_KEY = 'programState';
+const PROGRAM_SNAPSHOT_KEY = 'programSnapshot';
 const TRAINEE_IDS_KEY = 'traineeIds';
 
 export const newId = (): string => crypto.randomUUID();
@@ -126,11 +126,12 @@ export const markSynced = async (record: LocalRecord): Promise<void> => {
   });
 };
 
-export const cacheProgramState = (state: ProgramState): Promise<unknown> =>
-  putRecord(CACHE, state, PROGRAM_STATE_KEY);
+export const cacheProgramSnapshot = (
+  snapshot: ProgramSnapshot,
+): Promise<unknown> => putRecord(CACHE, snapshot, PROGRAM_SNAPSHOT_KEY);
 
-export const cachedProgramState = (): Promise<ProgramState | undefined> =>
-  getRecord<ProgramState>(CACHE, PROGRAM_STATE_KEY);
+export const cachedProgramSnapshot = (): Promise<ProgramSnapshot | undefined> =>
+  getRecord<ProgramSnapshot>(CACHE, PROGRAM_SNAPSHOT_KEY);
 
 // Records created offline still have to carry who they belong to, and the
 // permission predicates match on traineeMember — so the identity is kept on
