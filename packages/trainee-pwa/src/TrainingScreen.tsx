@@ -11,6 +11,7 @@ import {
   type SessionRow,
 } from '@coach-twenty/shared';
 
+import { fetchCurrentUser } from './api';
 import { SetRow, type SetValues } from './SetRow';
 import {
   fetchLastWeights,
@@ -22,12 +23,8 @@ import {
   updateSet,
   type NextSession,
   type ProgramState,
+  type TraineeIds,
 } from './session';
-
-type TraineeIds = {
-  personId: string | null;
-  workspaceMemberId: string | null;
-};
 
 type Screen =
   | { step: 'loading' }
@@ -45,11 +42,19 @@ export const TrainingScreen = () => {
   const [lastWeights, setLastWeights] = useState<Map<string, number>>(new Map());
   const [busy, setBusy] = useState(false);
 
+  const fail = useCallback((error: unknown) => {
+    setScreen({
+      step: 'error',
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }, []);
+
   const load = useCallback(async () => {
     setScreen({ step: 'loading' });
     try {
+      const user = await fetchCurrentUser();
       const [ids, state] = await Promise.all([
-        fetchTraineeIds(),
+        fetchTraineeIds(user.workspaceMemberId),
         fetchProgramState(),
       ]);
       setTrainee(ids);
@@ -66,12 +71,9 @@ export const TrainingScreen = () => {
         );
       }
     } catch (error) {
-      setScreen({
-        step: 'error',
-        message: error instanceof Error ? error.message : String(error),
-      });
+      fail(error);
     }
-  }, []);
+  }, [fail]);
 
   useEffect(() => {
     void load();
@@ -83,10 +85,7 @@ export const TrainingScreen = () => {
       setSession(await startSession(next, trainee));
       setLogged([]);
     } catch (error) {
-      setScreen({
-        step: 'error',
-        message: error instanceof Error ? error.message : String(error),
-      });
+      fail(error);
     } finally {
       setBusy(false);
     }
@@ -103,10 +102,7 @@ export const TrainingScreen = () => {
       setLogged([]);
       await load();
     } catch (error) {
-      setScreen({
-        step: 'error',
-        message: error instanceof Error ? error.message : String(error),
-      });
+      fail(error);
     } finally {
       setBusy(false);
     }
@@ -174,12 +170,14 @@ export const TrainingScreen = () => {
 
       {session ? (
         <>
-          {next.prescriptions.map((prescription) => (
+          {next.prescriptions.map((prescription) => {
+            const setNumber = nextSetNumber(logged, prescription.id);
+            return (
             <SetRow
               key={prescription.id}
               prescription={prescription}
               logged={setsForPrescription(logged, prescription.id)}
-              setNumber={nextSetNumber(logged, prescription.id)}
+              setNumber={setNumber}
               isComplete={isPrescriptionComplete(logged, prescription)}
               allLogged={logged}
               lastWeightByExercise={lastWeights}
@@ -187,7 +185,7 @@ export const TrainingScreen = () => {
                 const set = await logSet({
                   sessionId: session.id,
                   prescription,
-                  setNumber: nextSetNumber(logged, prescription.id),
+                  setNumber,
                   traineeMemberId: trainee.workspaceMemberId,
                   ...values,
                 });
@@ -202,7 +200,8 @@ export const TrainingScreen = () => {
                 );
               }}
             />
-          ))}
+            );
+          })}
           <button
             className="finish block"
             onClick={() => void finish()}

@@ -25,6 +25,15 @@ export type LoggedSet = {
   createdAt: string | null;
 };
 
+/** Most recent set logged for a prescription, if any. */
+export const lastSetFor = (
+  logs: LoggedSet[],
+  prescriptionId: string,
+): LoggedSet | null => {
+  const sets = setsForPrescription(logs, prescriptionId);
+  return sets.length > 0 ? sets[sets.length - 1] : null;
+};
+
 /**
  * Seconds since the last set of this prescription was logged. The app
  * measures rest rather than asking for it: the trainee logs a set when it
@@ -35,8 +44,7 @@ export const restSinceLastSet = (
   prescriptionId: string,
   now: Date,
 ): number | null => {
-  const sets = setsForPrescription(logs, prescriptionId);
-  const last = sets.length > 0 ? sets[sets.length - 1] : undefined;
+  const last = lastSetFor(logs, prescriptionId);
   if (!last?.createdAt) {
     return null;
   }
@@ -52,9 +60,8 @@ export const prefillWeight = (
   prescription: PrescriptionRow,
   lastWeightByExercise: Map<string, number>,
 ): number | null => {
-  const sets = setsForPrescription(logs, prescription.id);
-  const inSession = sets.length > 0 ? sets[sets.length - 1] : undefined;
-  if (inSession?.weightKg !== null && inSession?.weightKg !== undefined) {
+  const inSession = lastSetFor(logs, prescription.id);
+  if (inSession?.weightKg != null) {
     return inSession.weightKg;
   }
   if (prescription.targetWeightKg !== null) {

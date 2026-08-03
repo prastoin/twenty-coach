@@ -30,26 +30,38 @@ export type ProgramState =
   | { step: 'programComplete'; programName: string }
   | { step: 'ready'; next: NextSession };
 
-/**
- * The trainee's own person record, found through the workspace member the
- * OAuth token belongs to. Both links are stamped on everything we create:
- * `trainee` for the domain relation, `traineeMember` for the row-level
- * permission predicates.
- */
-export const fetchTraineeIds = async (): Promise<{
+export type TraineeIds = {
   personId: string | null;
   workspaceMemberId: string | null;
-}> => {
-  const { workspaceMembers } = await coreClient.query({
-    workspaceMembers: {
-      __args: { first: 1 },
-      edges: { node: { id: true, trainees: { edges: { node: { id: true } } } } },
+};
+
+/**
+ * The trainee's person record, looked up from the signed-in workspace
+ * member. Both links are stamped on everything we create: `trainee` for the
+ * domain relation, `traineeMember` for the row-level permission predicates.
+ *
+ * The member id comes from `currentUser` rather than from the first row of
+ * `workspaceMembers`: a coach or admin sees every member, so picking the
+ * first would attribute their records to somebody else.
+ */
+export const fetchTraineeIds = async (
+  workspaceMemberId: string | null,
+): Promise<TraineeIds> => {
+  if (!workspaceMemberId) {
+    return { personId: null, workspaceMemberId: null };
+  }
+  const { people } = await coreClient.query({
+    people: {
+      __args: {
+        filter: { workspaceMemberId: { eq: workspaceMemberId } },
+        first: 1,
+      },
+      edges: { node: { id: true } },
     },
   });
-  const member = workspaceMembers?.edges[0]?.node;
   return {
-    personId: member?.trainees?.edges[0]?.node.id ?? null,
-    workspaceMemberId: member?.id ?? null,
+    personId: people?.edges[0]?.node.id ?? null,
+    workspaceMemberId,
   };
 };
 
@@ -67,6 +79,41 @@ const toWorkoutRow = (node: {
   week: node.week ?? null,
   order: node.order ?? null,
   notes: node.notes || null,
+});
+
+const toPrescriptionRow = (node: {
+  id: string;
+  name?: string;
+  order?: number;
+  setScheme?: string;
+  targetSets?: number;
+  targetRepsMin?: number;
+  targetRepsMax?: number;
+  targetWeightKg?: number;
+  targetPercent1Rm?: number;
+  targetRir?: number;
+  restSeconds?: number;
+  tempo?: string;
+  notes?: string;
+  workoutId?: string;
+  exercise?: { id: string; name?: string };
+}): PrescriptionRow => ({
+  id: node.id,
+  name: node.name ?? '',
+  exerciseId: node.exercise?.id ?? null,
+  order: node.order ?? null,
+  setScheme: parseSetScheme(node.setScheme),
+  targetSets: node.targetSets ?? null,
+  targetRepsMin: node.targetRepsMin ?? null,
+  targetRepsMax: node.targetRepsMax ?? null,
+  targetWeightKg: node.targetWeightKg ?? null,
+  targetPercent1Rm: node.targetPercent1Rm ?? null,
+  targetRir: node.targetRir ?? null,
+  restSeconds: node.restSeconds ?? null,
+  tempo: node.tempo || null,
+  notes: node.notes || null,
+  exerciseName: node.exercise?.name ?? null,
+  workoutId: node.workoutId ?? null,
 });
 
 export const fetchProgramState = async (): Promise<ProgramState> => {
@@ -158,25 +205,8 @@ export const fetchProgramState = async (): Promise<ProgramState> => {
     },
   });
 
-  const prescriptions: PrescriptionRow[] = (programExercises?.edges ?? [])
-    .map(({ node }) => ({
-      id: node.id,
-      name: node.name ?? '',
-      exerciseId: node.exercise?.id ?? null,
-      order: node.order ?? null,
-      setScheme: parseSetScheme(node.setScheme),
-      targetSets: node.targetSets ?? null,
-      targetRepsMin: node.targetRepsMin ?? null,
-      targetRepsMax: node.targetRepsMax ?? null,
-      targetWeightKg: node.targetWeightKg ?? null,
-      targetPercent1Rm: node.targetPercent1Rm ?? null,
-      targetRir: node.targetRir ?? null,
-      restSeconds: node.restSeconds ?? null,
-      tempo: node.tempo || null,
-      notes: node.notes || null,
-      exerciseName: node.exercise?.name ?? null,
-      workoutId: node.workoutId ?? null,
-    }))
+  const prescriptions = (programExercises?.edges ?? [])
+    .map(({ node }) => toPrescriptionRow(node))
     .sort(comparePrescriptions);
 
   const loggedSets = openSession ? await fetchLoggedSets(openSession.id) : [];
