@@ -100,62 +100,33 @@ button {
   margin: 0 auto;
 }
 
-/* Program viewer */
+/* Session acquisition */
 
 .program-name {
-  font-size: 22px;
-  margin: 8px 0 4px;
-}
-
-.program-notes {
-  color: #94a3b8;
-  font-size: 14px;
-  margin: 0 0 8px;
-}
-
-.week {
-  margin-top: 20px;
-}
-
-.week-title {
+  color: #64748b;
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
-  margin: 0 0 8px;
+  margin: 4px 0 12px;
 }
 
-.workout {
+.session-card {
   background: #1e293b;
   border: 1px solid #293548;
-  border-radius: 14px;
-  margin-bottom: 10px;
-  overflow: hidden;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
 }
 
-.workout-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 14px 16px;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  border-radius: 0;
-}
-
-.workout-title {
+.session-head {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .workout-day {
-  flex-shrink: 0;
   font-size: 11px;
   font-weight: 700;
   color: #a5b4fc;
@@ -166,70 +137,262 @@ button {
 
 .workout-name {
   font-weight: 600;
-  font-size: 15px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 17px;
 }
 
-.workout-meta {
-  flex-shrink: 0;
-  color: #64748b;
-  font-size: 12px;
-}
-
-.workout-notes {
-  padding: 0 16px 14px;
+.session-meta {
   color: #94a3b8;
   font-size: 13px;
+  margin: 6px 0 0;
 }
 
-.prescriptions {
+.block {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 16px;
+  font-size: 16px;
+}
+
+.finish {
+  background: #16a34a;
+  color: white;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+/* Next-session preview */
+
+.preview {
   list-style: none;
   margin: 0;
-  padding: 0 16px 8px;
+  padding: 0;
 }
 
-.prescription {
-  padding: 10px 0;
-  border-top: 1px solid #293548;
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 4px;
+  border-bottom: 1px solid #1e293b;
+  font-size: 14px;
 }
 
-.prescription-main {
+.preview-target {
+  flex-shrink: 0;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Logging */
+
+.exercise {
+  background: #1e293b;
+  border: 1px solid #293548;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.exercise-done {
+  opacity: 0.55;
+}
+
+.exercise-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
 }
 
-.prescription-exercise {
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.prescription-scheme {
-  flex-shrink: 0;
-  font-variant-numeric: tabular-nums;
+.exercise-name {
   font-weight: 600;
-  font-size: 14px;
-  color: #a5b4fc;
+  font-size: 15px;
 }
 
-.prescription-details {
+.exercise-target {
+  flex-shrink: 0;
+  color: #a5b4fc;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.coach-note {
   color: #94a3b8;
   font-size: 12px;
-  margin-top: 2px;
+  font-style: italic;
+  margin: 6px 0 0;
 }
 
-.prescription-notes {
+.logged-sets {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.logged-set-button {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(74, 222, 128, 0.1);
+  color: #86efac;
+  border-radius: 10px;
+  text-align: left;
+  font-size: 13px;
+}
+
+.logged-set-label {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.logged-set-values {
+  flex: 1;
+  color: #e2e8f0;
+  font-variant-numeric: tabular-nums;
+}
+
+.logged-set-edit {
   color: #64748b;
   font-size: 12px;
-  margin-top: 2px;
-  font-style: italic;
 }
 
-.prescription-empty {
-  padding: 10px 0;
+.logged-set-note {
   color: #64748b;
+  font-size: 12px;
+  margin: 2px 0 0 10px;
+}
+
+.logged-set.editing {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.set-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.set-numbers {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.note-input {
+  width: 100%;
+  margin-top: 8px;
+  font: inherit;
+  font-size: 14px;
+  color: #e2e8f0;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.note-input::placeholder {
+  color: #475569;
+}
+
+.link-button {
+  background: transparent;
+  color: #94a3b8;
   font-size: 13px;
+  padding: 8px 0 0;
+}
+
+.exercise-complete {
+  color: #4ade80;
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+
+.rest-clock {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-reached {
+  background: rgba(74, 222, 128, 0.14);
+  color: #86efac;
+}
+
+.set-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.set-entry-label {
+  font-size: 12px;
+  color: #64748b;
+  padding-top: 26px;
+  white-space: nowrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.field span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.field input {
+  width: 100%;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+  color: #e2e8f0;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 4px;
+}
+
+.log-set {
+  flex-shrink: 0;
+  background: #6366f1;
+  color: white;
+  font-weight: 600;
+  padding: 11px 16px;
+}
+
+/* Program finished */
+
+.done-state {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.done-emoji {
+  font-size: 40px;
+  margin: 0 0 8px;
+}
+
+.done-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px;
 }

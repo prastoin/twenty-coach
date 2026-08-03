@@ -7,7 +7,7 @@ import {
   login,
   logout,
 } from './auth';
-import { ProgramScreen } from './ProgramScreen';
+import { TrainingScreen } from './TrainingScreen';
 
 type State =
   | { step: 'loading' }
@@ -63,7 +63,7 @@ export const App = () => {
           </button>
         </header>
         <main className="content">
-          <ProgramScreen />
+          <TrainingScreen />
         </main>
       </div>
     );
