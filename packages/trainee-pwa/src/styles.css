@@ -100,6 +100,20 @@ button {
   margin: 0 auto;
 }
 
+.sync-strip {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  font-size: 12px;
+}
+
+.sync-offline {
+  background: rgba(250, 204, 21, 0.12);
+  color: #fde047;
+}
+
 /* Session acquisition */
 
 .program-name {

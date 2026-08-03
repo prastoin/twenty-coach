@@ -9,4 +9,5 @@
 // Until a vendoring step exists, only the PWA consumes it.
 
 export * from './session';
+export * from './sync';
 export * from './training';

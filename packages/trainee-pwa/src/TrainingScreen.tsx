@@ -13,23 +13,21 @@ import {
 
 import { fetchCurrentUser } from './api';
 import { SetRow, type SetValues } from './SetRow';
+import { fetchTraineeIds, type NextSession, type TraineeIds } from './session';
+import { startAutoSync, type SyncState } from './sync';
 import {
-  fetchLastWeights,
-  fetchProgramState,
-  fetchTraineeIds,
-  finishSession,
-  logSet,
-  startSession,
-  updateSet,
-  type NextSession,
-  type ProgramState,
-  type TraineeIds,
-} from './session';
+  editSetLocally,
+  finishSessionLocally,
+  loadTrainingView,
+  logSetLocally,
+  startSessionLocally,
+  type TrainingView,
+} from './training';
 
 type Screen =
   | { step: 'loading' }
   | { step: 'error'; message: string }
-  | { step: 'program'; state: ProgramState };
+  | { step: 'program'; view: TrainingView };
 
 export const TrainingScreen = () => {
   const [screen, setScreen] = useState<Screen>({ step: 'loading' });
@@ -39,7 +37,7 @@ export const TrainingScreen = () => {
   });
   const [session, setSession] = useState<SessionRow | null>(null);
   const [logged, setLogged] = useState<LoggedSet[]>([]);
-  const [lastWeights, setLastWeights] = useState<Map<string, number>>(new Map());
+  const [sync, setSync] = useState<SyncState>({ pending: 0, error: null });
   const [busy, setBusy] = useState(false);
 
   const fail = useCallback((error: unknown) => {
@@ -52,23 +50,18 @@ export const TrainingScreen = () => {
   const load = useCallback(async () => {
     setScreen({ step: 'loading' });
     try {
-      const user = await fetchCurrentUser();
-      const [ids, state] = await Promise.all([
-        fetchTraineeIds(user.workspaceMemberId),
-        fetchProgramState(),
-      ]);
-      setTrainee(ids);
-      setScreen({ step: 'program', state });
-      if (state.step === 'ready') {
-        setSession(state.next.openSession);
-        setLogged(state.next.loggedSets);
-        setLastWeights(
-          await fetchLastWeights(
-            state.next.prescriptions
-              .map((prescription) => prescription.exerciseId)
-              .filter((id): id is string => Boolean(id)),
-          ),
-        );
+      // Identity is only needed to stamp new records, and only the network
+      // can provide it — offline we keep whatever the last load resolved.
+      void fetchCurrentUser()
+        .then((user) => fetchTraineeIds(user.workspaceMemberId))
+        .then(setTrainee)
+        .catch(() => undefined);
+
+      const view = await loadTrainingView();
+      setScreen({ step: 'program', view });
+      if (view.state.step === 'ready') {
+        setSession(view.state.next.openSession);
+        setLogged(view.state.next.loggedSets);
       }
     } catch (error) {
       fail(error);
@@ -79,10 +72,12 @@ export const TrainingScreen = () => {
     void load();
   }, [load]);
 
+  useEffect(() => startAutoSync(setSync), []);
+
   const start = async (next: NextSession) => {
     setBusy(true);
     try {
-      setSession(await startSession(next, trainee));
+      setSession(await startSessionLocally(next, trainee));
       setLogged([]);
     } catch (error) {
       fail(error);
@@ -97,7 +92,7 @@ export const TrainingScreen = () => {
     }
     setBusy(true);
     try {
-      await finishSession(session);
+      await finishSessionLocally(session);
       setSession(null);
       setLogged([]);
       await load();
@@ -121,28 +116,50 @@ export const TrainingScreen = () => {
       </>
     );
   }
-  if (screen.state.step === 'noProgram') {
+  if (screen.view.state.step === 'noProgram') {
     return (
       <p className="muted">
         No active program yet — ask your coach to assign one.
       </p>
     );
   }
-  if (screen.state.step === 'programComplete') {
+  if (screen.view.state.step === 'programComplete') {
     return (
       <div className="done-state">
         <p className="done-emoji">🎉</p>
-        <p className="done-title">{screen.state.programName} complete</p>
+        <p className="done-title">
+          {screen.view.state.programName} complete
+        </p>
         <p className="muted">Every session logged. Ask your coach what's next.</p>
       </div>
     );
   }
 
-  const { next } = screen.state;
+  if (screen.view.state.step === 'ready' && screen.view.awaitingSync) {
+    return (
+      <div className="done-state">
+        <p className="done-emoji">📶</p>
+        <p className="done-title">Session saved on this device</p>
+        <p className="muted">
+          Reconnect to send it and get your next session.
+        </p>
+      </div>
+    );
+  }
+
+  const { next } = screen.view.state;
   const progress = sessionProgress(logged, next.prescriptions);
 
   return (
     <>
+      {(screen.view.offline || sync.pending > 0) && (
+        <p className={`sync-strip${screen.view.offline ? ' sync-offline' : ''}`}>
+          {screen.view.offline ? 'Offline' : 'Saving'}
+          {sync.pending > 0
+            ? ` · ${sync.pending} change${sync.pending > 1 ? 's' : ''} waiting`
+            : ' · everything saved on this device'}
+        </p>
+      )}
       <p className="program-name">{next.programName}</p>
 
       <section className="session-card">
@@ -180,9 +197,9 @@ export const TrainingScreen = () => {
               setNumber={setNumber}
               isComplete={isPrescriptionComplete(logged, prescription)}
               allLogged={logged}
-              lastWeightByExercise={lastWeights}
+              lastWeightByExercise={screen.view.lastWeights}
               onLog={async (values: SetValues) => {
-                const set = await logSet({
+                const set = await logSetLocally({
                   sessionId: session.id,
                   prescription,
                   setNumber,
@@ -192,7 +209,11 @@ export const TrainingScreen = () => {
                 setLogged((current) => [...current, set]);
               }}
               onUpdate={async (setId: string, values: SetValues) => {
-                const set = await updateSet({ id: setId, ...values });
+                const previous = logged.find((set) => set.id === setId);
+                if (!previous) {
+                  return;
+                }
+                const set = await editSetLocally(setId, values, previous);
                 setLogged((current) =>
                   current.map((existing) =>
                     existing.id === set.id ? set : existing,

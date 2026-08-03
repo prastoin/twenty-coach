@@ -4,9 +4,6 @@ import {
   findNextWorkout,
   parseSetScheme,
   parseTrainingDay,
-  sessionName,
-  setLogName,
-  durationMinutes,
   type LoggedSet,
   type PrescriptionRow,
   type SessionRow,
@@ -301,130 +298,49 @@ export const fetchLastWeights = async (
   return latest;
 };
 
-export const startSession = async (
-  next: NextSession,
-  trainee: { personId: string | null; workspaceMemberId: string | null },
-): Promise<SessionRow> => {
-  const startedAt = new Date();
-  const { createSession } = await coreClient.mutation({
-    createSession: {
-      __args: {
-        data: {
-          name: sessionName(next.workout, startedAt),
-          status: 'IN_PROGRESS',
-          startedAt: startedAt.toISOString(),
-          day: next.workout.day,
-          week: next.workout.week,
-          programId: next.programId,
-          workoutId: next.workout.id,
-          ...(trainee.personId ? { traineeId: trainee.personId } : {}),
-          ...(trainee.workspaceMemberId
-            ? { traineeMemberId: trainee.workspaceMemberId }
-            : {}),
-        },
-      },
-      id: true,
-      status: true,
-      workoutId: true,
-      startedAt: true,
-    },
-  });
-  if (!createSession) {
-    throw new Error('Session could not be created');
-  }
-  return {
-    id: createSession.id,
-    status: createSession.status ?? null,
-    workoutId: createSession.workoutId ?? null,
-    startedAt: createSession.startedAt ?? null,
-  };
-};
-
-export const logSet = async (args: {
-  sessionId: string;
-  prescription: PrescriptionRow;
-  setNumber: number;
-  reps: number | null;
-  weightKg: number | null;
-  rir: number | null;
-  restSeconds: number | null;
-  comment: string | null;
-  traineeMemberId: string | null;
-}): Promise<LoggedSet> => {
-  const { createSetLog } = await coreClient.mutation({
-    createSetLog: {
-      __args: {
-        data: {
-          name: setLogName(args.prescription, args.setNumber),
-          setNumber: args.setNumber,
-          reps: args.reps,
-          weightKg: args.weightKg,
-          rir: args.rir,
-          restSeconds: args.restSeconds,
-          comment: args.comment,
-          sessionId: args.sessionId,
-          programExerciseId: args.prescription.id,
-          ...(args.prescription.exerciseId
-            ? { exerciseId: args.prescription.exerciseId }
-            : {}),
-          ...(args.traineeMemberId
-            ? { traineeMemberId: args.traineeMemberId }
-            : {}),
-        },
-      },
-      ...SET_LOG_FIELDS,
-    },
-  });
-  if (!createSetLog) {
-    throw new Error('Set could not be saved');
-  }
-  return toLoggedSet(createSetLog);
-};
-
-export const updateSet = async (args: {
-  id: string;
-  reps: number | null;
-  weightKg: number | null;
-  rir: number | null;
-  restSeconds: number | null;
-  comment: string | null;
-}): Promise<LoggedSet> => {
-  const { updateSetLog } = await coreClient.mutation({
-    updateSetLog: {
-      __args: {
-        id: args.id,
-        data: {
-          reps: args.reps,
-          weightKg: args.weightKg,
-          rir: args.rir,
-          restSeconds: args.restSeconds,
-          comment: args.comment,
-        },
-      },
-      ...SET_LOG_FIELDS,
-    },
-  });
-  if (!updateSetLog) {
-    throw new Error('Set could not be updated');
-  }
-  return toLoggedSet(updateSetLog);
-};
-
-export const finishSession = async (session: SessionRow): Promise<void> => {
-  const endedAt = new Date();
+/**
+ * Remote writes used by the sync engine. Values come from the local record,
+ * which already carries the client-generated id and timestamp, so a replay
+ * after an ambiguous failure lands on the same row.
+ */
+export const createSessionRemote = async (
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> => {
   await coreClient.mutation({
-    updateSession: {
-      __args: {
-        id: session.id,
-        data: {
-          status: 'COMPLETED',
-          endedAt: endedAt.toISOString(),
-          ...(session.startedAt
-            ? { durationMinutes: durationMinutes(session.startedAt, endedAt) }
-            : {}),
-        },
-      },
+    createSession: {
+      __args: { data: { id, ...values } as never },
       id: true,
     },
+  });
+};
+
+export const updateSessionRemote = async (
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> => {
+  await coreClient.mutation({
+    updateSession: { __args: { id, data: values as never }, id: true },
+  });
+};
+
+export const createSetLogRemote = async (
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> => {
+  await coreClient.mutation({
+    createSetLog: {
+      __args: { data: { id, ...values } as never },
+      id: true,
+    },
+  });
+};
+
+export const updateSetLogRemote = async (
+  id: string,
+  values: Record<string, unknown>,
+): Promise<void> => {
+  await coreClient.mutation({
+    updateSetLog: { __args: { id, data: values as never }, id: true },
   });
 };
