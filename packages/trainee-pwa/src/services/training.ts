@@ -10,7 +10,9 @@ import {
 
 import {
   cachedProgramState,
+  cachedTraineeIds,
   cacheProgramState,
+  cacheTraineeIds,
   loadRecords,
   localCompletedWorkoutIds,
   localOpenSession,
@@ -25,10 +27,12 @@ import {
 import {
   fetchLastWeights,
   fetchProgramState,
+  fetchTraineeIds,
   type NextSession,
   type ProgramState,
   type TraineeIds,
 } from './session';
+import { fetchCurrentUser } from './user';
 import { flush } from './sync';
 
 export type TrainingView = {
@@ -102,6 +106,23 @@ export const loadTrainingView = async (): Promise<TrainingView> => {
     offline,
     awaitingSync: false,
   };
+};
+
+/**
+ * Who the records belong to, from the network when it answers and from the
+ * device otherwise — a session logged offline still has to be attributable.
+ */
+export const resolveTraineeIds = async (): Promise<TraineeIds> => {
+  try {
+    const user = await fetchCurrentUser();
+    const ids = await fetchTraineeIds(user.workspaceMemberId);
+    await cacheTraineeIds(ids);
+    return ids;
+  } catch {
+    return (
+      (await cachedTraineeIds()) ?? { personId: null, workspaceMemberId: null }
+    );
+  }
 };
 
 export const startSessionLocally = async (

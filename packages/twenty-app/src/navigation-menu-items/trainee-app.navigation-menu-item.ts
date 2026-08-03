@@ -18,5 +18,7 @@ export default defineNavigationMenuItem({
   type: NavigationMenuItemType.LINK,
   name: 'Trainee app',
   icon: 'IconDeviceMobile',
-  link: `${INSTANCE_URL}/s/pwa`,
+  // Trailing slash: the PWA's service worker scope is the directory it is
+  // served from, and a document outside that scope gets no offline shell.
+  link: `${INSTANCE_URL}/s/pwa/`,
 });

@@ -109,6 +109,11 @@ button {
   font-size: 12px;
 }
 
+.sync-stuck {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
+
 .sync-offline {
   background: rgba(250, 204, 21, 0.12);
   color: #fde047;

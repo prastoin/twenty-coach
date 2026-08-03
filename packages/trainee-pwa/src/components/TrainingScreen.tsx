@@ -11,15 +11,15 @@ import {
   type SessionRow,
 } from '@coach-twenty/shared';
 
-import { fetchCurrentUser } from '../services/user';
 import { SetRow, type SetValues } from './SetRow';
-import { fetchTraineeIds, type NextSession, type TraineeIds } from '../services/session';
+import { type NextSession, type TraineeIds } from '../services/session';
 import { startAutoSync, type SyncState } from '../services/sync';
 import {
   editSetLocally,
   finishSessionLocally,
   loadTrainingView,
   logSetLocally,
+  resolveTraineeIds,
   startSessionLocally,
   type TrainingView,
 } from '../services/training';
@@ -50,12 +50,7 @@ export const TrainingScreen = () => {
   const load = useCallback(async () => {
     setScreen({ step: 'loading' });
     try {
-      // Identity is only needed to stamp new records, and only the network
-      // can provide it — offline we keep whatever the last load resolved.
-      void fetchCurrentUser()
-        .then((user) => fetchTraineeIds(user.workspaceMemberId))
-        .then(setTrainee)
-        .catch(() => undefined);
+      void resolveTraineeIds().then(setTrainee);
 
       const view = await loadTrainingView();
       setScreen({ step: 'program', view });
@@ -153,11 +148,18 @@ export const TrainingScreen = () => {
   return (
     <>
       {(screen.view.offline || sync.pending > 0) && (
-        <p className={`sync-strip${screen.view.offline ? ' sync-offline' : ''}`}>
+        <p
+          className={`sync-strip${screen.view.offline ? ' sync-offline' : ''}${
+            sync.error && !screen.view.offline ? ' sync-stuck' : ''
+          }`}
+        >
           {screen.view.offline ? 'Offline' : 'Saving'}
           {sync.pending > 0
             ? ` · ${sync.pending} change${sync.pending > 1 ? 's' : ''} waiting`
             : ' · everything saved on this device'}
+          {/* A record the server keeps refusing would otherwise retry
+              forever with nothing to show for it. */}
+          {sync.error && !screen.view.offline ? ` · ${sync.error}` : ''}
         </p>
       )}
       <p className="program-name">{next.programName}</p>

@@ -11,9 +11,10 @@ import {
 } from '@coach-twenty/shared';
 
 import { allRecords, CACHE, getRecord, putRecord, RECORDS } from '../lib/db';
-import type { ProgramState } from './session';
+import type { ProgramState, TraineeIds } from './session';
 
 const PROGRAM_STATE_KEY = 'programState';
+const TRAINEE_IDS_KEY = 'traineeIds';
 
 export const newId = (): string => crypto.randomUUID();
 
@@ -130,6 +131,15 @@ export const cacheProgramState = (state: ProgramState): Promise<unknown> =>
 
 export const cachedProgramState = (): Promise<ProgramState | undefined> =>
   getRecord<ProgramState>(CACHE, PROGRAM_STATE_KEY);
+
+// Records created offline still have to carry who they belong to, and the
+// permission predicates match on traineeMember — so the identity is kept on
+// the device rather than resolved per session.
+export const cacheTraineeIds = (ids: TraineeIds): Promise<unknown> =>
+  putRecord(CACHE, ids, TRAINEE_IDS_KEY);
+
+export const cachedTraineeIds = (): Promise<TraineeIds | undefined> =>
+  getRecord<TraineeIds>(CACHE, TRAINEE_IDS_KEY);
 
 const sessionRecords = (records: LocalRecord[]): LocalSessionRecord[] =>
   records.filter(

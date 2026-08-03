@@ -4,6 +4,13 @@ import { createRoot } from 'react-dom/client';
 import { App } from './components/App';
 import './styles.css';
 
+// The service worker's scope is the directory it is served from, so a visit
+// to /s/pwa (no trailing slash) would fall outside it and lose the offline
+// shell entirely. Normalising first keeps every start controlled.
+if (!window.location.pathname.endsWith('/')) {
+  window.location.replace(`${window.location.pathname}/${window.location.search}`);
+}
+
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <App />

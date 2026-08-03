@@ -12,11 +12,12 @@ import { TrainingScreen } from './TrainingScreen';
 type State =
   | { step: 'loading' }
   | { step: 'signedOut' }
-  | { step: 'signedIn'; user: CurrentUser }
+  | { step: 'signedIn' }
   | { step: 'error'; message: string };
 
 export const App = () => {
   const [state, setState] = useState<State>({ step: 'loading' });
+  const [user, setUser] = useState<CurrentUser | null>(null);
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -27,7 +28,12 @@ export const App = () => {
           setState({ step: 'signedOut' });
           return;
         }
-        setState({ step: 'signedIn', user: await fetchCurrentUser() });
+        // Being signed in is decided by the stored tokens alone: who the user
+        // is takes a request, and offline the app must still open.
+        setState({ step: 'signedIn' });
+        void fetchCurrentUser()
+          .then(setUser)
+          .catch(() => undefined);
       } catch (error) {
         setState({
           step: 'error',
@@ -57,9 +63,9 @@ export const App = () => {
           <button
             className="topbar-signout"
             onClick={signOut}
-            title={state.user.email}
+            title={user?.email ?? undefined}
           >
-            {state.user.firstName} · Sign out
+            {user ? `${user.firstName} · ` : ''}Sign out
           </button>
         </header>
         <main className="content">
