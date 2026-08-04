@@ -3,16 +3,16 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
-import { ALL_PROGRAMS_VIEW_ID } from 'src/views/all-programs.view';
+import { PROGRAM_UNIVERSAL_IDENTIFIER } from 'src/objects/program.object';
 
-// Targets the app view rather than the object: the engine-owned INDEX view
-// currently misses relation columns for fields created in the same batch as
-// their object (https://github.com/twentyhq/core-team-issues/issues/2749).
+// Fresh identifier: nav-item type switches must ship as delete + recreate —
+// the update path drops the newly required target identifier from the to-state
+// and fails validation (same wrinkle as OBJECT→VIEW on v2.26, still on v2.27).
 export default defineNavigationMenuItem({
-  universalIdentifier: '07f9fcb8-a8bd-4045-a3aa-faf25c3c14a0',
+  universalIdentifier: '5bcae50a-461a-45dc-bb94-448a94346e36',
   position: 0,
-  type: NavigationMenuItemType.VIEW,
+  type: NavigationMenuItemType.OBJECT,
   name: 'Programs',
   icon: 'IconClipboardList',
-  viewUniversalIdentifier: ALL_PROGRAMS_VIEW_ID,
+  targetObjectUniversalIdentifier: PROGRAM_UNIVERSAL_IDENTIFIER,
 });
