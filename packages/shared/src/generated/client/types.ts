@@ -4746,6 +4746,9 @@ export default {
             "colorScheme": [
                 1
             ],
+            "openRecordIn": [
+                1
+            ],
             "locale": [
                 1
             ],
@@ -5278,6 +5281,21 @@ export default {
             "percentageNotEmptyColorScheme": [
                 74
             ],
+            "countUniqueValuesOpenRecordIn": [
+                73
+            ],
+            "countEmptyOpenRecordIn": [
+                73
+            ],
+            "countNotEmptyOpenRecordIn": [
+                73
+            ],
+            "percentageEmptyOpenRecordIn": [
+                74
+            ],
+            "percentageNotEmptyOpenRecordIn": [
+                74
+            ],
             "countUniqueValuesLocale": [
                 73
             ],
@@ -5622,6 +5640,21 @@ export default {
             "percentageNotEmptyColorScheme": [
                 74
             ],
+            "countUniqueValuesOpenRecordIn": [
+                73
+            ],
+            "countEmptyOpenRecordIn": [
+                73
+            ],
+            "countNotEmptyOpenRecordIn": [
+                73
+            ],
+            "percentageEmptyOpenRecordIn": [
+                74
+            ],
+            "percentageNotEmptyOpenRecordIn": [
+                74
+            ],
             "countUniqueValuesLocale": [
                 73
             ],
@@ -5894,6 +5927,9 @@ export default {
             "colorScheme": [
                 1
             ],
+            "openRecordIn": [
+                1
+            ],
             "locale": [
                 1
             ],
@@ -5959,6 +5995,9 @@ export default {
             "colorScheme": [
                 1
             ],
+            "openRecordIn": [
+                1
+            ],
             "locale": [
                 1
             ],
@@ -6022,6 +6061,9 @@ export default {
                 24
             ],
             "colorScheme": [
+                6
+            ],
+            "openRecordIn": [
                 6
             ],
             "locale": [
@@ -6196,6 +6238,9 @@ export default {
             "colorScheme": [
                 10
             ],
+            "openRecordIn": [
+                10
+            ],
             "locale": [
                 10
             ],
@@ -6262,6 +6307,9 @@ export default {
                 25
             ],
             "colorScheme": [
+                10
+            ],
+            "openRecordIn": [
                 10
             ],
             "locale": [
@@ -6432,6 +6480,21 @@ export default {
                 10
             ],
             "percentageNotEmptyColorScheme": [
+                10
+            ],
+            "countUniqueValuesOpenRecordIn": [
+                10
+            ],
+            "countEmptyOpenRecordIn": [
+                10
+            ],
+            "countNotEmptyOpenRecordIn": [
+                10
+            ],
+            "percentageEmptyOpenRecordIn": [
+                10
+            ],
+            "percentageNotEmptyOpenRecordIn": [
                 10
             ],
             "countUniqueValuesLocale": [
@@ -41062,12 +41125,6 @@ export default {
         },
         "ProgramExerciseSetSchemeEnum": {},
         "ProgramExercise": {
-            "targetSets": [
-                74
-            ],
-            "targetRepsMin": [
-                74
-            ],
             "name": [
                 1
             ],
@@ -41076,6 +41133,12 @@ export default {
             ],
             "setScheme": [
                 561
+            ],
+            "targetSets": [
+                74
+            ],
+            "targetRepsMin": [
+                74
             ],
             "targetRepsMax": [
                 74
@@ -41294,60 +41357,6 @@ export default {
             "totalCount": [
                 73
             ],
-            "countUniqueValuesTargetSets": [
-                73
-            ],
-            "countEmptyTargetSets": [
-                73
-            ],
-            "countNotEmptyTargetSets": [
-                73
-            ],
-            "percentageEmptyTargetSets": [
-                74
-            ],
-            "percentageNotEmptyTargetSets": [
-                74
-            ],
-            "minTargetSets": [
-                74
-            ],
-            "maxTargetSets": [
-                74
-            ],
-            "avgTargetSets": [
-                74
-            ],
-            "sumTargetSets": [
-                74
-            ],
-            "countUniqueValuesTargetRepsMin": [
-                73
-            ],
-            "countEmptyTargetRepsMin": [
-                73
-            ],
-            "countNotEmptyTargetRepsMin": [
-                73
-            ],
-            "percentageEmptyTargetRepsMin": [
-                74
-            ],
-            "percentageNotEmptyTargetRepsMin": [
-                74
-            ],
-            "minTargetRepsMin": [
-                74
-            ],
-            "maxTargetRepsMin": [
-                74
-            ],
-            "avgTargetRepsMin": [
-                74
-            ],
-            "sumTargetRepsMin": [
-                74
-            ],
             "countUniqueValuesName": [
                 73
             ],
@@ -41403,6 +41412,60 @@ export default {
                 74
             ],
             "percentageNotEmptySetScheme": [
+                74
+            ],
+            "countUniqueValuesTargetSets": [
+                73
+            ],
+            "countEmptyTargetSets": [
+                73
+            ],
+            "countNotEmptyTargetSets": [
+                73
+            ],
+            "percentageEmptyTargetSets": [
+                74
+            ],
+            "percentageNotEmptyTargetSets": [
+                74
+            ],
+            "minTargetSets": [
+                74
+            ],
+            "maxTargetSets": [
+                74
+            ],
+            "avgTargetSets": [
+                74
+            ],
+            "sumTargetSets": [
+                74
+            ],
+            "countUniqueValuesTargetRepsMin": [
+                73
+            ],
+            "countEmptyTargetRepsMin": [
+                73
+            ],
+            "countNotEmptyTargetRepsMin": [
+                73
+            ],
+            "percentageEmptyTargetRepsMin": [
+                74
+            ],
+            "percentageNotEmptyTargetRepsMin": [
+                74
+            ],
+            "minTargetRepsMin": [
+                74
+            ],
+            "maxTargetRepsMin": [
+                74
+            ],
+            "avgTargetRepsMin": [
+                74
+            ],
+            "sumTargetRepsMin": [
                 74
             ],
             "countUniqueValuesTargetRepsMax": [
@@ -41722,60 +41785,6 @@ export default {
             "totalCount": [
                 73
             ],
-            "countUniqueValuesTargetSets": [
-                73
-            ],
-            "countEmptyTargetSets": [
-                73
-            ],
-            "countNotEmptyTargetSets": [
-                73
-            ],
-            "percentageEmptyTargetSets": [
-                74
-            ],
-            "percentageNotEmptyTargetSets": [
-                74
-            ],
-            "minTargetSets": [
-                74
-            ],
-            "maxTargetSets": [
-                74
-            ],
-            "avgTargetSets": [
-                74
-            ],
-            "sumTargetSets": [
-                74
-            ],
-            "countUniqueValuesTargetRepsMin": [
-                73
-            ],
-            "countEmptyTargetRepsMin": [
-                73
-            ],
-            "countNotEmptyTargetRepsMin": [
-                73
-            ],
-            "percentageEmptyTargetRepsMin": [
-                74
-            ],
-            "percentageNotEmptyTargetRepsMin": [
-                74
-            ],
-            "minTargetRepsMin": [
-                74
-            ],
-            "maxTargetRepsMin": [
-                74
-            ],
-            "avgTargetRepsMin": [
-                74
-            ],
-            "sumTargetRepsMin": [
-                74
-            ],
             "countUniqueValuesName": [
                 73
             ],
@@ -41831,6 +41840,60 @@ export default {
                 74
             ],
             "percentageNotEmptySetScheme": [
+                74
+            ],
+            "countUniqueValuesTargetSets": [
+                73
+            ],
+            "countEmptyTargetSets": [
+                73
+            ],
+            "countNotEmptyTargetSets": [
+                73
+            ],
+            "percentageEmptyTargetSets": [
+                74
+            ],
+            "percentageNotEmptyTargetSets": [
+                74
+            ],
+            "minTargetSets": [
+                74
+            ],
+            "maxTargetSets": [
+                74
+            ],
+            "avgTargetSets": [
+                74
+            ],
+            "sumTargetSets": [
+                74
+            ],
+            "countUniqueValuesTargetRepsMin": [
+                73
+            ],
+            "countEmptyTargetRepsMin": [
+                73
+            ],
+            "countNotEmptyTargetRepsMin": [
+                73
+            ],
+            "percentageEmptyTargetRepsMin": [
+                74
+            ],
+            "percentageNotEmptyTargetRepsMin": [
+                74
+            ],
+            "minTargetRepsMin": [
+                74
+            ],
+            "maxTargetRepsMin": [
+                74
+            ],
+            "avgTargetRepsMin": [
+                74
+            ],
+            "sumTargetRepsMin": [
                 74
             ],
             "countUniqueValuesTargetRepsMax": [
@@ -42177,12 +42240,6 @@ export default {
             ]
         },
         "ProgramExerciseCreateInput": {
-            "targetSets": [
-                74
-            ],
-            "targetRepsMin": [
-                74
-            ],
             "name": [
                 1
             ],
@@ -42191,6 +42248,12 @@ export default {
             ],
             "setScheme": [
                 561
+            ],
+            "targetSets": [
+                74
+            ],
+            "targetRepsMin": [
+                74
             ],
             "targetRepsMax": [
                 74
@@ -42260,12 +42323,6 @@ export default {
             ]
         },
         "ProgramExerciseUpdateInput": {
-            "targetSets": [
-                74
-            ],
-            "targetRepsMin": [
-                74
-            ],
             "name": [
                 1
             ],
@@ -42274,6 +42331,12 @@ export default {
             ],
             "setScheme": [
                 561
+            ],
+            "targetSets": [
+                74
+            ],
+            "targetRepsMin": [
+                74
             ],
             "targetRepsMax": [
                 74
@@ -42343,12 +42406,6 @@ export default {
             ]
         },
         "ProgramExerciseFilterInput": {
-            "targetSets": [
-                85
-            ],
-            "targetRepsMin": [
-                85
-            ],
             "name": [
                 6
             ],
@@ -42357,6 +42414,12 @@ export default {
             ],
             "setScheme": [
                 572
+            ],
+            "targetSets": [
+                85
+            ],
+            "targetRepsMin": [
+                85
             ],
             "targetRepsMax": [
                 85
@@ -42458,12 +42521,6 @@ export default {
             ]
         },
         "ProgramExerciseOrderByInput": {
-            "targetSets": [
-                10
-            ],
-            "targetRepsMin": [
-                10
-            ],
             "name": [
                 10
             ],
@@ -42471,6 +42528,12 @@ export default {
                 10
             ],
             "setScheme": [
+                10
+            ],
+            "targetSets": [
+                10
+            ],
+            "targetRepsMin": [
                 10
             ],
             "targetRepsMax": [
@@ -42544,12 +42607,6 @@ export default {
             "aggregate": [
                 575
             ],
-            "targetSets": [
-                10
-            ],
-            "targetRepsMin": [
-                10
-            ],
             "name": [
                 10
             ],
@@ -42557,6 +42614,12 @@ export default {
                 10
             ],
             "setScheme": [
+                10
+            ],
+            "targetSets": [
+                10
+            ],
+            "targetRepsMin": [
                 10
             ],
             "targetRepsMax": [
@@ -42630,60 +42693,6 @@ export default {
             "totalCount": [
                 10
             ],
-            "countUniqueValuesTargetSets": [
-                10
-            ],
-            "countEmptyTargetSets": [
-                10
-            ],
-            "countNotEmptyTargetSets": [
-                10
-            ],
-            "percentageEmptyTargetSets": [
-                10
-            ],
-            "percentageNotEmptyTargetSets": [
-                10
-            ],
-            "minTargetSets": [
-                10
-            ],
-            "maxTargetSets": [
-                10
-            ],
-            "avgTargetSets": [
-                10
-            ],
-            "sumTargetSets": [
-                10
-            ],
-            "countUniqueValuesTargetRepsMin": [
-                10
-            ],
-            "countEmptyTargetRepsMin": [
-                10
-            ],
-            "countNotEmptyTargetRepsMin": [
-                10
-            ],
-            "percentageEmptyTargetRepsMin": [
-                10
-            ],
-            "percentageNotEmptyTargetRepsMin": [
-                10
-            ],
-            "minTargetRepsMin": [
-                10
-            ],
-            "maxTargetRepsMin": [
-                10
-            ],
-            "avgTargetRepsMin": [
-                10
-            ],
-            "sumTargetRepsMin": [
-                10
-            ],
             "countUniqueValuesName": [
                 10
             ],
@@ -42739,6 +42748,60 @@ export default {
                 10
             ],
             "percentageNotEmptySetScheme": [
+                10
+            ],
+            "countUniqueValuesTargetSets": [
+                10
+            ],
+            "countEmptyTargetSets": [
+                10
+            ],
+            "countNotEmptyTargetSets": [
+                10
+            ],
+            "percentageEmptyTargetSets": [
+                10
+            ],
+            "percentageNotEmptyTargetSets": [
+                10
+            ],
+            "minTargetSets": [
+                10
+            ],
+            "maxTargetSets": [
+                10
+            ],
+            "avgTargetSets": [
+                10
+            ],
+            "sumTargetSets": [
+                10
+            ],
+            "countUniqueValuesTargetRepsMin": [
+                10
+            ],
+            "countEmptyTargetRepsMin": [
+                10
+            ],
+            "countNotEmptyTargetRepsMin": [
+                10
+            ],
+            "percentageEmptyTargetRepsMin": [
+                10
+            ],
+            "percentageNotEmptyTargetRepsMin": [
+                10
+            ],
+            "minTargetRepsMin": [
+                10
+            ],
+            "maxTargetRepsMin": [
+                10
+            ],
+            "avgTargetRepsMin": [
+                10
+            ],
+            "sumTargetRepsMin": [
                 10
             ],
             "countUniqueValuesTargetRepsMax": [
@@ -43067,12 +43130,6 @@ export default {
             ]
         },
         "ProgramExerciseGroupByInput": {
-            "targetSets": [
-                12
-            ],
-            "targetRepsMin": [
-                12
-            ],
             "name": [
                 12
             ],
@@ -43080,6 +43137,12 @@ export default {
                 12
             ],
             "setScheme": [
+                12
+            ],
+            "targetSets": [
+                12
+            ],
+            "targetRepsMin": [
                 12
             ],
             "targetRepsMax": [
@@ -43125,18 +43188,6 @@ export default {
         "ExerciseMuscleGroupsEnum": {},
         "ExerciseEquipmentTypeEnum": {},
         "Exercise": {
-            "name": [
-                1
-            ],
-            "muscleGroups": [
-                577
-            ],
-            "equipmentType": [
-                578
-            ],
-            "instructions": [
-                1
-            ],
             "id": [
                 35
             ],
@@ -43148,6 +43199,18 @@ export default {
             ],
             "deletedAt": [
                 67
+            ],
+            "name": [
+                1
+            ],
+            "muscleGroups": [
+                577
+            ],
+            "equipmentType": [
+                578
+            ],
+            "instructions": [
+                1
             ],
             "position": [
                 68
@@ -43342,66 +43405,6 @@ export default {
             "totalCount": [
                 73
             ],
-            "countUniqueValuesName": [
-                73
-            ],
-            "countEmptyName": [
-                73
-            ],
-            "countNotEmptyName": [
-                73
-            ],
-            "percentageEmptyName": [
-                74
-            ],
-            "percentageNotEmptyName": [
-                74
-            ],
-            "countUniqueValuesMuscleGroups": [
-                73
-            ],
-            "countEmptyMuscleGroups": [
-                73
-            ],
-            "countNotEmptyMuscleGroups": [
-                73
-            ],
-            "percentageEmptyMuscleGroups": [
-                74
-            ],
-            "percentageNotEmptyMuscleGroups": [
-                74
-            ],
-            "countUniqueValuesEquipmentType": [
-                73
-            ],
-            "countEmptyEquipmentType": [
-                73
-            ],
-            "countNotEmptyEquipmentType": [
-                73
-            ],
-            "percentageEmptyEquipmentType": [
-                74
-            ],
-            "percentageNotEmptyEquipmentType": [
-                74
-            ],
-            "countUniqueValuesInstructions": [
-                73
-            ],
-            "countEmptyInstructions": [
-                73
-            ],
-            "countNotEmptyInstructions": [
-                73
-            ],
-            "percentageEmptyInstructions": [
-                74
-            ],
-            "percentageNotEmptyInstructions": [
-                74
-            ],
             "countUniqueValuesId": [
                 73
             ],
@@ -43473,6 +43476,66 @@ export default {
             ],
             "maxDeletedAt": [
                 67
+            ],
+            "countUniqueValuesName": [
+                73
+            ],
+            "countEmptyName": [
+                73
+            ],
+            "countNotEmptyName": [
+                73
+            ],
+            "percentageEmptyName": [
+                74
+            ],
+            "percentageNotEmptyName": [
+                74
+            ],
+            "countUniqueValuesMuscleGroups": [
+                73
+            ],
+            "countEmptyMuscleGroups": [
+                73
+            ],
+            "countNotEmptyMuscleGroups": [
+                73
+            ],
+            "percentageEmptyMuscleGroups": [
+                74
+            ],
+            "percentageNotEmptyMuscleGroups": [
+                74
+            ],
+            "countUniqueValuesEquipmentType": [
+                73
+            ],
+            "countEmptyEquipmentType": [
+                73
+            ],
+            "countNotEmptyEquipmentType": [
+                73
+            ],
+            "percentageEmptyEquipmentType": [
+                74
+            ],
+            "percentageNotEmptyEquipmentType": [
+                74
+            ],
+            "countUniqueValuesInstructions": [
+                73
+            ],
+            "countEmptyInstructions": [
+                73
+            ],
+            "countNotEmptyInstructions": [
+                73
+            ],
+            "percentageEmptyInstructions": [
+                74
+            ],
+            "percentageNotEmptyInstructions": [
+                74
             ],
             "countUniqueValuesPosition": [
                 73
@@ -43554,66 +43617,6 @@ export default {
             "totalCount": [
                 73
             ],
-            "countUniqueValuesName": [
-                73
-            ],
-            "countEmptyName": [
-                73
-            ],
-            "countNotEmptyName": [
-                73
-            ],
-            "percentageEmptyName": [
-                74
-            ],
-            "percentageNotEmptyName": [
-                74
-            ],
-            "countUniqueValuesMuscleGroups": [
-                73
-            ],
-            "countEmptyMuscleGroups": [
-                73
-            ],
-            "countNotEmptyMuscleGroups": [
-                73
-            ],
-            "percentageEmptyMuscleGroups": [
-                74
-            ],
-            "percentageNotEmptyMuscleGroups": [
-                74
-            ],
-            "countUniqueValuesEquipmentType": [
-                73
-            ],
-            "countEmptyEquipmentType": [
-                73
-            ],
-            "countNotEmptyEquipmentType": [
-                73
-            ],
-            "percentageEmptyEquipmentType": [
-                74
-            ],
-            "percentageNotEmptyEquipmentType": [
-                74
-            ],
-            "countUniqueValuesInstructions": [
-                73
-            ],
-            "countEmptyInstructions": [
-                73
-            ],
-            "countNotEmptyInstructions": [
-                73
-            ],
-            "percentageEmptyInstructions": [
-                74
-            ],
-            "percentageNotEmptyInstructions": [
-                74
-            ],
             "countUniqueValuesId": [
                 73
             ],
@@ -43685,6 +43688,66 @@ export default {
             ],
             "maxDeletedAt": [
                 67
+            ],
+            "countUniqueValuesName": [
+                73
+            ],
+            "countEmptyName": [
+                73
+            ],
+            "countNotEmptyName": [
+                73
+            ],
+            "percentageEmptyName": [
+                74
+            ],
+            "percentageNotEmptyName": [
+                74
+            ],
+            "countUniqueValuesMuscleGroups": [
+                73
+            ],
+            "countEmptyMuscleGroups": [
+                73
+            ],
+            "countNotEmptyMuscleGroups": [
+                73
+            ],
+            "percentageEmptyMuscleGroups": [
+                74
+            ],
+            "percentageNotEmptyMuscleGroups": [
+                74
+            ],
+            "countUniqueValuesEquipmentType": [
+                73
+            ],
+            "countEmptyEquipmentType": [
+                73
+            ],
+            "countNotEmptyEquipmentType": [
+                73
+            ],
+            "percentageEmptyEquipmentType": [
+                74
+            ],
+            "percentageNotEmptyEquipmentType": [
+                74
+            ],
+            "countUniqueValuesInstructions": [
+                73
+            ],
+            "countEmptyInstructions": [
+                73
+            ],
+            "countNotEmptyInstructions": [
+                73
+            ],
+            "percentageEmptyInstructions": [
+                74
+            ],
+            "percentageNotEmptyInstructions": [
+                74
             ],
             "countUniqueValuesPosition": [
                 73
@@ -43793,18 +43856,6 @@ export default {
             ]
         },
         "ExerciseCreateInput": {
-            "name": [
-                1
-            ],
-            "muscleGroups": [
-                577
-            ],
-            "equipmentType": [
-                578
-            ],
-            "instructions": [
-                1
-            ],
             "id": [
                 66
             ],
@@ -43816,6 +43867,18 @@ export default {
             ],
             "deletedAt": [
                 67
+            ],
+            "name": [
+                1
+            ],
+            "muscleGroups": [
+                577
+            ],
+            "equipmentType": [
+                578
+            ],
+            "instructions": [
+                1
             ],
             "position": [
                 68
@@ -43834,18 +43897,6 @@ export default {
             ]
         },
         "ExerciseUpdateInput": {
-            "name": [
-                1
-            ],
-            "muscleGroups": [
-                577
-            ],
-            "equipmentType": [
-                578
-            ],
-            "instructions": [
-                1
-            ],
             "id": [
                 66
             ],
@@ -43857,6 +43908,18 @@ export default {
             ],
             "deletedAt": [
                 67
+            ],
+            "name": [
+                1
+            ],
+            "muscleGroups": [
+                577
+            ],
+            "equipmentType": [
+                578
+            ],
+            "instructions": [
+                1
             ],
             "position": [
                 68
@@ -43875,18 +43938,6 @@ export default {
             ]
         },
         "ExerciseFilterInput": {
-            "name": [
-                6
-            ],
-            "muscleGroups": [
-                589
-            ],
-            "equipmentType": [
-                590
-            ],
-            "instructions": [
-                6
-            ],
             "id": [
                 40
             ],
@@ -43898,6 +43949,18 @@ export default {
             ],
             "deletedAt": [
                 84
+            ],
+            "name": [
+                6
+            ],
+            "muscleGroups": [
+                589
+            ],
+            "equipmentType": [
+                590
+            ],
+            "instructions": [
+                6
             ],
             "position": [
                 85
@@ -43971,18 +44034,6 @@ export default {
             ]
         },
         "ExerciseOrderByInput": {
-            "name": [
-                10
-            ],
-            "muscleGroups": [
-                10
-            ],
-            "equipmentType": [
-                10
-            ],
-            "instructions": [
-                10
-            ],
             "id": [
                 10
             ],
@@ -43993,6 +44044,18 @@ export default {
                 41
             ],
             "deletedAt": [
+                10
+            ],
+            "name": [
+                10
+            ],
+            "muscleGroups": [
+                10
+            ],
+            "equipmentType": [
+                10
+            ],
+            "instructions": [
                 10
             ],
             "position": [
@@ -44015,18 +44078,6 @@ export default {
             "aggregate": [
                 593
             ],
-            "name": [
-                10
-            ],
-            "muscleGroups": [
-                10
-            ],
-            "equipmentType": [
-                10
-            ],
-            "instructions": [
-                10
-            ],
             "id": [
                 10
             ],
@@ -44038,6 +44089,18 @@ export default {
             ],
             "deletedAt": [
                 64
+            ],
+            "name": [
+                10
+            ],
+            "muscleGroups": [
+                10
+            ],
+            "equipmentType": [
+                10
+            ],
+            "instructions": [
+                10
             ],
             "position": [
                 10
@@ -44057,66 +44120,6 @@ export default {
         },
         "ExerciseOrderByWithGroupByAggregateInput": {
             "totalCount": [
-                10
-            ],
-            "countUniqueValuesName": [
-                10
-            ],
-            "countEmptyName": [
-                10
-            ],
-            "countNotEmptyName": [
-                10
-            ],
-            "percentageEmptyName": [
-                10
-            ],
-            "percentageNotEmptyName": [
-                10
-            ],
-            "countUniqueValuesMuscleGroups": [
-                10
-            ],
-            "countEmptyMuscleGroups": [
-                10
-            ],
-            "countNotEmptyMuscleGroups": [
-                10
-            ],
-            "percentageEmptyMuscleGroups": [
-                10
-            ],
-            "percentageNotEmptyMuscleGroups": [
-                10
-            ],
-            "countUniqueValuesEquipmentType": [
-                10
-            ],
-            "countEmptyEquipmentType": [
-                10
-            ],
-            "countNotEmptyEquipmentType": [
-                10
-            ],
-            "percentageEmptyEquipmentType": [
-                10
-            ],
-            "percentageNotEmptyEquipmentType": [
-                10
-            ],
-            "countUniqueValuesInstructions": [
-                10
-            ],
-            "countEmptyInstructions": [
-                10
-            ],
-            "countNotEmptyInstructions": [
-                10
-            ],
-            "percentageEmptyInstructions": [
-                10
-            ],
-            "percentageNotEmptyInstructions": [
                 10
             ],
             "countUniqueValuesId": [
@@ -44191,6 +44194,66 @@ export default {
             "maxDeletedAt": [
                 10
             ],
+            "countUniqueValuesName": [
+                10
+            ],
+            "countEmptyName": [
+                10
+            ],
+            "countNotEmptyName": [
+                10
+            ],
+            "percentageEmptyName": [
+                10
+            ],
+            "percentageNotEmptyName": [
+                10
+            ],
+            "countUniqueValuesMuscleGroups": [
+                10
+            ],
+            "countEmptyMuscleGroups": [
+                10
+            ],
+            "countNotEmptyMuscleGroups": [
+                10
+            ],
+            "percentageEmptyMuscleGroups": [
+                10
+            ],
+            "percentageNotEmptyMuscleGroups": [
+                10
+            ],
+            "countUniqueValuesEquipmentType": [
+                10
+            ],
+            "countEmptyEquipmentType": [
+                10
+            ],
+            "countNotEmptyEquipmentType": [
+                10
+            ],
+            "percentageEmptyEquipmentType": [
+                10
+            ],
+            "percentageNotEmptyEquipmentType": [
+                10
+            ],
+            "countUniqueValuesInstructions": [
+                10
+            ],
+            "countEmptyInstructions": [
+                10
+            ],
+            "countNotEmptyInstructions": [
+                10
+            ],
+            "percentageEmptyInstructions": [
+                10
+            ],
+            "percentageNotEmptyInstructions": [
+                10
+            ],
             "countUniqueValuesPosition": [
                 10
             ],
@@ -44262,6 +44325,9 @@ export default {
             ]
         },
         "ExerciseGroupByInput": {
+            "createdAt": [
+                63
+            ],
             "name": [
                 12
             ],
@@ -44273,9 +44339,6 @@ export default {
             ],
             "instructions": [
                 12
-            ],
-            "createdAt": [
-                63
             ],
             "updatedAt": [
                 63
