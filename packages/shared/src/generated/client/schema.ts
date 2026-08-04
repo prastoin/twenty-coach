@@ -1309,6 +1309,8 @@ export interface WorkspaceMember {
     name: FullName
     /** Preferred color scheme */
     colorScheme: Scalars['String']
+    /** Where records open for objects that follow the member's preference */
+    openRecordIn: Scalars['String']
     /** Preferred language */
     locale: Scalars['String']
     /** Workspace member avatar */
@@ -1454,6 +1456,16 @@ export interface WorkspaceMemberConnection {
     percentageEmptyColorScheme?: Scalars['Float']
     /** Percentage of non-empty values for colorScheme */
     percentageNotEmptyColorScheme?: Scalars['Float']
+    /** Number of unique values for openRecordIn */
+    countUniqueValuesOpenRecordIn?: Scalars['Int']
+    /** Number of empty values for openRecordIn */
+    countEmptyOpenRecordIn?: Scalars['Int']
+    /** Number of non-empty values for openRecordIn */
+    countNotEmptyOpenRecordIn?: Scalars['Int']
+    /** Percentage of empty values for openRecordIn */
+    percentageEmptyOpenRecordIn?: Scalars['Float']
+    /** Percentage of non-empty values for openRecordIn */
+    percentageNotEmptyOpenRecordIn?: Scalars['Float']
     /** Number of unique values for locale */
     countUniqueValuesLocale?: Scalars['Int']
     /** Number of empty values for locale */
@@ -1684,6 +1696,16 @@ export interface WorkspaceMemberGroupByConnection {
     percentageEmptyColorScheme?: Scalars['Float']
     /** Percentage of non-empty values for colorScheme */
     percentageNotEmptyColorScheme?: Scalars['Float']
+    /** Number of unique values for openRecordIn */
+    countUniqueValuesOpenRecordIn?: Scalars['Int']
+    /** Number of empty values for openRecordIn */
+    countEmptyOpenRecordIn?: Scalars['Int']
+    /** Number of non-empty values for openRecordIn */
+    countNotEmptyOpenRecordIn?: Scalars['Int']
+    /** Percentage of empty values for openRecordIn */
+    percentageEmptyOpenRecordIn?: Scalars['Float']
+    /** Percentage of non-empty values for openRecordIn */
+    percentageNotEmptyOpenRecordIn?: Scalars['Float']
     /** Number of unique values for locale */
     countUniqueValuesLocale?: Scalars['Int']
     /** Number of empty values for locale */
@@ -12559,14 +12581,14 @@ export type ProgramExerciseSetSchemeEnum = 'STRAIGHT' | 'TOP_SET' | 'BACKOFF' | 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
 export interface ProgramExercise {
-    targetSets?: Scalars['Float']
-    targetRepsMin?: Scalars['Float']
     /** e.g. "Back Squat (top set)" */
     name?: Scalars['String']
     /** Position of the exercise within the day */
     order?: Scalars['Float']
     /** How the prescribed sets are performed (empty = straight) */
     setScheme?: ProgramExerciseSetSchemeEnum
+    targetSets?: Scalars['Float']
+    targetRepsMin?: Scalars['Float']
     targetRepsMax?: Scalars['Float']
     /** Expected load for the prescribed sets */
     targetWeightKg?: Scalars['Float']
@@ -12627,42 +12649,6 @@ export interface ProgramExerciseEdge {
 export interface ProgramExerciseConnection {
     /** Total number of records in the connection */
     totalCount?: Scalars['Int']
-    /** Number of unique values for targetSets */
-    countUniqueValuesTargetSets?: Scalars['Int']
-    /** Number of empty values for targetSets */
-    countEmptyTargetSets?: Scalars['Int']
-    /** Number of non-empty values for targetSets */
-    countNotEmptyTargetSets?: Scalars['Int']
-    /** Percentage of empty values for targetSets */
-    percentageEmptyTargetSets?: Scalars['Float']
-    /** Percentage of non-empty values for targetSets */
-    percentageNotEmptyTargetSets?: Scalars['Float']
-    /** Minimum amount contained in the field targetSets */
-    minTargetSets?: Scalars['Float']
-    /** Maximum amount contained in the field targetSets */
-    maxTargetSets?: Scalars['Float']
-    /** Average amount contained in the field targetSets */
-    avgTargetSets?: Scalars['Float']
-    /** Sum of amounts contained in the field targetSets */
-    sumTargetSets?: Scalars['Float']
-    /** Number of unique values for targetRepsMin */
-    countUniqueValuesTargetRepsMin?: Scalars['Int']
-    /** Number of empty values for targetRepsMin */
-    countEmptyTargetRepsMin?: Scalars['Int']
-    /** Number of non-empty values for targetRepsMin */
-    countNotEmptyTargetRepsMin?: Scalars['Int']
-    /** Percentage of empty values for targetRepsMin */
-    percentageEmptyTargetRepsMin?: Scalars['Float']
-    /** Percentage of non-empty values for targetRepsMin */
-    percentageNotEmptyTargetRepsMin?: Scalars['Float']
-    /** Minimum amount contained in the field targetRepsMin */
-    minTargetRepsMin?: Scalars['Float']
-    /** Maximum amount contained in the field targetRepsMin */
-    maxTargetRepsMin?: Scalars['Float']
-    /** Average amount contained in the field targetRepsMin */
-    avgTargetRepsMin?: Scalars['Float']
-    /** Sum of amounts contained in the field targetRepsMin */
-    sumTargetRepsMin?: Scalars['Float']
     /** Number of unique values for name */
     countUniqueValuesName?: Scalars['Int']
     /** Number of empty values for name */
@@ -12701,6 +12687,42 @@ export interface ProgramExerciseConnection {
     percentageEmptySetScheme?: Scalars['Float']
     /** Percentage of non-empty values for setScheme */
     percentageNotEmptySetScheme?: Scalars['Float']
+    /** Number of unique values for targetSets */
+    countUniqueValuesTargetSets?: Scalars['Int']
+    /** Number of empty values for targetSets */
+    countEmptyTargetSets?: Scalars['Int']
+    /** Number of non-empty values for targetSets */
+    countNotEmptyTargetSets?: Scalars['Int']
+    /** Percentage of empty values for targetSets */
+    percentageEmptyTargetSets?: Scalars['Float']
+    /** Percentage of non-empty values for targetSets */
+    percentageNotEmptyTargetSets?: Scalars['Float']
+    /** Minimum amount contained in the field targetSets */
+    minTargetSets?: Scalars['Float']
+    /** Maximum amount contained in the field targetSets */
+    maxTargetSets?: Scalars['Float']
+    /** Average amount contained in the field targetSets */
+    avgTargetSets?: Scalars['Float']
+    /** Sum of amounts contained in the field targetSets */
+    sumTargetSets?: Scalars['Float']
+    /** Number of unique values for targetRepsMin */
+    countUniqueValuesTargetRepsMin?: Scalars['Int']
+    /** Number of empty values for targetRepsMin */
+    countEmptyTargetRepsMin?: Scalars['Int']
+    /** Number of non-empty values for targetRepsMin */
+    countNotEmptyTargetRepsMin?: Scalars['Int']
+    /** Percentage of empty values for targetRepsMin */
+    percentageEmptyTargetRepsMin?: Scalars['Float']
+    /** Percentage of non-empty values for targetRepsMin */
+    percentageNotEmptyTargetRepsMin?: Scalars['Float']
+    /** Minimum amount contained in the field targetRepsMin */
+    minTargetRepsMin?: Scalars['Float']
+    /** Maximum amount contained in the field targetRepsMin */
+    maxTargetRepsMin?: Scalars['Float']
+    /** Average amount contained in the field targetRepsMin */
+    avgTargetRepsMin?: Scalars['Float']
+    /** Sum of amounts contained in the field targetRepsMin */
+    sumTargetRepsMin?: Scalars['Float']
     /** Number of unique values for targetRepsMax */
     countUniqueValuesTargetRepsMax?: Scalars['Int']
     /** Number of empty values for targetRepsMax */
@@ -12913,42 +12935,6 @@ export interface ProgramExerciseConnection {
 export interface ProgramExerciseGroupByConnection {
     /** Total number of records in the connection */
     totalCount?: Scalars['Int']
-    /** Number of unique values for targetSets */
-    countUniqueValuesTargetSets?: Scalars['Int']
-    /** Number of empty values for targetSets */
-    countEmptyTargetSets?: Scalars['Int']
-    /** Number of non-empty values for targetSets */
-    countNotEmptyTargetSets?: Scalars['Int']
-    /** Percentage of empty values for targetSets */
-    percentageEmptyTargetSets?: Scalars['Float']
-    /** Percentage of non-empty values for targetSets */
-    percentageNotEmptyTargetSets?: Scalars['Float']
-    /** Minimum amount contained in the field targetSets */
-    minTargetSets?: Scalars['Float']
-    /** Maximum amount contained in the field targetSets */
-    maxTargetSets?: Scalars['Float']
-    /** Average amount contained in the field targetSets */
-    avgTargetSets?: Scalars['Float']
-    /** Sum of amounts contained in the field targetSets */
-    sumTargetSets?: Scalars['Float']
-    /** Number of unique values for targetRepsMin */
-    countUniqueValuesTargetRepsMin?: Scalars['Int']
-    /** Number of empty values for targetRepsMin */
-    countEmptyTargetRepsMin?: Scalars['Int']
-    /** Number of non-empty values for targetRepsMin */
-    countNotEmptyTargetRepsMin?: Scalars['Int']
-    /** Percentage of empty values for targetRepsMin */
-    percentageEmptyTargetRepsMin?: Scalars['Float']
-    /** Percentage of non-empty values for targetRepsMin */
-    percentageNotEmptyTargetRepsMin?: Scalars['Float']
-    /** Minimum amount contained in the field targetRepsMin */
-    minTargetRepsMin?: Scalars['Float']
-    /** Maximum amount contained in the field targetRepsMin */
-    maxTargetRepsMin?: Scalars['Float']
-    /** Average amount contained in the field targetRepsMin */
-    avgTargetRepsMin?: Scalars['Float']
-    /** Sum of amounts contained in the field targetRepsMin */
-    sumTargetRepsMin?: Scalars['Float']
     /** Number of unique values for name */
     countUniqueValuesName?: Scalars['Int']
     /** Number of empty values for name */
@@ -12987,6 +12973,42 @@ export interface ProgramExerciseGroupByConnection {
     percentageEmptySetScheme?: Scalars['Float']
     /** Percentage of non-empty values for setScheme */
     percentageNotEmptySetScheme?: Scalars['Float']
+    /** Number of unique values for targetSets */
+    countUniqueValuesTargetSets?: Scalars['Int']
+    /** Number of empty values for targetSets */
+    countEmptyTargetSets?: Scalars['Int']
+    /** Number of non-empty values for targetSets */
+    countNotEmptyTargetSets?: Scalars['Int']
+    /** Percentage of empty values for targetSets */
+    percentageEmptyTargetSets?: Scalars['Float']
+    /** Percentage of non-empty values for targetSets */
+    percentageNotEmptyTargetSets?: Scalars['Float']
+    /** Minimum amount contained in the field targetSets */
+    minTargetSets?: Scalars['Float']
+    /** Maximum amount contained in the field targetSets */
+    maxTargetSets?: Scalars['Float']
+    /** Average amount contained in the field targetSets */
+    avgTargetSets?: Scalars['Float']
+    /** Sum of amounts contained in the field targetSets */
+    sumTargetSets?: Scalars['Float']
+    /** Number of unique values for targetRepsMin */
+    countUniqueValuesTargetRepsMin?: Scalars['Int']
+    /** Number of empty values for targetRepsMin */
+    countEmptyTargetRepsMin?: Scalars['Int']
+    /** Number of non-empty values for targetRepsMin */
+    countNotEmptyTargetRepsMin?: Scalars['Int']
+    /** Percentage of empty values for targetRepsMin */
+    percentageEmptyTargetRepsMin?: Scalars['Float']
+    /** Percentage of non-empty values for targetRepsMin */
+    percentageNotEmptyTargetRepsMin?: Scalars['Float']
+    /** Minimum amount contained in the field targetRepsMin */
+    minTargetRepsMin?: Scalars['Float']
+    /** Maximum amount contained in the field targetRepsMin */
+    maxTargetRepsMin?: Scalars['Float']
+    /** Average amount contained in the field targetRepsMin */
+    avgTargetRepsMin?: Scalars['Float']
+    /** Sum of amounts contained in the field targetRepsMin */
+    sumTargetRepsMin?: Scalars['Float']
     /** Number of unique values for targetRepsMax */
     countUniqueValuesTargetRepsMax?: Scalars['Int']
     /** Number of empty values for targetRepsMax */
@@ -13202,10 +13224,6 @@ export type ExerciseEquipmentTypeEnum = 'BARBELL' | 'DUMBBELL' | 'MACHINE' | 'CA
 
 /** A movement from the exercise library */
 export interface Exercise {
-    name?: Scalars['String']
-    muscleGroups?: (ExerciseMuscleGroupsEnum | undefined)[]
-    equipmentType?: ExerciseEquipmentTypeEnum
-    instructions?: Scalars['String']
     /** Id */
     id: Scalars['UUID']
     /** Creation date */
@@ -13214,6 +13232,10 @@ export interface Exercise {
     createdBy: Actor
     /** Deletion date */
     deletedAt?: Scalars['DateTime']
+    name?: Scalars['String']
+    muscleGroups?: (ExerciseMuscleGroupsEnum | undefined)[]
+    equipmentType?: ExerciseEquipmentTypeEnum
+    instructions?: Scalars['String']
     /** Position */
     position: Scalars['Position']
     /** Last time the record was changed */
@@ -13248,46 +13270,6 @@ export interface ExerciseEdge {
 export interface ExerciseConnection {
     /** Total number of records in the connection */
     totalCount?: Scalars['Int']
-    /** Number of unique values for name */
-    countUniqueValuesName?: Scalars['Int']
-    /** Number of empty values for name */
-    countEmptyName?: Scalars['Int']
-    /** Number of non-empty values for name */
-    countNotEmptyName?: Scalars['Int']
-    /** Percentage of empty values for name */
-    percentageEmptyName?: Scalars['Float']
-    /** Percentage of non-empty values for name */
-    percentageNotEmptyName?: Scalars['Float']
-    /** Number of unique values for muscleGroups */
-    countUniqueValuesMuscleGroups?: Scalars['Int']
-    /** Number of empty values for muscleGroups */
-    countEmptyMuscleGroups?: Scalars['Int']
-    /** Number of non-empty values for muscleGroups */
-    countNotEmptyMuscleGroups?: Scalars['Int']
-    /** Percentage of empty values for muscleGroups */
-    percentageEmptyMuscleGroups?: Scalars['Float']
-    /** Percentage of non-empty values for muscleGroups */
-    percentageNotEmptyMuscleGroups?: Scalars['Float']
-    /** Number of unique values for equipmentType */
-    countUniqueValuesEquipmentType?: Scalars['Int']
-    /** Number of empty values for equipmentType */
-    countEmptyEquipmentType?: Scalars['Int']
-    /** Number of non-empty values for equipmentType */
-    countNotEmptyEquipmentType?: Scalars['Int']
-    /** Percentage of empty values for equipmentType */
-    percentageEmptyEquipmentType?: Scalars['Float']
-    /** Percentage of non-empty values for equipmentType */
-    percentageNotEmptyEquipmentType?: Scalars['Float']
-    /** Number of unique values for instructions */
-    countUniqueValuesInstructions?: Scalars['Int']
-    /** Number of empty values for instructions */
-    countEmptyInstructions?: Scalars['Int']
-    /** Number of non-empty values for instructions */
-    countNotEmptyInstructions?: Scalars['Int']
-    /** Percentage of empty values for instructions */
-    percentageEmptyInstructions?: Scalars['Float']
-    /** Percentage of non-empty values for instructions */
-    percentageNotEmptyInstructions?: Scalars['Float']
     /** Number of unique values for id */
     countUniqueValuesId?: Scalars['Int']
     /** Number of empty values for id */
@@ -13336,6 +13318,46 @@ export interface ExerciseConnection {
     minDeletedAt?: Scalars['DateTime']
     /** Latest date contained in the field deletedAt */
     maxDeletedAt?: Scalars['DateTime']
+    /** Number of unique values for name */
+    countUniqueValuesName?: Scalars['Int']
+    /** Number of empty values for name */
+    countEmptyName?: Scalars['Int']
+    /** Number of non-empty values for name */
+    countNotEmptyName?: Scalars['Int']
+    /** Percentage of empty values for name */
+    percentageEmptyName?: Scalars['Float']
+    /** Percentage of non-empty values for name */
+    percentageNotEmptyName?: Scalars['Float']
+    /** Number of unique values for muscleGroups */
+    countUniqueValuesMuscleGroups?: Scalars['Int']
+    /** Number of empty values for muscleGroups */
+    countEmptyMuscleGroups?: Scalars['Int']
+    /** Number of non-empty values for muscleGroups */
+    countNotEmptyMuscleGroups?: Scalars['Int']
+    /** Percentage of empty values for muscleGroups */
+    percentageEmptyMuscleGroups?: Scalars['Float']
+    /** Percentage of non-empty values for muscleGroups */
+    percentageNotEmptyMuscleGroups?: Scalars['Float']
+    /** Number of unique values for equipmentType */
+    countUniqueValuesEquipmentType?: Scalars['Int']
+    /** Number of empty values for equipmentType */
+    countEmptyEquipmentType?: Scalars['Int']
+    /** Number of non-empty values for equipmentType */
+    countNotEmptyEquipmentType?: Scalars['Int']
+    /** Percentage of empty values for equipmentType */
+    percentageEmptyEquipmentType?: Scalars['Float']
+    /** Percentage of non-empty values for equipmentType */
+    percentageNotEmptyEquipmentType?: Scalars['Float']
+    /** Number of unique values for instructions */
+    countUniqueValuesInstructions?: Scalars['Int']
+    /** Number of empty values for instructions */
+    countEmptyInstructions?: Scalars['Int']
+    /** Number of non-empty values for instructions */
+    countNotEmptyInstructions?: Scalars['Int']
+    /** Percentage of empty values for instructions */
+    percentageEmptyInstructions?: Scalars['Float']
+    /** Percentage of non-empty values for instructions */
+    percentageNotEmptyInstructions?: Scalars['Float']
     /** Number of unique values for position */
     countUniqueValuesPosition?: Scalars['Int']
     /** Number of empty values for position */
@@ -13390,46 +13412,6 @@ export interface ExerciseConnection {
 export interface ExerciseGroupByConnection {
     /** Total number of records in the connection */
     totalCount?: Scalars['Int']
-    /** Number of unique values for name */
-    countUniqueValuesName?: Scalars['Int']
-    /** Number of empty values for name */
-    countEmptyName?: Scalars['Int']
-    /** Number of non-empty values for name */
-    countNotEmptyName?: Scalars['Int']
-    /** Percentage of empty values for name */
-    percentageEmptyName?: Scalars['Float']
-    /** Percentage of non-empty values for name */
-    percentageNotEmptyName?: Scalars['Float']
-    /** Number of unique values for muscleGroups */
-    countUniqueValuesMuscleGroups?: Scalars['Int']
-    /** Number of empty values for muscleGroups */
-    countEmptyMuscleGroups?: Scalars['Int']
-    /** Number of non-empty values for muscleGroups */
-    countNotEmptyMuscleGroups?: Scalars['Int']
-    /** Percentage of empty values for muscleGroups */
-    percentageEmptyMuscleGroups?: Scalars['Float']
-    /** Percentage of non-empty values for muscleGroups */
-    percentageNotEmptyMuscleGroups?: Scalars['Float']
-    /** Number of unique values for equipmentType */
-    countUniqueValuesEquipmentType?: Scalars['Int']
-    /** Number of empty values for equipmentType */
-    countEmptyEquipmentType?: Scalars['Int']
-    /** Number of non-empty values for equipmentType */
-    countNotEmptyEquipmentType?: Scalars['Int']
-    /** Percentage of empty values for equipmentType */
-    percentageEmptyEquipmentType?: Scalars['Float']
-    /** Percentage of non-empty values for equipmentType */
-    percentageNotEmptyEquipmentType?: Scalars['Float']
-    /** Number of unique values for instructions */
-    countUniqueValuesInstructions?: Scalars['Int']
-    /** Number of empty values for instructions */
-    countEmptyInstructions?: Scalars['Int']
-    /** Number of non-empty values for instructions */
-    countNotEmptyInstructions?: Scalars['Int']
-    /** Percentage of empty values for instructions */
-    percentageEmptyInstructions?: Scalars['Float']
-    /** Percentage of non-empty values for instructions */
-    percentageNotEmptyInstructions?: Scalars['Float']
     /** Number of unique values for id */
     countUniqueValuesId?: Scalars['Int']
     /** Number of empty values for id */
@@ -13478,6 +13460,46 @@ export interface ExerciseGroupByConnection {
     minDeletedAt?: Scalars['DateTime']
     /** Latest date contained in the field deletedAt */
     maxDeletedAt?: Scalars['DateTime']
+    /** Number of unique values for name */
+    countUniqueValuesName?: Scalars['Int']
+    /** Number of empty values for name */
+    countEmptyName?: Scalars['Int']
+    /** Number of non-empty values for name */
+    countNotEmptyName?: Scalars['Int']
+    /** Percentage of empty values for name */
+    percentageEmptyName?: Scalars['Float']
+    /** Percentage of non-empty values for name */
+    percentageNotEmptyName?: Scalars['Float']
+    /** Number of unique values for muscleGroups */
+    countUniqueValuesMuscleGroups?: Scalars['Int']
+    /** Number of empty values for muscleGroups */
+    countEmptyMuscleGroups?: Scalars['Int']
+    /** Number of non-empty values for muscleGroups */
+    countNotEmptyMuscleGroups?: Scalars['Int']
+    /** Percentage of empty values for muscleGroups */
+    percentageEmptyMuscleGroups?: Scalars['Float']
+    /** Percentage of non-empty values for muscleGroups */
+    percentageNotEmptyMuscleGroups?: Scalars['Float']
+    /** Number of unique values for equipmentType */
+    countUniqueValuesEquipmentType?: Scalars['Int']
+    /** Number of empty values for equipmentType */
+    countEmptyEquipmentType?: Scalars['Int']
+    /** Number of non-empty values for equipmentType */
+    countNotEmptyEquipmentType?: Scalars['Int']
+    /** Percentage of empty values for equipmentType */
+    percentageEmptyEquipmentType?: Scalars['Float']
+    /** Percentage of non-empty values for equipmentType */
+    percentageNotEmptyEquipmentType?: Scalars['Float']
+    /** Number of unique values for instructions */
+    countUniqueValuesInstructions?: Scalars['Int']
+    /** Number of empty values for instructions */
+    countEmptyInstructions?: Scalars['Int']
+    /** Number of non-empty values for instructions */
+    countNotEmptyInstructions?: Scalars['Int']
+    /** Percentage of empty values for instructions */
+    percentageEmptyInstructions?: Scalars['Float']
+    /** Percentage of non-empty values for instructions */
+    percentageNotEmptyInstructions?: Scalars['Float']
     /** Number of unique values for position */
     countUniqueValuesPosition?: Scalars['Int']
     /** Number of empty values for position */
@@ -16888,6 +16910,8 @@ export interface WorkspaceMemberGenqlSelection{
     name?: FullNameGenqlSelection
     /** Preferred color scheme */
     colorScheme?: boolean | number
+    /** Where records open for objects that follow the member's preference */
+    openRecordIn?: boolean | number
     /** Preferred language */
     locale?: boolean | number
     /** Workspace member avatar */
@@ -17035,6 +17059,16 @@ export interface WorkspaceMemberConnectionGenqlSelection{
     percentageEmptyColorScheme?: boolean | number
     /** Percentage of non-empty values for colorScheme */
     percentageNotEmptyColorScheme?: boolean | number
+    /** Number of unique values for openRecordIn */
+    countUniqueValuesOpenRecordIn?: boolean | number
+    /** Number of empty values for openRecordIn */
+    countEmptyOpenRecordIn?: boolean | number
+    /** Number of non-empty values for openRecordIn */
+    countNotEmptyOpenRecordIn?: boolean | number
+    /** Percentage of empty values for openRecordIn */
+    percentageEmptyOpenRecordIn?: boolean | number
+    /** Percentage of non-empty values for openRecordIn */
+    percentageNotEmptyOpenRecordIn?: boolean | number
     /** Number of unique values for locale */
     countUniqueValuesLocale?: boolean | number
     /** Number of empty values for locale */
@@ -17266,6 +17300,16 @@ export interface WorkspaceMemberGroupByConnectionGenqlSelection{
     percentageEmptyColorScheme?: boolean | number
     /** Percentage of non-empty values for colorScheme */
     percentageNotEmptyColorScheme?: boolean | number
+    /** Number of unique values for openRecordIn */
+    countUniqueValuesOpenRecordIn?: boolean | number
+    /** Number of empty values for openRecordIn */
+    countEmptyOpenRecordIn?: boolean | number
+    /** Number of non-empty values for openRecordIn */
+    countNotEmptyOpenRecordIn?: boolean | number
+    /** Percentage of empty values for openRecordIn */
+    percentageEmptyOpenRecordIn?: boolean | number
+    /** Percentage of non-empty values for openRecordIn */
+    percentageNotEmptyOpenRecordIn?: boolean | number
     /** Number of unique values for locale */
     countUniqueValuesLocale?: boolean | number
     /** Number of empty values for locale */
@@ -17444,6 +17488,8 @@ position?: (Scalars['Position'] | null),
 name: FullNameCreateInput,
 /** Preferred color scheme */
 colorScheme?: (Scalars['String'] | null),
+/** Where records open for objects that follow the member's preference */
+openRecordIn?: (Scalars['String'] | null),
 /** Preferred language */
 locale?: (Scalars['String'] | null),
 /** Workspace member avatar */
@@ -17488,6 +17534,8 @@ position?: (Scalars['Position'] | null),
 name?: (FullNameUpdateInput | null),
 /** Preferred color scheme */
 colorScheme?: (Scalars['String'] | null),
+/** Where records open for objects that follow the member's preference */
+openRecordIn?: (Scalars['String'] | null),
 /** Preferred language */
 locale?: (Scalars['String'] | null),
 /** Workspace member avatar */
@@ -17532,6 +17580,8 @@ position?: (FloatFilter | null),
 name?: (FullNameFilterInput | null),
 /** Preferred color scheme */
 colorScheme?: (StringFilter | null),
+/** Where records open for objects that follow the member's preference */
+openRecordIn?: (StringFilter | null),
 /** Preferred language */
 locale?: (StringFilter | null),
 /** Workspace member avatar */
@@ -17584,6 +17634,8 @@ position?: (OrderByDirection | null),
 name?: (FullNameOrderByInput | null),
 /** Preferred color scheme */
 colorScheme?: (OrderByDirection | null),
+/** Where records open for objects that follow the member's preference */
+openRecordIn?: (OrderByDirection | null),
 /** Preferred language */
 locale?: (OrderByDirection | null),
 /** Workspace member avatar */
@@ -17630,6 +17682,8 @@ position?: (OrderByDirection | null),
 name?: (FullNameOrderByInput | null),
 /** Preferred color scheme */
 colorScheme?: (OrderByDirection | null),
+/** Where records open for objects that follow the member's preference */
+openRecordIn?: (OrderByDirection | null),
 /** Preferred language */
 locale?: (OrderByDirection | null),
 /** Workspace member avatar */
@@ -17744,6 +17798,16 @@ countNotEmptyColorScheme?: (OrderByDirection | null),
 percentageEmptyColorScheme?: (OrderByDirection | null),
 /** Percentage of non-empty values for colorScheme */
 percentageNotEmptyColorScheme?: (OrderByDirection | null),
+/** Number of unique values for openRecordIn */
+countUniqueValuesOpenRecordIn?: (OrderByDirection | null),
+/** Number of empty values for openRecordIn */
+countEmptyOpenRecordIn?: (OrderByDirection | null),
+/** Number of non-empty values for openRecordIn */
+countNotEmptyOpenRecordIn?: (OrderByDirection | null),
+/** Percentage of empty values for openRecordIn */
+percentageEmptyOpenRecordIn?: (OrderByDirection | null),
+/** Percentage of non-empty values for openRecordIn */
+percentageNotEmptyOpenRecordIn?: (OrderByDirection | null),
 /** Number of unique values for locale */
 countUniqueValuesLocale?: (OrderByDirection | null),
 /** Number of empty values for locale */
@@ -39455,14 +39519,14 @@ session?: (SessionGroupByInput | null)}
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
 export interface ProgramExerciseGenqlSelection{
-    targetSets?: boolean | number
-    targetRepsMin?: boolean | number
     /** e.g. "Back Squat (top set)" */
     name?: boolean | number
     /** Position of the exercise within the day */
     order?: boolean | number
     /** How the prescribed sets are performed (empty = straight) */
     setScheme?: boolean | number
+    targetSets?: boolean | number
+    targetRepsMin?: boolean | number
     targetRepsMax?: boolean | number
     /** Expected load for the prescribed sets */
     targetWeightKg?: boolean | number
@@ -39525,42 +39589,6 @@ export interface ProgramExerciseEdgeGenqlSelection{
 export interface ProgramExerciseConnectionGenqlSelection{
     /** Total number of records in the connection */
     totalCount?: boolean | number
-    /** Number of unique values for targetSets */
-    countUniqueValuesTargetSets?: boolean | number
-    /** Number of empty values for targetSets */
-    countEmptyTargetSets?: boolean | number
-    /** Number of non-empty values for targetSets */
-    countNotEmptyTargetSets?: boolean | number
-    /** Percentage of empty values for targetSets */
-    percentageEmptyTargetSets?: boolean | number
-    /** Percentage of non-empty values for targetSets */
-    percentageNotEmptyTargetSets?: boolean | number
-    /** Minimum amount contained in the field targetSets */
-    minTargetSets?: boolean | number
-    /** Maximum amount contained in the field targetSets */
-    maxTargetSets?: boolean | number
-    /** Average amount contained in the field targetSets */
-    avgTargetSets?: boolean | number
-    /** Sum of amounts contained in the field targetSets */
-    sumTargetSets?: boolean | number
-    /** Number of unique values for targetRepsMin */
-    countUniqueValuesTargetRepsMin?: boolean | number
-    /** Number of empty values for targetRepsMin */
-    countEmptyTargetRepsMin?: boolean | number
-    /** Number of non-empty values for targetRepsMin */
-    countNotEmptyTargetRepsMin?: boolean | number
-    /** Percentage of empty values for targetRepsMin */
-    percentageEmptyTargetRepsMin?: boolean | number
-    /** Percentage of non-empty values for targetRepsMin */
-    percentageNotEmptyTargetRepsMin?: boolean | number
-    /** Minimum amount contained in the field targetRepsMin */
-    minTargetRepsMin?: boolean | number
-    /** Maximum amount contained in the field targetRepsMin */
-    maxTargetRepsMin?: boolean | number
-    /** Average amount contained in the field targetRepsMin */
-    avgTargetRepsMin?: boolean | number
-    /** Sum of amounts contained in the field targetRepsMin */
-    sumTargetRepsMin?: boolean | number
     /** Number of unique values for name */
     countUniqueValuesName?: boolean | number
     /** Number of empty values for name */
@@ -39599,6 +39627,42 @@ export interface ProgramExerciseConnectionGenqlSelection{
     percentageEmptySetScheme?: boolean | number
     /** Percentage of non-empty values for setScheme */
     percentageNotEmptySetScheme?: boolean | number
+    /** Number of unique values for targetSets */
+    countUniqueValuesTargetSets?: boolean | number
+    /** Number of empty values for targetSets */
+    countEmptyTargetSets?: boolean | number
+    /** Number of non-empty values for targetSets */
+    countNotEmptyTargetSets?: boolean | number
+    /** Percentage of empty values for targetSets */
+    percentageEmptyTargetSets?: boolean | number
+    /** Percentage of non-empty values for targetSets */
+    percentageNotEmptyTargetSets?: boolean | number
+    /** Minimum amount contained in the field targetSets */
+    minTargetSets?: boolean | number
+    /** Maximum amount contained in the field targetSets */
+    maxTargetSets?: boolean | number
+    /** Average amount contained in the field targetSets */
+    avgTargetSets?: boolean | number
+    /** Sum of amounts contained in the field targetSets */
+    sumTargetSets?: boolean | number
+    /** Number of unique values for targetRepsMin */
+    countUniqueValuesTargetRepsMin?: boolean | number
+    /** Number of empty values for targetRepsMin */
+    countEmptyTargetRepsMin?: boolean | number
+    /** Number of non-empty values for targetRepsMin */
+    countNotEmptyTargetRepsMin?: boolean | number
+    /** Percentage of empty values for targetRepsMin */
+    percentageEmptyTargetRepsMin?: boolean | number
+    /** Percentage of non-empty values for targetRepsMin */
+    percentageNotEmptyTargetRepsMin?: boolean | number
+    /** Minimum amount contained in the field targetRepsMin */
+    minTargetRepsMin?: boolean | number
+    /** Maximum amount contained in the field targetRepsMin */
+    maxTargetRepsMin?: boolean | number
+    /** Average amount contained in the field targetRepsMin */
+    avgTargetRepsMin?: boolean | number
+    /** Sum of amounts contained in the field targetRepsMin */
+    sumTargetRepsMin?: boolean | number
     /** Number of unique values for targetRepsMax */
     countUniqueValuesTargetRepsMax?: boolean | number
     /** Number of empty values for targetRepsMax */
@@ -39812,42 +39876,6 @@ export interface ProgramExerciseConnectionGenqlSelection{
 export interface ProgramExerciseGroupByConnectionGenqlSelection{
     /** Total number of records in the connection */
     totalCount?: boolean | number
-    /** Number of unique values for targetSets */
-    countUniqueValuesTargetSets?: boolean | number
-    /** Number of empty values for targetSets */
-    countEmptyTargetSets?: boolean | number
-    /** Number of non-empty values for targetSets */
-    countNotEmptyTargetSets?: boolean | number
-    /** Percentage of empty values for targetSets */
-    percentageEmptyTargetSets?: boolean | number
-    /** Percentage of non-empty values for targetSets */
-    percentageNotEmptyTargetSets?: boolean | number
-    /** Minimum amount contained in the field targetSets */
-    minTargetSets?: boolean | number
-    /** Maximum amount contained in the field targetSets */
-    maxTargetSets?: boolean | number
-    /** Average amount contained in the field targetSets */
-    avgTargetSets?: boolean | number
-    /** Sum of amounts contained in the field targetSets */
-    sumTargetSets?: boolean | number
-    /** Number of unique values for targetRepsMin */
-    countUniqueValuesTargetRepsMin?: boolean | number
-    /** Number of empty values for targetRepsMin */
-    countEmptyTargetRepsMin?: boolean | number
-    /** Number of non-empty values for targetRepsMin */
-    countNotEmptyTargetRepsMin?: boolean | number
-    /** Percentage of empty values for targetRepsMin */
-    percentageEmptyTargetRepsMin?: boolean | number
-    /** Percentage of non-empty values for targetRepsMin */
-    percentageNotEmptyTargetRepsMin?: boolean | number
-    /** Minimum amount contained in the field targetRepsMin */
-    minTargetRepsMin?: boolean | number
-    /** Maximum amount contained in the field targetRepsMin */
-    maxTargetRepsMin?: boolean | number
-    /** Average amount contained in the field targetRepsMin */
-    avgTargetRepsMin?: boolean | number
-    /** Sum of amounts contained in the field targetRepsMin */
-    sumTargetRepsMin?: boolean | number
     /** Number of unique values for name */
     countUniqueValuesName?: boolean | number
     /** Number of empty values for name */
@@ -39886,6 +39914,42 @@ export interface ProgramExerciseGroupByConnectionGenqlSelection{
     percentageEmptySetScheme?: boolean | number
     /** Percentage of non-empty values for setScheme */
     percentageNotEmptySetScheme?: boolean | number
+    /** Number of unique values for targetSets */
+    countUniqueValuesTargetSets?: boolean | number
+    /** Number of empty values for targetSets */
+    countEmptyTargetSets?: boolean | number
+    /** Number of non-empty values for targetSets */
+    countNotEmptyTargetSets?: boolean | number
+    /** Percentage of empty values for targetSets */
+    percentageEmptyTargetSets?: boolean | number
+    /** Percentage of non-empty values for targetSets */
+    percentageNotEmptyTargetSets?: boolean | number
+    /** Minimum amount contained in the field targetSets */
+    minTargetSets?: boolean | number
+    /** Maximum amount contained in the field targetSets */
+    maxTargetSets?: boolean | number
+    /** Average amount contained in the field targetSets */
+    avgTargetSets?: boolean | number
+    /** Sum of amounts contained in the field targetSets */
+    sumTargetSets?: boolean | number
+    /** Number of unique values for targetRepsMin */
+    countUniqueValuesTargetRepsMin?: boolean | number
+    /** Number of empty values for targetRepsMin */
+    countEmptyTargetRepsMin?: boolean | number
+    /** Number of non-empty values for targetRepsMin */
+    countNotEmptyTargetRepsMin?: boolean | number
+    /** Percentage of empty values for targetRepsMin */
+    percentageEmptyTargetRepsMin?: boolean | number
+    /** Percentage of non-empty values for targetRepsMin */
+    percentageNotEmptyTargetRepsMin?: boolean | number
+    /** Minimum amount contained in the field targetRepsMin */
+    minTargetRepsMin?: boolean | number
+    /** Maximum amount contained in the field targetRepsMin */
+    maxTargetRepsMin?: boolean | number
+    /** Average amount contained in the field targetRepsMin */
+    avgTargetRepsMin?: boolean | number
+    /** Sum of amounts contained in the field targetRepsMin */
+    sumTargetRepsMin?: boolean | number
     /** Number of unique values for targetRepsMax */
     countUniqueValuesTargetRepsMax?: boolean | number
     /** Number of empty values for targetRepsMax */
@@ -40111,13 +40175,13 @@ id?: (Scalars['ID'] | null)}
 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
-export interface ProgramExerciseCreateInput {targetSets?: (Scalars['Float'] | null),targetRepsMin?: (Scalars['Float'] | null),
+export interface ProgramExerciseCreateInput {
 /** e.g. "Back Squat (top set)" */
 name?: (Scalars['String'] | null),
 /** Position of the exercise within the day */
 order?: (Scalars['Float'] | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (ProgramExerciseSetSchemeEnum | null),targetRepsMax?: (Scalars['Float'] | null),
+setScheme?: (ProgramExerciseSetSchemeEnum | null),targetSets?: (Scalars['Float'] | null),targetRepsMin?: (Scalars['Float'] | null),targetRepsMax?: (Scalars['Float'] | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (Scalars['Float'] | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40149,13 +40213,13 @@ traineeMember?: (WorkspaceMemberRelationInput | null),exerciseId?: (Scalars['ID'
 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
-export interface ProgramExerciseUpdateInput {targetSets?: (Scalars['Float'] | null),targetRepsMin?: (Scalars['Float'] | null),
+export interface ProgramExerciseUpdateInput {
 /** e.g. "Back Squat (top set)" */
 name?: (Scalars['String'] | null),
 /** Position of the exercise within the day */
 order?: (Scalars['Float'] | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (ProgramExerciseSetSchemeEnum | null),targetRepsMax?: (Scalars['Float'] | null),
+setScheme?: (ProgramExerciseSetSchemeEnum | null),targetSets?: (Scalars['Float'] | null),targetRepsMin?: (Scalars['Float'] | null),targetRepsMax?: (Scalars['Float'] | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (Scalars['Float'] | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40187,13 +40251,13 @@ traineeMember?: (WorkspaceMemberRelationInput | null),exerciseId?: (Scalars['ID'
 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
-export interface ProgramExerciseFilterInput {targetSets?: (FloatFilter | null),targetRepsMin?: (FloatFilter | null),
+export interface ProgramExerciseFilterInput {
 /** e.g. "Back Squat (top set)" */
 name?: (StringFilter | null),
 /** Position of the exercise within the day */
 order?: (FloatFilter | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (ProgramExerciseSetSchemeEnumFilter | null),targetRepsMax?: (FloatFilter | null),
+setScheme?: (ProgramExerciseSetSchemeEnumFilter | null),targetSets?: (FloatFilter | null),targetRepsMin?: (FloatFilter | null),targetRepsMax?: (FloatFilter | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (FloatFilter | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40231,13 +40295,13 @@ export interface ProgramExerciseSetSchemeEnumFilter {eq?: (ProgramExerciseSetSch
 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
-export interface ProgramExerciseOrderByInput {targetSets?: (OrderByDirection | null),targetRepsMin?: (OrderByDirection | null),
+export interface ProgramExerciseOrderByInput {
 /** e.g. "Back Squat (top set)" */
 name?: (OrderByDirection | null),
 /** Position of the exercise within the day */
 order?: (OrderByDirection | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (OrderByDirection | null),targetRepsMax?: (OrderByDirection | null),
+setScheme?: (OrderByDirection | null),targetSets?: (OrderByDirection | null),targetRepsMin?: (OrderByDirection | null),targetRepsMax?: (OrderByDirection | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (OrderByDirection | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40275,13 +40339,13 @@ exercise?: (ExerciseOrderByInput | null)}
 /** An exercise prescription within a program (junction program ↔ exercise) */
 export interface ProgramExerciseOrderByWithGroupByInput {
 /** Order by aggregate values */
-aggregate?: (ProgramExerciseOrderByWithGroupByAggregateInput | null),targetSets?: (OrderByDirection | null),targetRepsMin?: (OrderByDirection | null),
+aggregate?: (ProgramExerciseOrderByWithGroupByAggregateInput | null),
 /** e.g. "Back Squat (top set)" */
 name?: (OrderByDirection | null),
 /** Position of the exercise within the day */
 order?: (OrderByDirection | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (OrderByDirection | null),targetRepsMax?: (OrderByDirection | null),
+setScheme?: (OrderByDirection | null),targetSets?: (OrderByDirection | null),targetRepsMin?: (OrderByDirection | null),targetRepsMax?: (OrderByDirection | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (OrderByDirection | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40320,42 +40384,6 @@ exercise?: (ExerciseOrderByWithGroupByInput | null)}
 export interface ProgramExerciseOrderByWithGroupByAggregateInput {
 /** Total number of records in the connection */
 totalCount?: (OrderByDirection | null),
-/** Number of unique values for targetSets */
-countUniqueValuesTargetSets?: (OrderByDirection | null),
-/** Number of empty values for targetSets */
-countEmptyTargetSets?: (OrderByDirection | null),
-/** Number of non-empty values for targetSets */
-countNotEmptyTargetSets?: (OrderByDirection | null),
-/** Percentage of empty values for targetSets */
-percentageEmptyTargetSets?: (OrderByDirection | null),
-/** Percentage of non-empty values for targetSets */
-percentageNotEmptyTargetSets?: (OrderByDirection | null),
-/** Minimum amount contained in the field targetSets */
-minTargetSets?: (OrderByDirection | null),
-/** Maximum amount contained in the field targetSets */
-maxTargetSets?: (OrderByDirection | null),
-/** Average amount contained in the field targetSets */
-avgTargetSets?: (OrderByDirection | null),
-/** Sum of amounts contained in the field targetSets */
-sumTargetSets?: (OrderByDirection | null),
-/** Number of unique values for targetRepsMin */
-countUniqueValuesTargetRepsMin?: (OrderByDirection | null),
-/** Number of empty values for targetRepsMin */
-countEmptyTargetRepsMin?: (OrderByDirection | null),
-/** Number of non-empty values for targetRepsMin */
-countNotEmptyTargetRepsMin?: (OrderByDirection | null),
-/** Percentage of empty values for targetRepsMin */
-percentageEmptyTargetRepsMin?: (OrderByDirection | null),
-/** Percentage of non-empty values for targetRepsMin */
-percentageNotEmptyTargetRepsMin?: (OrderByDirection | null),
-/** Minimum amount contained in the field targetRepsMin */
-minTargetRepsMin?: (OrderByDirection | null),
-/** Maximum amount contained in the field targetRepsMin */
-maxTargetRepsMin?: (OrderByDirection | null),
-/** Average amount contained in the field targetRepsMin */
-avgTargetRepsMin?: (OrderByDirection | null),
-/** Sum of amounts contained in the field targetRepsMin */
-sumTargetRepsMin?: (OrderByDirection | null),
 /** Number of unique values for name */
 countUniqueValuesName?: (OrderByDirection | null),
 /** Number of empty values for name */
@@ -40394,6 +40422,42 @@ countNotEmptySetScheme?: (OrderByDirection | null),
 percentageEmptySetScheme?: (OrderByDirection | null),
 /** Percentage of non-empty values for setScheme */
 percentageNotEmptySetScheme?: (OrderByDirection | null),
+/** Number of unique values for targetSets */
+countUniqueValuesTargetSets?: (OrderByDirection | null),
+/** Number of empty values for targetSets */
+countEmptyTargetSets?: (OrderByDirection | null),
+/** Number of non-empty values for targetSets */
+countNotEmptyTargetSets?: (OrderByDirection | null),
+/** Percentage of empty values for targetSets */
+percentageEmptyTargetSets?: (OrderByDirection | null),
+/** Percentage of non-empty values for targetSets */
+percentageNotEmptyTargetSets?: (OrderByDirection | null),
+/** Minimum amount contained in the field targetSets */
+minTargetSets?: (OrderByDirection | null),
+/** Maximum amount contained in the field targetSets */
+maxTargetSets?: (OrderByDirection | null),
+/** Average amount contained in the field targetSets */
+avgTargetSets?: (OrderByDirection | null),
+/** Sum of amounts contained in the field targetSets */
+sumTargetSets?: (OrderByDirection | null),
+/** Number of unique values for targetRepsMin */
+countUniqueValuesTargetRepsMin?: (OrderByDirection | null),
+/** Number of empty values for targetRepsMin */
+countEmptyTargetRepsMin?: (OrderByDirection | null),
+/** Number of non-empty values for targetRepsMin */
+countNotEmptyTargetRepsMin?: (OrderByDirection | null),
+/** Percentage of empty values for targetRepsMin */
+percentageEmptyTargetRepsMin?: (OrderByDirection | null),
+/** Percentage of non-empty values for targetRepsMin */
+percentageNotEmptyTargetRepsMin?: (OrderByDirection | null),
+/** Minimum amount contained in the field targetRepsMin */
+minTargetRepsMin?: (OrderByDirection | null),
+/** Maximum amount contained in the field targetRepsMin */
+maxTargetRepsMin?: (OrderByDirection | null),
+/** Average amount contained in the field targetRepsMin */
+avgTargetRepsMin?: (OrderByDirection | null),
+/** Sum of amounts contained in the field targetRepsMin */
+sumTargetRepsMin?: (OrderByDirection | null),
 /** Number of unique values for targetRepsMax */
 countUniqueValuesTargetRepsMax?: (OrderByDirection | null),
 /** Number of empty values for targetRepsMax */
@@ -40607,13 +40671,13 @@ exercise?: (ExerciseOrderByInput | null)}
 
 
 /** An exercise prescription within a program (junction program ↔ exercise) */
-export interface ProgramExerciseGroupByInput {targetSets?: (Scalars['Boolean'] | null),targetRepsMin?: (Scalars['Boolean'] | null),
+export interface ProgramExerciseGroupByInput {
 /** e.g. "Back Squat (top set)" */
 name?: (Scalars['Boolean'] | null),
 /** Position of the exercise within the day */
 order?: (Scalars['Boolean'] | null),
 /** How the prescribed sets are performed (empty = straight) */
-setScheme?: (Scalars['Boolean'] | null),targetRepsMax?: (Scalars['Boolean'] | null),
+setScheme?: (Scalars['Boolean'] | null),targetSets?: (Scalars['Boolean'] | null),targetRepsMin?: (Scalars['Boolean'] | null),targetRepsMax?: (Scalars['Boolean'] | null),
 /** Expected load for the prescribed sets */
 targetWeightKg?: (Scalars['Boolean'] | null),
 /** Expected load as a percentage of the one-rep max */
@@ -40636,10 +40700,6 @@ exercise?: (ExerciseGroupByInput | null)}
 
 /** A movement from the exercise library */
 export interface ExerciseGenqlSelection{
-    name?: boolean | number
-    muscleGroups?: boolean | number
-    equipmentType?: boolean | number
-    instructions?: boolean | number
     /** Id */
     id?: boolean | number
     /** Creation date */
@@ -40648,6 +40708,10 @@ export interface ExerciseGenqlSelection{
     createdBy?: ActorGenqlSelection
     /** Deletion date */
     deletedAt?: boolean | number
+    name?: boolean | number
+    muscleGroups?: boolean | number
+    equipmentType?: boolean | number
+    instructions?: boolean | number
     /** Position */
     position?: boolean | number
     /** Last time the record was changed */
@@ -40684,46 +40748,6 @@ export interface ExerciseEdgeGenqlSelection{
 export interface ExerciseConnectionGenqlSelection{
     /** Total number of records in the connection */
     totalCount?: boolean | number
-    /** Number of unique values for name */
-    countUniqueValuesName?: boolean | number
-    /** Number of empty values for name */
-    countEmptyName?: boolean | number
-    /** Number of non-empty values for name */
-    countNotEmptyName?: boolean | number
-    /** Percentage of empty values for name */
-    percentageEmptyName?: boolean | number
-    /** Percentage of non-empty values for name */
-    percentageNotEmptyName?: boolean | number
-    /** Number of unique values for muscleGroups */
-    countUniqueValuesMuscleGroups?: boolean | number
-    /** Number of empty values for muscleGroups */
-    countEmptyMuscleGroups?: boolean | number
-    /** Number of non-empty values for muscleGroups */
-    countNotEmptyMuscleGroups?: boolean | number
-    /** Percentage of empty values for muscleGroups */
-    percentageEmptyMuscleGroups?: boolean | number
-    /** Percentage of non-empty values for muscleGroups */
-    percentageNotEmptyMuscleGroups?: boolean | number
-    /** Number of unique values for equipmentType */
-    countUniqueValuesEquipmentType?: boolean | number
-    /** Number of empty values for equipmentType */
-    countEmptyEquipmentType?: boolean | number
-    /** Number of non-empty values for equipmentType */
-    countNotEmptyEquipmentType?: boolean | number
-    /** Percentage of empty values for equipmentType */
-    percentageEmptyEquipmentType?: boolean | number
-    /** Percentage of non-empty values for equipmentType */
-    percentageNotEmptyEquipmentType?: boolean | number
-    /** Number of unique values for instructions */
-    countUniqueValuesInstructions?: boolean | number
-    /** Number of empty values for instructions */
-    countEmptyInstructions?: boolean | number
-    /** Number of non-empty values for instructions */
-    countNotEmptyInstructions?: boolean | number
-    /** Percentage of empty values for instructions */
-    percentageEmptyInstructions?: boolean | number
-    /** Percentage of non-empty values for instructions */
-    percentageNotEmptyInstructions?: boolean | number
     /** Number of unique values for id */
     countUniqueValuesId?: boolean | number
     /** Number of empty values for id */
@@ -40772,6 +40796,46 @@ export interface ExerciseConnectionGenqlSelection{
     minDeletedAt?: boolean | number
     /** Latest date contained in the field deletedAt */
     maxDeletedAt?: boolean | number
+    /** Number of unique values for name */
+    countUniqueValuesName?: boolean | number
+    /** Number of empty values for name */
+    countEmptyName?: boolean | number
+    /** Number of non-empty values for name */
+    countNotEmptyName?: boolean | number
+    /** Percentage of empty values for name */
+    percentageEmptyName?: boolean | number
+    /** Percentage of non-empty values for name */
+    percentageNotEmptyName?: boolean | number
+    /** Number of unique values for muscleGroups */
+    countUniqueValuesMuscleGroups?: boolean | number
+    /** Number of empty values for muscleGroups */
+    countEmptyMuscleGroups?: boolean | number
+    /** Number of non-empty values for muscleGroups */
+    countNotEmptyMuscleGroups?: boolean | number
+    /** Percentage of empty values for muscleGroups */
+    percentageEmptyMuscleGroups?: boolean | number
+    /** Percentage of non-empty values for muscleGroups */
+    percentageNotEmptyMuscleGroups?: boolean | number
+    /** Number of unique values for equipmentType */
+    countUniqueValuesEquipmentType?: boolean | number
+    /** Number of empty values for equipmentType */
+    countEmptyEquipmentType?: boolean | number
+    /** Number of non-empty values for equipmentType */
+    countNotEmptyEquipmentType?: boolean | number
+    /** Percentage of empty values for equipmentType */
+    percentageEmptyEquipmentType?: boolean | number
+    /** Percentage of non-empty values for equipmentType */
+    percentageNotEmptyEquipmentType?: boolean | number
+    /** Number of unique values for instructions */
+    countUniqueValuesInstructions?: boolean | number
+    /** Number of empty values for instructions */
+    countEmptyInstructions?: boolean | number
+    /** Number of non-empty values for instructions */
+    countNotEmptyInstructions?: boolean | number
+    /** Percentage of empty values for instructions */
+    percentageEmptyInstructions?: boolean | number
+    /** Percentage of non-empty values for instructions */
+    percentageNotEmptyInstructions?: boolean | number
     /** Number of unique values for position */
     countUniqueValuesPosition?: boolean | number
     /** Number of empty values for position */
@@ -40827,46 +40891,6 @@ export interface ExerciseConnectionGenqlSelection{
 export interface ExerciseGroupByConnectionGenqlSelection{
     /** Total number of records in the connection */
     totalCount?: boolean | number
-    /** Number of unique values for name */
-    countUniqueValuesName?: boolean | number
-    /** Number of empty values for name */
-    countEmptyName?: boolean | number
-    /** Number of non-empty values for name */
-    countNotEmptyName?: boolean | number
-    /** Percentage of empty values for name */
-    percentageEmptyName?: boolean | number
-    /** Percentage of non-empty values for name */
-    percentageNotEmptyName?: boolean | number
-    /** Number of unique values for muscleGroups */
-    countUniqueValuesMuscleGroups?: boolean | number
-    /** Number of empty values for muscleGroups */
-    countEmptyMuscleGroups?: boolean | number
-    /** Number of non-empty values for muscleGroups */
-    countNotEmptyMuscleGroups?: boolean | number
-    /** Percentage of empty values for muscleGroups */
-    percentageEmptyMuscleGroups?: boolean | number
-    /** Percentage of non-empty values for muscleGroups */
-    percentageNotEmptyMuscleGroups?: boolean | number
-    /** Number of unique values for equipmentType */
-    countUniqueValuesEquipmentType?: boolean | number
-    /** Number of empty values for equipmentType */
-    countEmptyEquipmentType?: boolean | number
-    /** Number of non-empty values for equipmentType */
-    countNotEmptyEquipmentType?: boolean | number
-    /** Percentage of empty values for equipmentType */
-    percentageEmptyEquipmentType?: boolean | number
-    /** Percentage of non-empty values for equipmentType */
-    percentageNotEmptyEquipmentType?: boolean | number
-    /** Number of unique values for instructions */
-    countUniqueValuesInstructions?: boolean | number
-    /** Number of empty values for instructions */
-    countEmptyInstructions?: boolean | number
-    /** Number of non-empty values for instructions */
-    countNotEmptyInstructions?: boolean | number
-    /** Percentage of empty values for instructions */
-    percentageEmptyInstructions?: boolean | number
-    /** Percentage of non-empty values for instructions */
-    percentageNotEmptyInstructions?: boolean | number
     /** Number of unique values for id */
     countUniqueValuesId?: boolean | number
     /** Number of empty values for id */
@@ -40915,6 +40939,46 @@ export interface ExerciseGroupByConnectionGenqlSelection{
     minDeletedAt?: boolean | number
     /** Latest date contained in the field deletedAt */
     maxDeletedAt?: boolean | number
+    /** Number of unique values for name */
+    countUniqueValuesName?: boolean | number
+    /** Number of empty values for name */
+    countEmptyName?: boolean | number
+    /** Number of non-empty values for name */
+    countNotEmptyName?: boolean | number
+    /** Percentage of empty values for name */
+    percentageEmptyName?: boolean | number
+    /** Percentage of non-empty values for name */
+    percentageNotEmptyName?: boolean | number
+    /** Number of unique values for muscleGroups */
+    countUniqueValuesMuscleGroups?: boolean | number
+    /** Number of empty values for muscleGroups */
+    countEmptyMuscleGroups?: boolean | number
+    /** Number of non-empty values for muscleGroups */
+    countNotEmptyMuscleGroups?: boolean | number
+    /** Percentage of empty values for muscleGroups */
+    percentageEmptyMuscleGroups?: boolean | number
+    /** Percentage of non-empty values for muscleGroups */
+    percentageNotEmptyMuscleGroups?: boolean | number
+    /** Number of unique values for equipmentType */
+    countUniqueValuesEquipmentType?: boolean | number
+    /** Number of empty values for equipmentType */
+    countEmptyEquipmentType?: boolean | number
+    /** Number of non-empty values for equipmentType */
+    countNotEmptyEquipmentType?: boolean | number
+    /** Percentage of empty values for equipmentType */
+    percentageEmptyEquipmentType?: boolean | number
+    /** Percentage of non-empty values for equipmentType */
+    percentageNotEmptyEquipmentType?: boolean | number
+    /** Number of unique values for instructions */
+    countUniqueValuesInstructions?: boolean | number
+    /** Number of empty values for instructions */
+    countEmptyInstructions?: boolean | number
+    /** Number of non-empty values for instructions */
+    countNotEmptyInstructions?: boolean | number
+    /** Percentage of empty values for instructions */
+    percentageEmptyInstructions?: boolean | number
+    /** Percentage of non-empty values for instructions */
+    percentageNotEmptyInstructions?: boolean | number
     /** Number of unique values for position */
     countUniqueValuesPosition?: boolean | number
     /** Number of empty values for position */
@@ -40982,7 +41046,7 @@ id?: (Scalars['ID'] | null)}
 
 
 /** A movement from the exercise library */
-export interface ExerciseCreateInput {name?: (Scalars['String'] | null),muscleGroups?: ((ExerciseMuscleGroupsEnum | null)[] | null),equipmentType?: (ExerciseEquipmentTypeEnum | null),instructions?: (Scalars['String'] | null),
+export interface ExerciseCreateInput {
 /** Id */
 id?: (Scalars['ID'] | null),
 /** Creation date */
@@ -40990,7 +41054,7 @@ createdAt?: (Scalars['DateTime'] | null),
 /** The creator of the record */
 createdBy?: (ActorCreateInput | null),
 /** Deletion date */
-deletedAt?: (Scalars['DateTime'] | null),
+deletedAt?: (Scalars['DateTime'] | null),name?: (Scalars['String'] | null),muscleGroups?: ((ExerciseMuscleGroupsEnum | null)[] | null),equipmentType?: (ExerciseEquipmentTypeEnum | null),instructions?: (Scalars['String'] | null),
 /** Position */
 position?: (Scalars['Position'] | null),
 /** Last time the record was changed */
@@ -41002,7 +41066,7 @@ searchVector?: (Scalars['TSVector'] | null)}
 
 
 /** A movement from the exercise library */
-export interface ExerciseUpdateInput {name?: (Scalars['String'] | null),muscleGroups?: ((ExerciseMuscleGroupsEnum | null)[] | null),equipmentType?: (ExerciseEquipmentTypeEnum | null),instructions?: (Scalars['String'] | null),
+export interface ExerciseUpdateInput {
 /** Id */
 id?: (Scalars['ID'] | null),
 /** Creation date */
@@ -41010,7 +41074,7 @@ createdAt?: (Scalars['DateTime'] | null),
 /** The creator of the record */
 createdBy?: (ActorUpdateInput | null),
 /** Deletion date */
-deletedAt?: (Scalars['DateTime'] | null),
+deletedAt?: (Scalars['DateTime'] | null),name?: (Scalars['String'] | null),muscleGroups?: ((ExerciseMuscleGroupsEnum | null)[] | null),equipmentType?: (ExerciseEquipmentTypeEnum | null),instructions?: (Scalars['String'] | null),
 /** Position */
 position?: (Scalars['Position'] | null),
 /** Last time the record was changed */
@@ -41022,7 +41086,7 @@ searchVector?: (Scalars['TSVector'] | null)}
 
 
 /** A movement from the exercise library */
-export interface ExerciseFilterInput {name?: (StringFilter | null),muscleGroups?: (ExerciseMuscleGroupsEnumFilter | null),equipmentType?: (ExerciseEquipmentTypeEnumFilter | null),instructions?: (StringFilter | null),
+export interface ExerciseFilterInput {
 /** Id */
 id?: (UUIDFilter | null),
 /** Creation date */
@@ -41030,7 +41094,7 @@ createdAt?: (DateTimeFilter | null),
 /** The creator of the record */
 createdBy?: (ActorFilterInput | null),
 /** Deletion date */
-deletedAt?: (DateTimeFilter | null),
+deletedAt?: (DateTimeFilter | null),name?: (StringFilter | null),muscleGroups?: (ExerciseMuscleGroupsEnumFilter | null),equipmentType?: (ExerciseEquipmentTypeEnumFilter | null),instructions?: (StringFilter | null),
 /** Position */
 position?: (FloatFilter | null),
 /** Last time the record was changed */
@@ -41046,7 +41110,7 @@ export interface ExerciseEquipmentTypeEnumFilter {eq?: (ExerciseEquipmentTypeEnu
 
 
 /** A movement from the exercise library */
-export interface ExerciseOrderByInput {name?: (OrderByDirection | null),muscleGroups?: (OrderByDirection | null),equipmentType?: (OrderByDirection | null),instructions?: (OrderByDirection | null),
+export interface ExerciseOrderByInput {
 /** Id */
 id?: (OrderByDirection | null),
 /** Creation date */
@@ -41054,7 +41118,7 @@ createdAt?: (OrderByDirection | null),
 /** The creator of the record */
 createdBy?: (ActorOrderByInput | null),
 /** Deletion date */
-deletedAt?: (OrderByDirection | null),
+deletedAt?: (OrderByDirection | null),name?: (OrderByDirection | null),muscleGroups?: (OrderByDirection | null),equipmentType?: (OrderByDirection | null),instructions?: (OrderByDirection | null),
 /** Position */
 position?: (OrderByDirection | null),
 /** Last time the record was changed */
@@ -41068,7 +41132,7 @@ searchVector?: (OrderByDirection | null)}
 /** A movement from the exercise library */
 export interface ExerciseOrderByWithGroupByInput {
 /** Order by aggregate values */
-aggregate?: (ExerciseOrderByWithGroupByAggregateInput | null),name?: (OrderByDirection | null),muscleGroups?: (OrderByDirection | null),equipmentType?: (OrderByDirection | null),instructions?: (OrderByDirection | null),
+aggregate?: (ExerciseOrderByWithGroupByAggregateInput | null),
 /** Id */
 id?: (OrderByDirection | null),
 /** Creation date */
@@ -41076,7 +41140,7 @@ createdAt?: (OrderByDateGranularityInput | null),
 /** The creator of the record */
 createdBy?: (ActorOrderByInput | null),
 /** Deletion date */
-deletedAt?: (OrderByDateGranularityInput | null),
+deletedAt?: (OrderByDateGranularityInput | null),name?: (OrderByDirection | null),muscleGroups?: (OrderByDirection | null),equipmentType?: (OrderByDirection | null),instructions?: (OrderByDirection | null),
 /** Position */
 position?: (OrderByDirection | null),
 /** Last time the record was changed */
@@ -41091,46 +41155,6 @@ searchVector?: (OrderByDirection | null)}
 export interface ExerciseOrderByWithGroupByAggregateInput {
 /** Total number of records in the connection */
 totalCount?: (OrderByDirection | null),
-/** Number of unique values for name */
-countUniqueValuesName?: (OrderByDirection | null),
-/** Number of empty values for name */
-countEmptyName?: (OrderByDirection | null),
-/** Number of non-empty values for name */
-countNotEmptyName?: (OrderByDirection | null),
-/** Percentage of empty values for name */
-percentageEmptyName?: (OrderByDirection | null),
-/** Percentage of non-empty values for name */
-percentageNotEmptyName?: (OrderByDirection | null),
-/** Number of unique values for muscleGroups */
-countUniqueValuesMuscleGroups?: (OrderByDirection | null),
-/** Number of empty values for muscleGroups */
-countEmptyMuscleGroups?: (OrderByDirection | null),
-/** Number of non-empty values for muscleGroups */
-countNotEmptyMuscleGroups?: (OrderByDirection | null),
-/** Percentage of empty values for muscleGroups */
-percentageEmptyMuscleGroups?: (OrderByDirection | null),
-/** Percentage of non-empty values for muscleGroups */
-percentageNotEmptyMuscleGroups?: (OrderByDirection | null),
-/** Number of unique values for equipmentType */
-countUniqueValuesEquipmentType?: (OrderByDirection | null),
-/** Number of empty values for equipmentType */
-countEmptyEquipmentType?: (OrderByDirection | null),
-/** Number of non-empty values for equipmentType */
-countNotEmptyEquipmentType?: (OrderByDirection | null),
-/** Percentage of empty values for equipmentType */
-percentageEmptyEquipmentType?: (OrderByDirection | null),
-/** Percentage of non-empty values for equipmentType */
-percentageNotEmptyEquipmentType?: (OrderByDirection | null),
-/** Number of unique values for instructions */
-countUniqueValuesInstructions?: (OrderByDirection | null),
-/** Number of empty values for instructions */
-countEmptyInstructions?: (OrderByDirection | null),
-/** Number of non-empty values for instructions */
-countNotEmptyInstructions?: (OrderByDirection | null),
-/** Percentage of empty values for instructions */
-percentageEmptyInstructions?: (OrderByDirection | null),
-/** Percentage of non-empty values for instructions */
-percentageNotEmptyInstructions?: (OrderByDirection | null),
 /** Number of unique values for id */
 countUniqueValuesId?: (OrderByDirection | null),
 /** Number of empty values for id */
@@ -41179,6 +41203,46 @@ percentageNotEmptyDeletedAt?: (OrderByDirection | null),
 minDeletedAt?: (OrderByDirection | null),
 /** Latest date contained in the field deletedAt */
 maxDeletedAt?: (OrderByDirection | null),
+/** Number of unique values for name */
+countUniqueValuesName?: (OrderByDirection | null),
+/** Number of empty values for name */
+countEmptyName?: (OrderByDirection | null),
+/** Number of non-empty values for name */
+countNotEmptyName?: (OrderByDirection | null),
+/** Percentage of empty values for name */
+percentageEmptyName?: (OrderByDirection | null),
+/** Percentage of non-empty values for name */
+percentageNotEmptyName?: (OrderByDirection | null),
+/** Number of unique values for muscleGroups */
+countUniqueValuesMuscleGroups?: (OrderByDirection | null),
+/** Number of empty values for muscleGroups */
+countEmptyMuscleGroups?: (OrderByDirection | null),
+/** Number of non-empty values for muscleGroups */
+countNotEmptyMuscleGroups?: (OrderByDirection | null),
+/** Percentage of empty values for muscleGroups */
+percentageEmptyMuscleGroups?: (OrderByDirection | null),
+/** Percentage of non-empty values for muscleGroups */
+percentageNotEmptyMuscleGroups?: (OrderByDirection | null),
+/** Number of unique values for equipmentType */
+countUniqueValuesEquipmentType?: (OrderByDirection | null),
+/** Number of empty values for equipmentType */
+countEmptyEquipmentType?: (OrderByDirection | null),
+/** Number of non-empty values for equipmentType */
+countNotEmptyEquipmentType?: (OrderByDirection | null),
+/** Percentage of empty values for equipmentType */
+percentageEmptyEquipmentType?: (OrderByDirection | null),
+/** Percentage of non-empty values for equipmentType */
+percentageNotEmptyEquipmentType?: (OrderByDirection | null),
+/** Number of unique values for instructions */
+countUniqueValuesInstructions?: (OrderByDirection | null),
+/** Number of empty values for instructions */
+countEmptyInstructions?: (OrderByDirection | null),
+/** Number of non-empty values for instructions */
+countNotEmptyInstructions?: (OrderByDirection | null),
+/** Percentage of empty values for instructions */
+percentageEmptyInstructions?: (OrderByDirection | null),
+/** Percentage of non-empty values for instructions */
+percentageNotEmptyInstructions?: (OrderByDirection | null),
 /** Number of unique values for position */
 countUniqueValuesPosition?: (OrderByDirection | null),
 /** Number of empty values for position */
@@ -41226,9 +41290,9 @@ percentageNotEmptySearchVector?: (OrderByDirection | null)}
 
 
 /** A movement from the exercise library */
-export interface ExerciseGroupByInput {name?: (Scalars['Boolean'] | null),muscleGroups?: (Scalars['Boolean'] | null),equipmentType?: (Scalars['Boolean'] | null),instructions?: (Scalars['Boolean'] | null),
+export interface ExerciseGroupByInput {
 /** Creation date */
-createdAt?: (GroupByDateGranularityInput | null),
+createdAt?: (GroupByDateGranularityInput | null),name?: (Scalars['Boolean'] | null),muscleGroups?: (Scalars['Boolean'] | null),equipmentType?: (Scalars['Boolean'] | null),instructions?: (Scalars['Boolean'] | null),
 /** Last time the record was changed */
 updatedAt?: (GroupByDateGranularityInput | null)}
 

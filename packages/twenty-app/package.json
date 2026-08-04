@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "license": "MIT",
   "keywords": [],
+  "engines": {
+    "twenty": "^2.27.0"
+  },
   "scripts": {
     "twenty": "twenty",
     "typecheck": "tsgo --noEmit -p tsconfig.spec.json",
@@ -17,8 +20,8 @@
     "@typescript/native-preview": "^7.0.0-dev.20260116.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "twenty-client-sdk": "2.26.0",
-    "twenty-sdk": "2.26.0",
+    "twenty-client-sdk": "2.27.0",
+    "twenty-sdk": "2.27.0",
     "twenty-ui": "1.0.0-alpha.1",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^4.0.0"

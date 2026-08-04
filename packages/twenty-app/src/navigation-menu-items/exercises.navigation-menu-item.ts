@@ -3,16 +3,16 @@ import {
   NavigationMenuItemType,
 } from 'twenty-sdk/define';
 
-import { ALL_EXERCISES_VIEW_ID } from 'src/views/all-exercises.view';
+import { EXERCISE_UNIVERSAL_IDENTIFIER } from 'src/objects/exercise.object';
 
-// Targets the app view rather than the object: the engine-owned INDEX view
-// currently misses relation columns for fields created in the same batch as
-// their object (https://github.com/twentyhq/core-team-issues/issues/2749).
+// Fresh identifier: nav-item type switches must ship as delete + recreate —
+// the update path drops the newly required target identifier from the to-state
+// and fails validation (same wrinkle as OBJECT→VIEW on v2.26, still on v2.27).
 export default defineNavigationMenuItem({
-  universalIdentifier: 'e5b5219a-d3ce-4db4-8c59-13c05f9463eb',
+  universalIdentifier: '5784b404-c5b6-45c0-bf53-375e0667f72c',
   position: 1,
-  type: NavigationMenuItemType.VIEW,
+  type: NavigationMenuItemType.OBJECT,
   name: 'Exercises',
   icon: 'IconBarbell',
-  viewUniversalIdentifier: ALL_EXERCISES_VIEW_ID,
+  targetObjectUniversalIdentifier: EXERCISE_UNIVERSAL_IDENTIFIER,
 });
