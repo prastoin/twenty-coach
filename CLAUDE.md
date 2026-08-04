@@ -60,10 +60,10 @@
 - **Field metadata type is immutable.** To change a type, create a new field under a new universal identifier and destroy the old one (`apply --force`) — data-lossy, acceptable pre-release. The sync error is a misleading "Options are required for enum fields".
 - **View-field universal identifiers are identities, not slots.** Never re-point an existing viewField identifier at a different field — the sync rejects duplicate (view, field) pairs. When refactoring a view, keep each identifier attached to its original field.
 - Workspace-created viewFields collide with app-declared ones for the same (view, field) pair — delete the manual one before applying.
-- **The engine owns INDEX views** — apps cannot declare `key: INDEX` (rejected by the validator). Engine INDEX views currently miss relation columns for same-batch fields (twentyhq/core-team-issues#2749); workaround: app-declared views + VIEW-type navigation menu items pointing at them (removal tracked in #7).
+- **The engine owns INDEX views** — apps cannot declare `key: INDEX` (rejected by the validator). Since v2.27.0 they carry visible viewFields for all caller fields, relations included, in declaration order (twentyhq/core-team-issues#2749); OBJECT-type navigation menu items land on them directly.
 - **Record pages show relations only via a `FIELDS_WIDGET` view + `RECORD_PAGE` page layout per object** (removal tracked in #11 once twentyhq/twenty#23651 ships).
 - `FRONT_COMPONENT` page-layout widgets need an explicit `gridPosition` (e.g. `{ row: 0, column: 0, rowSpan: 40, columnSpan: 12 }`) or they render in a tiny default cell.
-- On v2.26.x, updating a navigationMenuItem from OBJECT to VIEW type fails validation (update path loses `viewUniversalIdentifier`); ship such switches as delete + recreate with fresh identifiers.
+- Updating a navigationMenuItem's type fails validation (the update path drops the newly required target property from the to-state — OBJECT→VIEW loses `viewUniversalIdentifier` on v2.26, VIEW→OBJECT loses `targetObjectUniversalIdentifier` on v2.27); ship type switches as delete + recreate with fresh identifiers.
 
 ## Front components
 
