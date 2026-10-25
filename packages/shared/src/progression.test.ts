@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  adherence,
   bucketStart,
   estimatedOneRepMax,
+  oneRepMaxSeries,
+  sessionsPerBucket,
   totalVolume,
   volumeByExercise,
   volumeBuckets,
@@ -172,5 +175,83 @@ describe('volumeTrendPercent', () => {
   it('should return null without two trained buckets', () => {
     expect(volumeTrendPercent(volumeBuckets([set('2026-10-05', 100, 5)], 'week'))).toBeNull();
     expect(volumeTrendPercent([])).toBeNull();
+  });
+});
+
+describe('sessionsPerBucket', () => {
+  it('should count sessions per week and keep untrained weeks at zero', () => {
+    const buckets = sessionsPerBucket(
+      [
+        { startedAt: '2026-10-05' },
+        { startedAt: '2026-10-07' },
+        { startedAt: '2026-10-26' },
+      ],
+      'week',
+    );
+
+    expect(buckets).toEqual([
+      { start: '2026-10-05', count: 2 },
+      { start: '2026-10-12', count: 0 },
+      { start: '2026-10-19', count: 0 },
+      { start: '2026-10-26', count: 1 },
+    ]);
+  });
+
+  it('should ignore sessions that never started', () => {
+    expect(sessionsPerBucket([{ startedAt: null }], 'week')).toEqual([]);
+  });
+});
+
+describe('oneRepMaxSeries', () => {
+  const sets = [
+    set('2026-10-19', 100, 5, 'squat'),
+    // Same day, heavier: the day keeps its best.
+    set('2026-10-19', 110, 5, 'squat'),
+    // A warm-up, far below: dropped by taking the max.
+    set('2026-10-19', 40, 5, 'squat'),
+    set('2026-10-26', 115, 5, 'squat'),
+    set('2026-10-19', 20, 10, 'curl'),
+  ];
+
+  it('should give one point per training day, best of that day', () => {
+    const [squat] = oneRepMaxSeries(sets);
+
+    expect(squat.points.map((point) => point.date)).toEqual([
+      '2026-10-19',
+      '2026-10-26',
+    ]);
+    expect(squat.points[0].oneRepMax).toBe(estimatedOneRepMax(110, 5));
+  });
+
+  it('should report best and latest', () => {
+    const [squat] = oneRepMaxSeries(sets);
+
+    expect(squat.best).toBe(estimatedOneRepMax(115, 5));
+    expect(squat.latest).toBe(estimatedOneRepMax(115, 5));
+  });
+
+  it('should rank most-trained first', () => {
+    expect(oneRepMaxSeries(sets).map((series) => series.exerciseId)).toEqual([
+      'squat',
+      'curl',
+    ]);
+  });
+
+  it('should drop sets too high-rep to estimate from', () => {
+    expect(oneRepMaxSeries([set('2026-10-19', 60, 20, 'squat')])).toEqual([]);
+  });
+});
+
+describe('adherence', () => {
+  it('should express logged against prescribed', () => {
+    expect(adherence(9, 12)).toEqual({
+      logged: 9,
+      prescribed: 12,
+      percent: 75,
+    });
+  });
+
+  it('should return null rather than zero when nothing was prescribed', () => {
+    expect(adherence(5, 0).percent).toBeNull();
   });
 });

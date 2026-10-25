@@ -91,6 +91,23 @@ const nextBucket = (iso: string, granularity: Granularity): string => {
   return toIsoDay(date);
 };
 
+/** Every bucket from the first key to the last, including untrained ones. */
+const contiguousKeys = (keys: string[], granularity: Granularity): string[] => {
+  const sorted = [...keys].sort();
+  if (sorted.length === 0) {
+    return [];
+  }
+  const all: string[] = [];
+  for (
+    let key = sorted[0];
+    key <= sorted[sorted.length - 1];
+    key = nextBucket(key, granularity)
+  ) {
+    all.push(key);
+  }
+  return all;
+};
+
 export const volumeBuckets = (
   sets: PerformedSet[],
   granularity: Granularity,
@@ -113,27 +130,131 @@ export const volumeBuckets = (
     byBucket.set(key, current);
   }
 
-  const keys = [...byBucket.keys()].sort();
-  if (keys.length === 0) {
-    return [];
-  }
-
-  const buckets: VolumeBucket[] = [];
-  for (
-    let key = keys[0];
-    key <= keys[keys.length - 1];
-    key = nextBucket(key, granularity)
-  ) {
+  return contiguousKeys([...byBucket.keys()], granularity).map((key) => {
     const found = byBucket.get(key);
-    buckets.push({
+    return {
       start: key,
       tonnage: Math.round(found?.tonnage ?? 0),
       sets: found?.sets ?? 0,
       days: found?.days.size ?? 0,
-    });
-  }
-  return buckets;
+    };
+  });
 };
+
+export type PerformedSession = {
+  startedAt: string | null;
+};
+
+export type CountBucket = {
+  start: string;
+  count: number;
+};
+
+/**
+ * Sessions per week or month. Consistency is the thing a coach actually
+ * intervenes on, and it cannot be read off set logs: a session where nothing
+ * was logged still happened, and a week with none is the signal.
+ */
+export const sessionsPerBucket = (
+  sessions: PerformedSession[],
+  granularity: Granularity,
+): CountBucket[] => {
+  const byBucket = new Map<string, number>();
+  for (const session of sessions) {
+    if (!session.startedAt) {
+      continue;
+    }
+    const key = bucketStart(session.startedAt, granularity);
+    byBucket.set(key, (byBucket.get(key) ?? 0) + 1);
+  }
+  return contiguousKeys([...byBucket.keys()], granularity).map((key) => ({
+    start: key,
+    count: byBucket.get(key) ?? 0,
+  }));
+};
+
+export type OneRepMaxPoint = {
+  date: string;
+  oneRepMax: number;
+  weightKg: number;
+  reps: number;
+};
+
+export type OneRepMaxSeries = {
+  exerciseId: string;
+  exerciseName: string;
+  points: OneRepMaxPoint[];
+  best: number;
+  latest: number;
+};
+
+/**
+ * One series per exercise, one point per training day: the best estimated
+ * 1RM of that day. Warm-ups sit below the working sets and drop out by
+ * taking the maximum, so they need no special handling.
+ *
+ * This, not tonnage, is the question an exercise page is asking.
+ */
+export const oneRepMaxSeries = (sets: PerformedSet[]): OneRepMaxSeries[] => {
+  const byExercise = new Map<
+    string,
+    { name: string; byDay: Map<string, OneRepMaxPoint> }
+  >();
+
+  for (const set of sets) {
+    const oneRepMax = estimatedOneRepMax(set.weightKg, set.reps);
+    if (!set.exerciseId || !set.performedAt || oneRepMax === null) {
+      continue;
+    }
+    const exercise = byExercise.get(set.exerciseId) ?? {
+      name: set.exerciseName ?? 'Unknown exercise',
+      byDay: new Map<string, OneRepMaxPoint>(),
+    };
+    const day = set.performedAt.slice(0, 10);
+    const current = exercise.byDay.get(day);
+    if (!current || oneRepMax > current.oneRepMax) {
+      exercise.byDay.set(day, {
+        date: day,
+        oneRepMax,
+        weightKg: set.weightKg ?? 0,
+        reps: set.reps ?? 0,
+      });
+    }
+    byExercise.set(set.exerciseId, exercise);
+  }
+
+  return [...byExercise.entries()]
+    .map(([exerciseId, { name, byDay }]) => {
+      const points = [...byDay.values()].sort((left, right) =>
+        left.date.localeCompare(right.date),
+      );
+      return {
+        exerciseId,
+        exerciseName: name,
+        points,
+        best: Math.max(...points.map((point) => point.oneRepMax)),
+        latest: points[points.length - 1]?.oneRepMax ?? 0,
+      };
+    })
+    // Most-trained first: that is what a coach scrolls to.
+    .sort(
+      (left, right) =>
+        right.points.length - left.points.length || right.best - left.best,
+    );
+};
+
+export type Adherence = {
+  logged: number;
+  prescribed: number;
+  /** Null when nothing was prescribed — not zero, which would read as failure. */
+  percent: number | null;
+};
+
+export const adherence = (logged: number, prescribed: number): Adherence => ({
+  logged,
+  prescribed,
+  percent: prescribed > 0 ? Math.round((logged / prescribed) * 100) : null,
+});
 
 export const totalVolume = (sets: PerformedSet[]): number =>
   Math.round(sets.reduce((total, set) => total + setVolume(set), 0));
