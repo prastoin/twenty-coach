@@ -72,6 +72,7 @@ __metadata:
   resolution: "@coach-twenty/shared@workspace:packages/shared"
   dependencies:
     "@typescript/native-preview": "npm:^7.0.0-dev.20260116.1"
+    vitest: "npm:^4.0.0"
   languageName: unknown
   linkType: soft
 

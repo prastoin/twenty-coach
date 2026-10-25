@@ -18,7 +18,7 @@
     "typecheck": "yarn workspaces foreach -A --exclude coach-twenty-monorepo run typecheck",
     "test": "yarn workspace coach-twenty test",
     "test:watch": "yarn workspace coach-twenty test:watch",
-    "test:unit": "yarn workspace coach-twenty test:unit",
+    "test:unit": "yarn workspace coach-twenty test:unit && yarn workspace @coach-twenty/shared test:unit",
     "pwa:dev": "yarn workspace @coach-twenty/trainee-pwa dev",
     "pwa:build": "yarn workspace @coach-twenty/trainee-pwa build",
     "api:client": "yarn workspace coach-twenty api:client"
