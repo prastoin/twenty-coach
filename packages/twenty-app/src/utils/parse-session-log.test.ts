@@ -114,4 +114,75 @@ describe('parseSessionLog', () => {
     expect(none).toEqual([]);
     expect(strayWarnings).toHaveLength(1);
   });
+
+  it('should report the dialect it applied', () => {
+    expect(parseSessionLog(REAL_SESSION_LOG).dialect).toMatchObject({
+      separator: ['l', '|', '/'],
+      weightUnit: 'kg',
+      warmUpPrefix: 'wu',
+    });
+  });
+});
+
+describe('parseSessionLog dialects', () => {
+  it('should accept another separator and column order', () => {
+    const { exercises } = parseSessionLog(
+      ['Squat', '5 ; 100 ; 2', '5 ; 102.5 ; 1'].join('\n'),
+      { separator: ';', columns: ['reps', 'weight', 'rir'] },
+    );
+
+    expect(exercises[0].sets).toEqual([
+      {
+        weightKg: 100,
+        reps: 5,
+        rir: 2,
+        restSeconds: null,
+        tempo: null,
+        notes: null,
+        isWarmUp: false,
+      },
+      {
+        weightKg: 102.5,
+        reps: 5,
+        rir: 1,
+        restSeconds: null,
+        tempo: null,
+        notes: null,
+        isWarmUp: false,
+      },
+    ]);
+  });
+
+  it('should convert pounds to kilograms', () => {
+    const { exercises } = parseSessionLog(['Bench', '225 | 5'].join('\n'), {
+      separator: '|',
+      columns: ['weight', 'reps'],
+      weightUnit: 'lb',
+    });
+
+    expect(exercises[0].sets[0].weightKg).toBe(102.06);
+  });
+
+  it('should drop columns marked skip', () => {
+    const { exercises } = parseSessionLog(
+      ['Row', '1 - 80 - 8'].join('\n'),
+      { separator: '-', columns: ['skip', 'weight', 'reps'] },
+    );
+
+    expect(exercises[0].sets[0]).toMatchObject({ weightKg: 80, reps: 8 });
+  });
+
+  it('should honour another warm-up prefix', () => {
+    const { exercises } = parseSessionLog(
+      ['Deadlift', 'échauffement 60 80', '140 | 3'].join('\n'),
+      {
+        separator: '|',
+        columns: ['weight', 'reps'],
+        warmUpPrefix: 'échauffement',
+      },
+    );
+
+    const warmUps = exercises[0].sets.filter((set) => set.isWarmUp);
+    expect(warmUps.map((set) => set.weightKg)).toEqual([60, 80]);
+  });
 });

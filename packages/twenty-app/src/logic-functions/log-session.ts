@@ -1,16 +1,17 @@
 import { CoreApiClient } from 'twenty-client-sdk/core';
 import { defineLogicFunction } from 'twenty-sdk/define';
 
-import { parseSessionLog } from 'src/utils/parse-session-log';
+import { LogDialect, parseSessionLog } from 'src/utils/parse-session-log';
 
 /**
  * Writes a program-less session from a raw training log.
  *
- * The split of work is the point: this function parses the numbers itself
- * (deterministically, see parse-session-log) and the caller only supplies the
- * exercise-name → id mapping. An agent therefore cannot invent a weight, and
- * an unresolved exercise name aborts the whole write instead of silently
- * dropping sets or creating a near-duplicate library entry.
+ * The split of work is the point: the caller supplies the notation it read
+ * off the log (the dialect) and the exercise-name → id mapping, and this
+ * function does every value extraction itself. An agent can therefore adapt
+ * to how someone writes without ever being the thing that decides what a
+ * number is. An unresolved exercise name aborts the whole write rather than
+ * silently dropping sets or creating a near-duplicate library entry.
  */
 
 type ExerciseResolution = {
@@ -20,6 +21,7 @@ type ExerciseResolution = {
 
 type LogSessionInput = {
   rawLog: string;
+  dialect?: LogDialect;
   sessionName?: string;
   performedAt?: string;
   comment?: string;
@@ -30,12 +32,19 @@ type LogSessionInput = {
 const normalize = (name: string): string => name.trim().toLowerCase();
 
 const handler = async (input: LogSessionInput) => {
-  const { exercises: parsedExercises, warnings } = parseSessionLog(
-    input.rawLog ?? '',
-  );
+  const {
+    exercises: parsedExercises,
+    dialect,
+    warnings,
+  } = parseSessionLog(input.rawLog ?? '', input.dialect ?? {});
 
   if (parsedExercises.length === 0) {
-    return { created: false, reason: 'No exercises found in the log', warnings };
+    return {
+      created: false,
+      reason: 'No exercises found in the log',
+      dialect,
+      warnings,
+    };
   }
 
   const idByName = new Map(
@@ -50,6 +59,7 @@ const handler = async (input: LogSessionInput) => {
       created: false,
       reason: 'Unresolved exercise names',
       unresolved,
+      dialect,
       warnings,
     };
   }
@@ -115,6 +125,7 @@ const handler = async (input: LogSessionInput) => {
     sessionId,
     exerciseCount: parsedExercises.length,
     setLogCount: rows.length,
+    dialect,
     warnings,
   };
 };
@@ -146,6 +157,45 @@ export default defineLogicFunction({
         traineeMemberId: {
           type: 'string',
           description: 'Workspace member the session belongs to.',
+        },
+        dialect: {
+          type: 'object',
+          description:
+            'How this particular log is written. Omit any field you are confident follows the default.',
+          properties: {
+            separator: {
+              type: 'array',
+              description:
+                "Column separators, e.g. [\"l\"] or [\";\"]. Default [\"l\", \"|\", \"/\"].",
+              items: { type: 'string' },
+            },
+            columns: {
+              type: 'array',
+              description:
+                'Column order. Default ["weight","reps","rir","rest","tempo","notes"]. Use "skip" for a column to ignore.',
+              items: {
+                type: 'string',
+                enum: [
+                  'weight',
+                  'reps',
+                  'rir',
+                  'rest',
+                  'tempo',
+                  'notes',
+                  'skip',
+                ],
+              },
+            },
+            warmUpPrefix: {
+              type: 'string',
+              description: 'Word marking a warm-up line. Default "wu".',
+            },
+            weightUnit: {
+              type: 'string',
+              enum: ['kg', 'lb'],
+              description: 'Unit weights are written in. Default "kg".',
+            },
+          },
         },
         exercises: {
           type: 'array',
