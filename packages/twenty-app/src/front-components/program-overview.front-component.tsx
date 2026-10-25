@@ -13,6 +13,7 @@ import {
   type PrescriptionRow,
   type WorkoutRow,
 } from 'src/front-components/training-plan-shared';
+import { Card, SectionTitle } from 'src/front-components/dashboard-ui';
 
 export const PROGRAM_OVERVIEW_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
   'a5bd6b51-117d-44a6-9206-9985a71f2678';
@@ -162,15 +163,10 @@ const ProgramOverviewContent = () => {
           .sort((left, right) => (left.order ?? 99) - (right.order ?? 99));
         return (
           <div key={week} style={{ marginBottom: '24px' }}>
-            <div
-              style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                marginBottom: '10px',
-                color: palette.textPrimary,
-              }}
-            >
-              {week > 0 ? `Week ${week}` : 'Workouts'}
+            <div style={{ marginBottom: '10px' }}>
+              <SectionTitle palette={palette}>
+                {week > 0 ? `Week ${week}` : 'Workouts'}
+              </SectionTitle>
             </div>
             <div
               style={{
@@ -180,21 +176,12 @@ const ProgramOverviewContent = () => {
               }}
             >
               {weekWorkouts.map((workout) => (
-                <div
-                  key={workout.id}
-                  style={{
-                    border: `1px solid ${palette.border}`,
-                    borderRadius: '10px',
-                    padding: '12px 16px',
-                    backgroundColor: palette.cardBg,
-                  }}
-                >
+                <Card key={workout.id} palette={palette} style={{ gap: '6px' }}>
                   <div
                     style={{
                       display: 'flex',
                       alignItems: 'baseline',
                       gap: '8px',
-                      marginBottom: '6px',
                     }}
                   >
                     <RecordChipLink
@@ -215,7 +202,7 @@ const ProgramOverviewContent = () => {
                     rows={prescriptionsByWorkout.get(workout.id) ?? []}
                     palette={palette}
                   />
-                </div>
+                </Card>
               ))}
             </div>
           </div>

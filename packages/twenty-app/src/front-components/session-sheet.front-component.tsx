@@ -10,6 +10,7 @@ import {
   usePlanPalette,
   type Palette,
 } from 'src/front-components/training-plan-shared';
+import { Card, Stat, StatRow } from 'src/front-components/dashboard-ui';
 
 export const SESSION_SHEET_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
   '88b220bc-b709-416e-95ab-919fb0ef0479';
@@ -243,31 +244,41 @@ const SessionSheetContent = () => {
     (set) => !isWarmUp(set),
   ).length;
 
+  const tonnage = (data?.sets ?? []).reduce(
+    (total, set) => total + (set.weightKg ?? 0) * (set.reps ?? 0),
+    0,
+  );
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        fontFamily: 'inherit',
-      }}
-    >
-      <div style={{ fontSize: '12px', color: palette.textSecondary }}>
-        {groups.length} exercise{groups.length === 1 ? '' : 's'} ·{' '}
-        {workingSetCount} working set{workingSetCount === 1 ? '' : 's'}
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Card palette={palette}>
+        <StatRow palette={palette}>
+          <Stat
+            lead
+            label="Volume"
+            value={
+              tonnage >= 1000
+                ? `${Math.round(tonnage / 100) / 10}t`
+                : `${Math.round(tonnage)}kg`
+            }
+            palette={palette}
+          />
+          <Stat
+            label="Exercises"
+            value={String(groups.length)}
+            palette={palette}
+          />
+          <Stat
+            label="Working sets"
+            value={String(workingSetCount)}
+            palette={palette}
+          />
+        </StatRow>
+      </Card>
 
       {groups.map((group) => (
-        <div
-          key={group.exerciseId ?? group.exerciseName}
-          style={{
-            background: palette.cardBg,
-            border: `1px solid ${palette.border}`,
-            borderRadius: '6px',
-            padding: '8px 10px',
-          }}
-        >
-          <div style={{ marginBottom: '2px' }}>
+        <Card key={group.exerciseId ?? group.exerciseName} palette={palette} style={{ gap: '2px' }}>
+          <div style={{ marginBottom: '4px' }}>
             {group.exerciseId ? (
               <RecordChipLink
                 objectNameSingular="exercise"
@@ -289,7 +300,7 @@ const SessionSheetContent = () => {
           {group.sets.map((set) => (
             <SetLine key={set.id} set={set} palette={palette} />
           ))}
-        </div>
+        </Card>
       ))}
 
       {groups.length === 0 && (
