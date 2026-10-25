@@ -302,6 +302,13 @@ button {
   color: #475569;
 }
 
+.set-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #fca5a5;
+  overflow-wrap: anywhere;
+}
+
 .link-button {
   background: transparent;
   color: #94a3b8;
