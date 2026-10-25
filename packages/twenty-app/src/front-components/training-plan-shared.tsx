@@ -7,11 +7,10 @@ import { AppPath, navigate } from 'twenty-sdk/front-component';
 import {
   Avatar,
   Chip,
-  ChipVariant,
   Tag,
   type TagColor,
-} from 'twenty-ui/data-display';
-import { ThemeProvider, useTheme } from 'twenty-ui/theme-constants';
+} from 'twenty-ui/primitives/data-display';
+import { ThemeProvider, useTheme } from 'twenty-ui/theme';
 
 export type PrescriptionRow = {
   id: string;
@@ -181,17 +180,14 @@ export const RecordChipLink = ({
     style={style}
   >
     <Chip
-      label={name}
-      variant={ChipVariant.Highlighted}
+      variant="soft"
       clickable
-      leftComponent={
-        <Avatar
-          placeholder={name}
-          placeholderColorSeed={recordId}
-          type="squared"
-        />
+      startElement={
+        <Avatar name={name} colorSeed={recordId} shape="rounded-square" />
       }
-    />
+    >
+      {name}
+    </Chip>
   </NavigateSpan>
 );
 
@@ -200,7 +196,11 @@ const SchemeBadge = ({ scheme }: { scheme: string | null }) => {
     return null;
   }
   const tag = SCHEME_TAG[scheme] ?? { label: scheme, color: 'gray' as TagColor };
-  return <Tag color={tag.color} text={tag.label} preventShrink />;
+  return (
+    <Tag color={tag.color} truncate={false}>
+      {tag.label}
+    </Tag>
+  );
 };
 
 export const PrescriptionList = ({
