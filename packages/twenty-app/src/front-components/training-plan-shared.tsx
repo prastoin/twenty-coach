@@ -168,11 +168,15 @@ export const RecordChipLink = ({
   recordId,
   name,
   style,
+  showAvatar = true,
 }: {
   objectNameSingular: string;
   recordId: string;
   name: string;
   style?: CSSProperties;
+  // Off where chips repeat down a list and a colour square per row would be
+  // noise rather than identity — a session's sets, for instance.
+  showAvatar?: boolean;
 }) => (
   <NavigateSpan
     objectNameSingular={objectNameSingular}
@@ -183,7 +187,9 @@ export const RecordChipLink = ({
       variant="soft"
       clickable
       startElement={
-        <Avatar name={name} colorSeed={recordId} shape="rounded-square" />
+        showAvatar ? (
+          <Avatar name={name} colorSeed={recordId} shape="rounded-square" />
+        ) : undefined
       }
     >
       {name}

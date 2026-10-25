@@ -123,15 +123,12 @@ const SetLine = ({ set, palette }: { set: SetRow; palette: Palette }) => {
           flexWrap: 'wrap',
         }}
       >
-        <span
-          style={{
-            fontSize: '11px',
-            color: palette.textMuted,
-            minWidth: '48px',
-          }}
-        >
-          {isWarmUp(set) ? 'Warm-up' : `Set ${set.setNumber}`}
-        </span>
+        <RecordChipLink
+          objectNameSingular="setLog"
+          recordId={set.id}
+          name={isWarmUp(set) ? 'Warm-up' : `Set ${set.setNumber}`}
+          showAvatar={false}
+        />
         <span
           style={{
             fontSize: '13px',
@@ -155,7 +152,7 @@ const SetLine = ({ set, palette }: { set: SetRow; palette: Palette }) => {
             color: palette.textMuted,
             fontStyle: 'italic',
             marginTop: '1px',
-            paddingLeft: '56px',
+            paddingLeft: '8px',
           }}
         >
           {set.comment}
