@@ -52,8 +52,24 @@ const RestClock = ({
   );
 };
 
-const numberOrNull = (value: string): number | null =>
-  value.trim() === '' ? null : Number(value);
+/**
+ * A field is either blank, a number, or a typo. Returning null for a typo
+ * would log the set with that value silently dropped, so typos get their own
+ * result and block the submit instead.
+ */
+const INVALID = Symbol('invalid');
+type Parsed = number | null | typeof INVALID;
+
+const parseNumber = (value: string): Parsed => {
+  const trimmed = value.trim().replace(',', '.');
+  if (trimmed === '') {
+    return null;
+  }
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : INVALID;
+};
+
+const isInvalid = (value: Parsed): value is typeof INVALID => value === INVALID;
 
 const text = (value: number | null): string =>
   value === null ? '' : String(value);
@@ -79,17 +95,42 @@ const SetFields = ({
   const [rest, setRest] = useState(text(initial.restSeconds));
   const [comment, setComment] = useState(initial.comment ?? '');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const submit = async () => {
+    const parsedReps = parseNumber(reps);
+    const parsedWeight = parseNumber(weight);
+    const parsedRir = parseNumber(rir);
+    const parsedRest = parseNumber(rest);
+
+    if (
+      isInvalid(parsedReps) ||
+      isInvalid(parsedWeight) ||
+      isInvalid(parsedRir) ||
+      isInvalid(parsedRest)
+    ) {
+      setError('One of those is not a number.');
+      return;
+    }
+
+    setError(null);
     setSaving(true);
     try {
       await onSubmit({
-        reps: numberOrNull(reps),
-        weightKg: numberOrNull(weight),
-        rir: numberOrNull(rir),
-        restSeconds: numberOrNull(rest),
+        reps: parsedReps,
+        weightKg: parsedWeight,
+        rir: parsedRir,
+        restSeconds: parsedRest,
         comment: comment.trim() === '' ? null : comment.trim(),
       });
+    } catch (caught) {
+      // The typed values stay on screen: mid-workout, losing them is worse
+      // than the failure itself.
+      setError(
+        caught instanceof Error
+          ? `Not saved — ${caught.message}`
+          : 'Not saved. Tap again to retry.',
+      );
     } finally {
       setSaving(false);
     }
@@ -101,7 +142,7 @@ const SetFields = ({
         <label className="field">
           <span>reps</span>
           <input
-            inputMode="numeric"
+            inputMode="decimal"
             value={reps}
             onChange={(event) => setReps(event.target.value)}
           />
@@ -142,6 +183,7 @@ const SetFields = ({
         value={comment}
         onChange={(event) => setComment(event.target.value)}
       />
+      {error && <p className="set-error">{error}</p>}
       {onCancel && (
         <button className="link-button" onClick={onCancel}>
           Cancel
