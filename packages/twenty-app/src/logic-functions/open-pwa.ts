@@ -2,7 +2,7 @@ import { defineLogicFunction, HTTPMethod } from 'twenty-sdk/define';
 import { Response } from 'twenty-sdk/logic-function';
 import { getPublicAssetUrl } from 'twenty-sdk/utils';
 
-// Serves the trainee PWA at the stable /s/pwa URL. The public-asset route
+// Serves the trainee PWA from a stable app route. The public-asset route
 // cannot host app pages directly: it sends Content-Disposition: attachment
 // (anti-XSS posture for served files), so browsers download instead of
 // render. This route fetches the assets server-side and re-serves them
@@ -21,9 +21,37 @@ const CONTENT_TYPES: Record<string, string> = {
   map: 'application/json',
 };
 
-// The page lives at /s/pwa (no trailing slash), so relative asset URLs
-// would resolve one directory too high without an explicit base.
-const BASE_TAG = '<base href="/s/pwa/">';
+const ROUTE_ROOT = '/pwa';
+
+const escapeAttribute = (value: string): string =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+/**
+ * Splits a request path into the directory the page is served from and the
+ * asset below it.
+ *
+ * The prefix is not ours to assume. The same function answers on the legacy
+ * `/s/pwa` route and, once an instance configures a public function
+ * hostname, on `/pwa` at `<workspace>.<hostname>` — see #35. Hardcoding
+ * either one breaks the other silently, so both are read off the request.
+ */
+const splitRequestPath = (
+  requestPath: string,
+): { baseHref: string; assetPath: string } => {
+  const rootIndex = requestPath.indexOf(ROUTE_ROOT);
+  if (rootIndex === -1) {
+    return { baseHref: `${ROUTE_ROOT}/`, assetPath: '' };
+  }
+  const rootEnd = rootIndex + ROUTE_ROOT.length;
+  return {
+    baseHref: `${requestPath.slice(0, rootEnd)}/`,
+    assetPath: requestPath.slice(rootEnd).replace(/^\//, ''),
+  };
+};
 
 const handler = async (event: {
   requestContext?: { http?: { path?: string } };
@@ -32,9 +60,8 @@ const handler = async (event: {
   // stringification), so the asset path is derived from the raw request
   // path instead.
   const requestPath = event.requestContext?.http?.path ?? '';
-  const assetPath =
-    decodeURIComponent(requestPath.replace(/^\/s\/pwa\/?/, '')) ||
-    'index.html';
+  const { baseHref, assetPath: rawAssetPath } = splitRequestPath(requestPath);
+  const assetPath = decodeURIComponent(rawAssetPath) || 'index.html';
 
   const extension = assetPath.split('.').pop() ?? '';
   if (assetPath.includes('..') || !CONTENT_TYPES[extension]) {
@@ -47,7 +74,13 @@ const handler = async (event: {
   }
   let body = await upstream.text();
   if (assetPath === 'index.html') {
-    body = body.replace('<head>', `<head>${BASE_TAG}`);
+    // The page has no trailing slash, so relative asset URLs would resolve
+    // one directory too high without an explicit base. It comes from the
+    // request, hence the escaping.
+    body = body.replace(
+      '<head>',
+      `<head><base href="${escapeAttribute(baseHref)}">`,
+    );
   }
 
   return new Response(body, {
@@ -66,7 +99,7 @@ const handler = async (event: {
 export default defineLogicFunction({
   universalIdentifier: 'e523d181-4dc8-4ca3-9d8a-d982526d2583',
   name: 'open-pwa',
-  description: 'Serves the trainee PWA at the stable /s/pwa URL',
+  description: 'Serves the trainee PWA under whichever route prefix answers',
   timeoutSeconds: 10,
   httpRouteTriggerSettings: {
     path: '/pwa{/*path}',
