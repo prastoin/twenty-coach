@@ -309,3 +309,114 @@ export const volumeTrendPercent = (buckets: VolumeBucket[]): number | null => {
   }
   return Math.round(((last - first) / first) * 1000) / 10;
 };
+
+/**
+ * Axis ticks a reader can actually use. Dividing the peak by two gives
+ * values like 2.6t and 1.3t, which are hard to measure a bar against;
+ * rounding the step to 1, 2, 2.5 or 5 of a magnitude gives 3t, 2t, 1t, 0.
+ *
+ * Returns descending ticks, always ending at zero.
+ */
+export const niceTicks = (peak: number, count = 4): number[] => {
+  if (!Number.isFinite(peak) || peak <= 0) {
+    return [0];
+  }
+  const rawStep = peak / Math.max(count - 1, 1);
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  const normalised = rawStep / magnitude;
+  const niceNormalised =
+    normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 2.5 ? 2.5 : normalised <= 5 ? 5 : 10;
+  const step = niceNormalised * magnitude;
+  const top = Math.ceil(peak / step) * step;
+
+  const ticks: number[] = [];
+  for (let value = top; value > 0; value -= step) {
+    // Floating point: 0.30000000000000004 has no business on an axis.
+    ticks.push(Math.round(value * 1e6) / 1e6);
+  }
+  ticks.push(0);
+  return ticks;
+};
+
+/**
+ * Trailing moving average, null until the window is full.
+ *
+ * Weekly volume is noisy by design — a deload drops it on purpose — so the
+ * bars alone do not answer whether a block is ramping. This does.
+ */
+export const movingAverage = (
+  values: number[],
+  window: number,
+): (number | null)[] =>
+  values.map((_, index) => {
+    if (window <= 0 || index < window - 1) {
+      return null;
+    }
+    const slice = values.slice(index - window + 1, index + 1);
+    return slice.reduce((total, value) => total + value, 0) / window;
+  });
+
+export type CalendarDay = {
+  date: string;
+  /** Monday-based column index, 0 for the first week shown. */
+  week: number;
+  /** 0 = Monday … 6 = Sunday. */
+  weekday: number;
+  count: number;
+};
+
+const addDays = (iso: string, days: number): string => {
+  const date = new Date(`${iso}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+};
+
+/**
+ * Every day from the first session's week to the last, as a weekday grid.
+ *
+ * Counting sessions per day rather than per week is the point: a program is
+ * built on weekdays, so "Saturday keeps getting dropped" is a coaching fact
+ * that a weekly total cannot express.
+ */
+export const sessionCalendar = (
+  sessions: PerformedSession[],
+  today?: string,
+): CalendarDay[] => {
+  const byDay = new Map<string, number>();
+  for (const session of sessions) {
+    if (!session.startedAt) {
+      continue;
+    }
+    const day = session.startedAt.slice(0, 10);
+    byDay.set(day, (byDay.get(day) ?? 0) + 1);
+  }
+
+  const days = [...byDay.keys()].sort();
+  if (days.length === 0) {
+    return [];
+  }
+
+  const first = bucketStart(days[0], 'week');
+  const lastDay = today ?? days[days.length - 1];
+  // Run to the end of the week containing the last day, so the grid is whole.
+  const last = addDays(bucketStart(lastDay, 'week'), 6);
+
+  const calendar: CalendarDay[] = [];
+  let cursor = first;
+  let week = 0;
+  while (cursor <= last) {
+    const date = new Date(`${cursor}T00:00:00Z`);
+    const weekday = (date.getUTCDay() + 6) % 7;
+    calendar.push({
+      date: cursor,
+      week,
+      weekday,
+      count: byDay.get(cursor) ?? 0,
+    });
+    if (weekday === 6) {
+      week += 1;
+    }
+    cursor = addDays(cursor, 1);
+  }
+  return calendar;
+};

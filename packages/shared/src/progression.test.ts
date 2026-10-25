@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   adherence,
+  movingAverage,
+  niceTicks,
+  sessionCalendar,
   bucketStart,
   estimatedOneRepMax,
   oneRepMaxSeries,
@@ -253,5 +256,82 @@ describe('adherence', () => {
 
   it('should return null rather than zero when nothing was prescribed', () => {
     expect(adherence(5, 0).percent).toBeNull();
+  });
+});
+
+describe('niceTicks', () => {
+  it('should round a scale to numbers worth reading', () => {
+    // 2600 / 3 is 866, which rounds up to a step of 1000.
+    expect(niceTicks(2600)).toEqual([3000, 2000, 1000, 0]);
+  });
+
+  it('should always end at zero and start at or above the peak', () => {
+    const ticks = niceTicks(417);
+
+    expect(ticks[ticks.length - 1]).toBe(0);
+    expect(ticks[0]).toBeGreaterThanOrEqual(417);
+  });
+
+  it('should handle small integer ranges without repeating a tick', () => {
+    const ticks = niceTicks(2);
+
+    expect(ticks).toEqual([...new Set(ticks)]);
+    expect(ticks).toContain(0);
+  });
+
+  it('should degrade to a single zero when there is nothing to scale', () => {
+    expect(niceTicks(0)).toEqual([0]);
+    expect(niceTicks(-5)).toEqual([0]);
+  });
+});
+
+describe('movingAverage', () => {
+  it('should be null until the window is full, then trail', () => {
+    expect(movingAverage([1, 2, 3, 4], 3)).toEqual([null, null, 2, 3]);
+  });
+
+  it('should return every value untouched for a window of one', () => {
+    expect(movingAverage([5, 7], 1)).toEqual([5, 7]);
+  });
+});
+
+describe('sessionCalendar', () => {
+  it('should lay days out as Monday-based weekday rows', () => {
+    // 2026-10-19 is a Monday, 2026-10-21 a Wednesday.
+    const calendar = sessionCalendar(
+      [{ startedAt: '2026-10-19' }, { startedAt: '2026-10-21' }],
+      '2026-10-21',
+    );
+
+    expect(calendar).toHaveLength(7);
+    expect(calendar[0]).toMatchObject({ date: '2026-10-19', weekday: 0, count: 1 });
+    expect(calendar[2]).toMatchObject({ date: '2026-10-21', weekday: 2, count: 1 });
+    expect(calendar[1].count).toBe(0);
+  });
+
+  it('should count two sessions on one day', () => {
+    const calendar = sessionCalendar(
+      [{ startedAt: '2026-10-19' }, { startedAt: '2026-10-19' }],
+      '2026-10-19',
+    );
+
+    expect(calendar[0].count).toBe(2);
+  });
+
+  it('should advance the week index across a boundary', () => {
+    const calendar = sessionCalendar(
+      [{ startedAt: '2026-10-19' }, { startedAt: '2026-10-27' }],
+      '2026-10-27',
+    );
+
+    expect(calendar.filter((day) => day.week === 0)).toHaveLength(7);
+    expect(calendar.find((day) => day.date === '2026-10-27')).toMatchObject({
+      week: 1,
+      weekday: 1,
+    });
+  });
+
+  it('should return nothing when no session ever started', () => {
+    expect(sessionCalendar([{ startedAt: null }])).toEqual([]);
   });
 });

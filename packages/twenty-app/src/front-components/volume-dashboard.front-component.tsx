@@ -8,8 +8,10 @@ import {
 } from 'twenty-sdk/front-component';
 import {
   adherence,
+  movingAverage,
+  niceTicks,
   oneRepMaxSeries,
-  sessionsPerBucket,
+  sessionCalendar,
   totalVolume,
   volumeBuckets,
   volumeByExercise,
@@ -24,6 +26,7 @@ import {
   usePlanPalette,
 } from 'src/front-components/training-plan-shared';
 import {
+  ActivityGrid,
   BarSeries,
   Card,
   ChartFrame,
@@ -282,9 +285,9 @@ const VolumeDashboardContent = () => {
     () => volumeBuckets(sets, granularity),
     [sets, granularity],
   );
-  const consistency = useMemo(
-    () => sessionsPerBucket(data?.sessionStarts ?? [], granularity),
-    [data, granularity],
+  const calendar = useMemo(
+    () => sessionCalendar(data?.sessionStarts ?? []),
+    [data],
   );
   const perExercise = useMemo(
     () => (scope.kind === 'exercise' ? [] : volumeByExercise(sets).slice(0, 8)),
@@ -311,24 +314,31 @@ const VolumeDashboardContent = () => {
   const periodWord = granularity === 'week' ? 'Weeks' : 'Months';
   const compliance = adherence(sets.length, data.prescribedSets);
 
-  const volumeBars: BarDatum[] = buckets.map((bucket) => ({
+  // Four periods: a month of weeks, or a quarter of months.
+  const averages = movingAverage(
+    buckets.map((bucket) => bucket.tonnage),
+    Math.min(4, buckets.length),
+  );
+  const volumeTicks = niceTicks(
+    Math.max(...buckets.map((bucket) => bucket.tonnage), 1),
+  );
+  const volumeTop = volumeTicks[0];
+  // One unit for the whole axis, chosen by its top: 2.6t beside 0kg is two
+  // scales pretending to be one.
+  const axisFormat = (value: number): string =>
+    volumeTop >= 1000
+      ? `${Math.round((value / 1000) * 10) / 10}t`
+      : `${Math.round(value)}kg`;
+
+  const volumeBars: BarDatum[] = buckets.map((bucket, index) => ({
     key: bucket.start,
     value: bucket.tonnage,
+    average: averages[index],
     label: bucketLabel(bucket.start, granularity),
     tooltip: `${bucketLabel(bucket.start, granularity)} — ${formatTonnage(
       bucket.tonnage,
     )}, ${bucket.sets} sets, ${bucket.days} day${bucket.days === 1 ? '' : 's'}`,
   }));
-  const sessionBars: BarDatum[] = consistency.map((bucket) => ({
-    key: bucket.start,
-    value: bucket.count,
-    label: bucketLabel(bucket.start, granularity),
-    tooltip: `${bucketLabel(bucket.start, granularity)} — ${bucket.count} session${
-      bucket.count === 1 ? '' : 's'
-    }`,
-  }));
-  const volumePeak = Math.max(...buckets.map((bucket) => bucket.tonnage), 1);
-  const sessionPeak = Math.max(...consistency.map((bucket) => bucket.count), 1);
   const headline =
     scope.kind === 'exercise' && series[0]
       ? { label: 'Best estimated 1RM', value: `${series[0].best}kg` }
@@ -412,37 +422,31 @@ const VolumeDashboardContent = () => {
         </SectionTitle>
         <ChartFrame
           height={CHART_HEIGHT}
-          peak={volumePeak}
-          format={formatTonnage}
+          ticks={volumeTicks}
+          format={axisFormat}
           palette={palette}
         >
           <BarSeries
             data={volumeBars}
             height={CHART_HEIGHT}
-            peak={volumePeak}
+            top={volumeTop}
             palette={palette}
           />
         </ChartFrame>
       </Card>
 
-      {consistency.length > 1 && (
+      {calendar.length > 0 && (
         <Card palette={palette}>
-          <SectionTitle palette={palette}>
-            Sessions per {granularity}
-          </SectionTitle>
-          <ChartFrame
-            height={110}
-            peak={sessionPeak}
-            format={(value) => String(Math.round(value))}
+          <SectionTitle palette={palette}>Training days</SectionTitle>
+          <ActivityGrid
+            cells={calendar}
             palette={palette}
-          >
-            <BarSeries
-              data={sessionBars}
-              height={110}
-              peak={sessionPeak}
-              palette={palette}
-            />
-          </ChartFrame>
+            monthLabel={(date) => {
+              const [, month, day] = date.split('-');
+              // Only the column that opens a month gets a name.
+              return Number(day) <= 7 ? MONTHS[Number(month) - 1] : null;
+            }}
+          />
         </Card>
       )}
 
