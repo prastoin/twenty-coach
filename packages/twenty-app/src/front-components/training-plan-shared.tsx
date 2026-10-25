@@ -47,6 +47,11 @@ export type Palette = {
   textSecondary: string;
   textMuted: string;
   sectionBg: string;
+  /** Series colour, and the faint track a series sits in. */
+  accent: string;
+  accentSoft: string;
+  /** Hairline behind a chart, lighter than a border. */
+  gridline: string;
 };
 
 // Wraps a front component in the twenty-ui css-variable theme so Tag and
@@ -72,6 +77,9 @@ export const usePlanPalette = (): Palette => {
     textSecondary: theme.font.color.secondary,
     textMuted: theme.font.color.light,
     sectionBg: theme.background.tertiary,
+    accent: theme.color.blue,
+    accentSoft: theme.accent.tertiary,
+    gridline: theme.border.color.light,
   };
 };
 

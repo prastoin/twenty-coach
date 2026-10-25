@@ -14,34 +14,34 @@ import {
   volumeBuckets,
   volumeByExercise,
   volumeTrendPercent,
-  type CountBucket,
   type Granularity,
-  type OneRepMaxSeries,
   type PerformedSet,
-  type VolumeBucket,
 } from '@coach-twenty/shared';
 
 import {
   PlanThemeProvider,
   RecordChipLink,
   usePlanPalette,
-  type Palette,
 } from 'src/front-components/training-plan-shared';
+import {
+  BarSeries,
+  Card,
+  ChartFrame,
+  MeterRow,
+  SectionTitle,
+  Stat,
+  StatRow,
+  TrendLine,
+  type BarDatum,
+} from 'src/front-components/dashboard-ui';
 
 export const VOLUME_DASHBOARD_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
   'a7b1c4e6-8d92-4f03-b5a7-1c2e9f4d6b80';
 
-// Bars are flexbox, not a chart library and not a scaled SVG viewBox. The
-// libraries bring a ResizeObserver and an animation frameloop, which is what
-// breaks inside the front-component sandbox; a scaled viewBox needs the
-// widget's width or it stretches its own axis labels. The one place SVG
-// earns its keep is the line, where geometry needs real coordinates — and
-// there the labels stay in HTML beside it.
+// Presentation lives in dashboard-ui, shared with every other surface in the
+// app so they read as one product.
 const CHART_HEIGHT = 150;
 const LINE_HEIGHT = 120;
-const BAR_GAP = 2;
-const MAX_BAR_WIDTH = 56;
-const ACCENT = '#6366f1';
 
 const MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -62,202 +62,6 @@ const dayLabel = (iso: string): string => {
 
 const formatTonnage = (kg: number): string =>
   kg >= 1000 ? `${Math.round(kg / 100) / 10}t` : `${kg}kg`;
-
-const BarChart = <T,>({
-  buckets,
-  value,
-  label,
-  tooltip,
-  palette,
-}: {
-  buckets: T[];
-  value: (bucket: T) => number;
-  label: (bucket: T) => string;
-  tooltip: (bucket: T) => string;
-  palette: Palette;
-}) => {
-  const peak = Math.max(...buckets.map(value), 1);
-  const labelEvery = Math.ceil(buckets.length / 10);
-
-  return (
-    <div style={{ display: 'flex', gap: `${BAR_GAP}px` }}>
-      {buckets.map((bucket, index) => (
-        <div
-          key={`${label(bucket)}-${index}`}
-          title={tooltip(bucket)}
-          style={{
-            flex: '1 1 0',
-            minWidth: 0,
-            maxWidth: `${MAX_BAR_WIDTH}px`,
-            display: 'flex',
-            flexDirection: 'column',
-            height: `${CHART_HEIGHT}px`,
-          }}
-        >
-          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end' }}>
-            <div
-              style={{
-                width: '100%',
-                height: `${Math.round((value(bucket) / peak) * 100)}%`,
-                minHeight: value(bucket) > 0 ? '2px' : 0,
-                background: ACCENT,
-                borderRadius: '2px 2px 0 0',
-              }}
-            />
-          </div>
-          <div
-            style={{
-              height: '18px',
-              borderTop: `1px solid ${palette.border}`,
-              paddingTop: '3px',
-              fontSize: '9px',
-              color: palette.textMuted,
-              textAlign: 'center',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {index % labelEvery === 0 ? label(bucket) : ''}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-/** Estimated 1RM over time — the question an exercise page is asking. */
-const OneRepMaxChart = ({
-  series,
-  palette,
-}: {
-  series: OneRepMaxSeries;
-  palette: Palette;
-}) => {
-  const { points } = series;
-  if (points.length < 2) {
-    return (
-      <div style={{ fontSize: '12px', color: palette.textMuted }}>
-        {points.length === 1
-          ? `One session so far — ${points[0].oneRepMax}kg estimated.`
-          : 'Not enough sets under 12 reps to estimate.'}
-      </div>
-    );
-  }
-
-  const values = points.map((point) => point.oneRepMax);
-  const low = Math.min(...values);
-  const span = Math.max(...values) - low || 1;
-  const coords = points.map((point, index) => {
-    const x = (index / (points.length - 1)) * 100;
-    const y = 95 - ((point.oneRepMax - low) / span) * 90;
-    return `${x},${y}`;
-  });
-
-  return (
-    <div>
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{ width: '100%', height: `${LINE_HEIGHT}px`, display: 'block' }}
-        role="img"
-        aria-label={`Estimated 1RM for ${series.exerciseName}`}
-      >
-        <polyline
-          points={coords.join(' ')}
-          fill="none"
-          stroke={ACCENT}
-          strokeWidth="2"
-          vectorEffect="non-scaling-stroke"
-        />
-      </svg>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          borderTop: `1px solid ${palette.border}`,
-          paddingTop: '3px',
-          fontSize: '9px',
-          color: palette.textMuted,
-        }}
-      >
-        <span>
-          {dayLabel(points[0].date)} · {points[0].oneRepMax}kg
-        </span>
-        <span>
-          {dayLabel(points[points.length - 1].date)} ·{' '}
-          {points[points.length - 1].oneRepMax}kg
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const AdherenceBar = ({
-  logged,
-  prescribed,
-  percent,
-  palette,
-}: {
-  logged: number;
-  prescribed: number;
-  percent: number | null;
-  palette: Palette;
-}) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-    <span style={{ fontSize: '11px', color: palette.textMuted }}>
-      Adherence — {logged} of {prescribed} prescribed sets
-      {percent !== null ? ` · ${percent}%` : ''}
-    </span>
-    <span
-      style={{
-        height: '6px',
-        background: palette.sectionBg,
-        borderRadius: '3px',
-        overflow: 'hidden',
-      }}
-    >
-      <span
-        style={{
-          display: 'block',
-          height: '100%',
-          width: `${Math.min(percent ?? 0, 100)}%`,
-          background: ACCENT,
-        }}
-      />
-    </span>
-  </div>
-);
-
-const Stat = ({
-  label,
-  value,
-  palette,
-}: {
-  label: string;
-  value: string;
-  palette: Palette;
-}) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-    <span style={{ fontSize: '11px', color: palette.textMuted }}>{label}</span>
-    <span style={{ fontSize: '16px', fontWeight: 600, color: palette.textPrimary }}>
-      {value}
-    </span>
-  </div>
-);
-
-const Section = ({
-  title,
-  children,
-  palette,
-}: {
-  title: string;
-  children: React.ReactNode;
-  palette: Palette;
-}) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-    <span style={{ fontSize: '11px', color: palette.textMuted }}>{title}</span>
-    {children}
-  </div>
-);
 
 type ScopeKind =
   | 'all'
@@ -507,164 +311,179 @@ const VolumeDashboardContent = () => {
   const periodWord = granularity === 'week' ? 'Weeks' : 'Months';
   const compliance = adherence(sets.length, data.prescribedSets);
 
+  const volumeBars: BarDatum[] = buckets.map((bucket) => ({
+    key: bucket.start,
+    value: bucket.tonnage,
+    label: bucketLabel(bucket.start, granularity),
+    tooltip: `${bucketLabel(bucket.start, granularity)} — ${formatTonnage(
+      bucket.tonnage,
+    )}, ${bucket.sets} sets, ${bucket.days} day${bucket.days === 1 ? '' : 's'}`,
+  }));
+  const sessionBars: BarDatum[] = consistency.map((bucket) => ({
+    key: bucket.start,
+    value: bucket.count,
+    label: bucketLabel(bucket.start, granularity),
+    tooltip: `${bucketLabel(bucket.start, granularity)} — ${bucket.count} session${
+      bucket.count === 1 ? '' : 's'
+    }`,
+  }));
+  const volumePeak = Math.max(...buckets.map((bucket) => bucket.tonnage), 1);
+  const sessionPeak = Math.max(...consistency.map((bucket) => bucket.count), 1);
+  const headline =
+    scope.kind === 'exercise' && series[0]
+      ? { label: 'Best estimated 1RM', value: `${series[0].best}kg` }
+      : { label: 'Total volume', value: formatTonnage(totalVolume(sets)) };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          gap: '20px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <Stat
-          label="Total volume"
-          value={formatTonnage(totalVolume(sets))}
-          palette={palette}
-        />
-        <Stat
-          label={`${periodWord} trained`}
-          value={`${trained.length}/${buckets.length}`}
-          palette={palette}
-        />
-        {scope.kind === 'exercise' && series[0] ? (
-          <Stat label="Best e1RM" value={`${series[0].best}kg`} palette={palette} />
-        ) : (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <Card palette={palette}>
+        <StatRow palette={palette}>
           <Stat
-            label="Best"
-            value={formatTonnage(Math.max(...buckets.map((bucket) => bucket.tonnage)))}
+            lead
+            label={headline.label}
+            value={headline.value}
             palette={palette}
           />
-        )}
-        <Stat
-          label="Trend"
-          value={trend === null ? '—' : `${trend > 0 ? '+' : ''}${trend}%`}
-          palette={palette}
-        />
-        <span style={{ flex: 1 }} />
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {(['week', 'month'] as Granularity[]).map((option) => (
-            <button
-              key={option}
-              onClick={() => setGranularity(option)}
-              style={{
-                fontSize: '12px',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                border: `1px solid ${palette.border}`,
-                background: option === granularity ? palette.sectionBg : 'transparent',
-                color:
-                  option === granularity ? palette.textPrimary : palette.textSecondary,
-              }}
-            >
-              {option === 'week' ? 'Weekly' : 'Monthly'}
-            </button>
-          ))}
-        </div>
-      </div>
+          <Stat
+            label={`${periodWord} trained`}
+            value={`${trained.length}/${buckets.length}`}
+            palette={palette}
+          />
+          <Stat
+            label="Trend"
+            value={trend === null ? '—' : `${trend > 0 ? '+' : ''}${trend}%`}
+            hint={trend === null ? 'needs two periods' : undefined}
+            palette={palette}
+          />
+          {scope.kind === 'exercise' && (
+            <Stat
+              label="Volume"
+              value={formatTonnage(totalVolume(sets))}
+              palette={palette}
+            />
+          )}
+          <span style={{ flex: 1 }} />
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {(['week', 'month'] as Granularity[]).map((option) => (
+              <button
+                key={option}
+                onClick={() => setGranularity(option)}
+                style={{
+                  fontSize: '12px',
+                  padding: '5px 12px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  border: `1px solid ${
+                    option === granularity ? palette.accent : palette.border
+                  }`,
+                  background:
+                    option === granularity ? palette.accentSoft : 'transparent',
+                  color:
+                    option === granularity
+                      ? palette.textPrimary
+                      : palette.textSecondary,
+                }}
+              >
+                {option === 'week' ? 'Weekly' : 'Monthly'}
+              </button>
+            ))}
+          </div>
+        </StatRow>
+      </Card>
 
-      {scope.kind === 'exercise' && series[0] && (
-        <Section title="Estimated 1RM" palette={palette}>
-          <OneRepMaxChart series={series[0]} palette={palette} />
-        </Section>
+      {scope.kind === 'exercise' && series[0] && series[0].points.length > 1 && (
+        <Card palette={palette}>
+          <SectionTitle palette={palette}>Estimated 1RM</SectionTitle>
+          <TrendLine
+            points={series[0].points.map((point) => ({
+              label: dayLabel(point.date),
+              value: point.oneRepMax,
+            }))}
+            height={LINE_HEIGHT}
+            palette={palette}
+            format={(value) => `${Math.round(value)}kg`}
+          />
+        </Card>
       )}
 
-      <Section title={`Volume per ${granularity}`} palette={palette}>
-        <BarChart<VolumeBucket>
-          buckets={buckets}
-          value={(bucket) => bucket.tonnage}
-          label={(bucket) => bucketLabel(bucket.start, granularity)}
-          tooltip={(bucket) =>
-            `${bucketLabel(bucket.start, granularity)} — ${formatTonnage(
-              bucket.tonnage,
-            )}, ${bucket.sets} sets, ${bucket.days} day${
-              bucket.days === 1 ? '' : 's'
-            }`
-          }
+      <Card palette={palette}>
+        <SectionTitle palette={palette}>
+          Volume per {granularity}
+        </SectionTitle>
+        <ChartFrame
+          height={CHART_HEIGHT}
+          peak={volumePeak}
+          format={formatTonnage}
           palette={palette}
-        />
-      </Section>
-
-      {consistency.length > 1 && (
-        <Section title={`Sessions per ${granularity}`} palette={palette}>
-          <BarChart<CountBucket>
-            buckets={consistency}
-            value={(bucket) => bucket.count}
-            label={(bucket) => bucketLabel(bucket.start, granularity)}
-            tooltip={(bucket) =>
-              `${bucketLabel(bucket.start, granularity)} — ${
-                bucket.count
-              } session${bucket.count === 1 ? '' : 's'}`
-            }
+        >
+          <BarSeries
+            data={volumeBars}
+            height={CHART_HEIGHT}
+            peak={volumePeak}
             palette={palette}
           />
-        </Section>
+        </ChartFrame>
+      </Card>
+
+      {consistency.length > 1 && (
+        <Card palette={palette}>
+          <SectionTitle palette={palette}>
+            Sessions per {granularity}
+          </SectionTitle>
+          <ChartFrame
+            height={110}
+            peak={sessionPeak}
+            format={(value) => String(Math.round(value))}
+            palette={palette}
+          >
+            <BarSeries
+              data={sessionBars}
+              height={110}
+              peak={sessionPeak}
+              palette={palette}
+            />
+          </ChartFrame>
+        </Card>
       )}
 
       {data.prescribedSets > 0 && (
-        <AdherenceBar
-          logged={compliance.logged}
-          prescribed={compliance.prescribed}
-          percent={compliance.percent}
-          palette={palette}
-        />
+        <Card palette={palette}>
+          <SectionTitle palette={palette}>Adherence</SectionTitle>
+          <MeterRow
+            label="Sets logged against prescribed"
+            fraction={compliance.prescribed > 0 ? compliance.logged / compliance.prescribed : 0}
+            value={`${compliance.logged}/${compliance.prescribed}`}
+            hint={compliance.percent !== null ? `${compliance.percent}%` : undefined}
+            palette={palette}
+          />
+        </Card>
       )}
 
       {perExercise.length > 0 && (
-        <Section title="By exercise" palette={palette}>
+        <Card palette={palette}>
+          <SectionTitle palette={palette}>By exercise</SectionTitle>
           {perExercise.map((exercise) => (
-            <div
+            <MeterRow
               key={exercise.exerciseId}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-            >
-              <span style={{ minWidth: '200px' }}>
+              label={
                 <RecordChipLink
                   objectNameSingular="exercise"
                   recordId={exercise.exerciseId}
                   name={exercise.exerciseName}
                   showAvatar={false}
                 />
-              </span>
-              <span
-                style={{
-                  flex: 1,
-                  height: '6px',
-                  background: palette.sectionBg,
-                  borderRadius: '3px',
-                  overflow: 'hidden',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'block',
-                    height: '100%',
-                    width: `${Math.round(
-                      (exercise.tonnage / perExercise[0].tonnage) * 100,
-                    )}%`,
-                    background: ACCENT,
-                  }}
-                />
-              </span>
-              <span
-                style={{
-                  fontSize: '12px',
-                  color: palette.textSecondary,
-                  minWidth: '80px',
-                  textAlign: 'right',
-                }}
-              >
-                {formatTonnage(exercise.tonnage)}
-                {exercise.bestOneRepMax !== null && (
-                  <span style={{ color: palette.textMuted }}>
-                    {' '}
-                    · {exercise.bestOneRepMax}kg
-                  </span>
-                )}
-              </span>
-            </div>
+              }
+              fraction={exercise.tonnage / perExercise[0].tonnage}
+              value={formatTonnage(exercise.tonnage)}
+              hint={
+                exercise.bestOneRepMax !== null
+                  ? `${exercise.bestOneRepMax}kg`
+                  : undefined
+              }
+              palette={palette}
+            />
           ))}
-        </Section>
+        </Card>
       )}
     </div>
   );
