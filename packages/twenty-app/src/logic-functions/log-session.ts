@@ -84,11 +84,16 @@ const handler = async (input: LogSessionInput) => {
 
   const sessionId = createSession.id;
 
+  // Position runs across the whole session, not per exercise: it drives every
+  // native ordering surface, and restarting it per exercise interleaves them.
+  let position = 0;
+
   const rows = parsedExercises.flatMap((exercise) => {
     const exerciseId = idByName.get(normalize(exercise.name));
     let workingSetNumber = 0;
 
-    return exercise.sets.map((set, index) => {
+    return exercise.sets.map((set) => {
+      position += 1;
       if (!set.isWarmUp) {
         workingSetNumber += 1;
       }
@@ -98,7 +103,7 @@ const handler = async (input: LogSessionInput) => {
 
       return {
         name: label,
-        position: index + 1,
+        position,
         sessionId,
         exerciseId,
         setNumber: set.isWarmUp ? null : workingSetNumber,
