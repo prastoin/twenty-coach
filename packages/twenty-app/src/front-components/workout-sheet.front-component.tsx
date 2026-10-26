@@ -12,6 +12,7 @@ import {
   usePlanPalette,
   type PrescriptionRow,
 } from 'src/front-components/training-plan-shared';
+import { Card } from 'src/front-components/dashboard-ui';
 
 export const WORKOUT_SHEET_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
   '076388e6-fda4-45cc-8102-d7c75c2cab08';
@@ -144,16 +145,9 @@ const WorkoutSheetContent = () => {
         ) : null}
         <span>{meta.join(' · ')}</span>
       </div>
-      <div
-        style={{
-          border: `1px solid ${palette.border}`,
-          borderRadius: '10px',
-          padding: '14px 18px',
-          backgroundColor: palette.cardBg,
-        }}
-      >
+      <Card palette={palette}>
         <PrescriptionList rows={data.prescriptions} palette={palette} />
-      </div>
+      </Card>
       {data.notes && (
         <div
           style={{

@@ -8,5 +8,6 @@
 // package in isolation and fails to resolve `workspace:*` (see #31).
 // Until a vendoring step exists, only the PWA consumes it.
 
+export * from './progression';
 export * from './session';
 export * from './training';
