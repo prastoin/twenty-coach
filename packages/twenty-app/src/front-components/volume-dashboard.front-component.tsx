@@ -10,7 +10,9 @@ import {
   adherence,
   movingAverage,
   niceTicks,
+  niceTicksBetween,
   oneRepMaxSeries,
+  oneRepMaxTrendPercent,
   sessionCalendar,
   totalVolume,
   volumeBuckets,
@@ -34,6 +36,7 @@ import {
   SectionTitle,
   Stat,
   StatRow,
+  TrendEnds,
   TrendLine,
   type BarDatum,
 } from 'src/front-components/dashboard-ui';
@@ -95,7 +98,8 @@ const SET_SELECTION = {
   reps: true,
   weightKg: true,
   createdAt: true,
-  exercise: { id: true, name: true },
+  rir: true,
+  exercise: { id: true, name: true, equipmentType: true },
   session: { startedAt: true },
 };
 
@@ -104,6 +108,8 @@ const toPerformedSet = (node: any): PerformedSet => ({
   exerciseName: node?.exercise?.name ?? null,
   reps: node?.reps ?? null,
   weightKg: node?.weightKg ?? null,
+  rir: node?.rir ?? null,
+  equipmentType: node?.exercise?.equipmentType ?? null,
   // When it was trained, not when the row was written — a log typed up days
   // later still belongs to the session's week.
   performedAt: node?.session?.startedAt ?? node?.createdAt ?? null,
@@ -309,7 +315,10 @@ const VolumeDashboardContent = () => {
     );
   }
 
-  const trend = volumeTrendPercent(buckets);
+  const volumeTrend = volumeTrendPercent(buckets);
+  const strengthTrend = series[0] ? oneRepMaxTrendPercent(series[0]) : null;
+  const asPercent = (value: number | null) =>
+    value === null ? '—' : `${value > 0 ? '+' : ''}${value}%`;
   const trained = buckets.filter((bucket) => bucket.tonnage > 0);
   const periodWord = granularity === 'week' ? 'Weeks' : 'Months';
   const compliance = adherence(sets.length, data.prescribedSets);
@@ -329,6 +338,18 @@ const VolumeDashboardContent = () => {
     volumeTop >= 1000
       ? `${Math.round((value / 1000) * 10) / 10}t`
       : `${Math.round(value)}kg`;
+
+  const strengthPoints =
+    scope.kind === 'exercise' && series[0]
+      ? series[0].points.map((point) => ({
+          label: dayLabel(point.date),
+          value: point.oneRepMax,
+        }))
+      : [];
+  const strengthTicks = niceTicksBetween(
+    Math.min(...strengthPoints.map((point) => point.value), Infinity),
+    Math.max(...strengthPoints.map((point) => point.value), -Infinity),
+  );
 
   const volumeBars: BarDatum[] = buckets.map((bucket, index) => ({
     key: bucket.start,
@@ -359,10 +380,18 @@ const VolumeDashboardContent = () => {
             value={`${trained.length}/${buckets.length}`}
             palette={palette}
           />
+          {scope.kind === 'exercise' && series[0] && (
+            <Stat
+              label="Strength trend"
+              value={asPercent(strengthTrend)}
+              hint={strengthTrend === null ? 'needs two sessions' : undefined}
+              palette={palette}
+            />
+          )}
           <Stat
-            label="Trend"
-            value={trend === null ? '—' : `${trend > 0 ? '+' : ''}${trend}%`}
-            hint={trend === null ? 'needs two periods' : undefined}
+            label="Volume trend"
+            value={asPercent(volumeTrend)}
+            hint={volumeTrend === null ? 'needs two periods' : undefined}
             palette={palette}
           />
           {scope.kind === 'exercise' && (
@@ -401,17 +430,27 @@ const VolumeDashboardContent = () => {
         </StatRow>
       </Card>
 
-      {scope.kind === 'exercise' && series[0] && series[0].points.length > 1 && (
+      {strengthPoints.length > 1 && (
         <Card palette={palette}>
           <SectionTitle palette={palette}>Estimated 1RM</SectionTitle>
-          <TrendLine
-            points={series[0].points.map((point) => ({
-              label: dayLabel(point.date),
-              value: point.oneRepMax,
-            }))}
+          <ChartFrame
             height={LINE_HEIGHT}
-            palette={palette}
+            ticks={strengthTicks}
             format={(value) => `${Math.round(value)}kg`}
+            palette={palette}
+            labelSpace={0}
+          >
+            <TrendLine
+              points={strengthPoints}
+              height={LINE_HEIGHT}
+              ticks={strengthTicks}
+              palette={palette}
+            />
+          </ChartFrame>
+          <TrendEnds
+            points={strengthPoints}
+            format={(value) => `${Math.round(value)}kg`}
+            palette={palette}
           />
         </Card>
       )}

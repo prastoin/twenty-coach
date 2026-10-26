@@ -17,7 +17,22 @@ export type PerformedSet = {
   reps: number | null;
   weightKg: number | null;
   performedAt: string | null;
+  /** Reps left in the tank. Changes what a set says about strength. */
+  rir?: number | null;
+  equipmentType?: string | null;
 };
+
+/**
+ * A one-rep max estimate assumes the load is the resistance and the bar path
+ * is the lifter's. On a machine or cable neither holds — leverage and pulley
+ * ratios make the printed weight arbitrary — and on bodyweight work the
+ * logged kilos are added load, not the total. Unknown equipment gets the
+ * benefit of the doubt.
+ */
+const EQUIPMENT_WITHOUT_ONE_REP_MAX = ['MACHINE', 'CABLE', 'BODYWEIGHT'];
+
+export const supportsOneRepMax = (equipmentType?: string | null): boolean =>
+  !EQUIPMENT_WITHOUT_ONE_REP_MAX.includes(equipmentType ?? '');
 
 export type Granularity = 'week' | 'month';
 
@@ -46,20 +61,28 @@ export type ExerciseVolume = {
  */
 export const MAX_REPS_FOR_ESTIMATE = 12;
 
+/**
+ * Epley on *effective* reps — what the set would have been taken to failure.
+ *
+ * Reps alone cannot tell strength from effort: eight at RIR 0 and eight at
+ * RIR 4 are the same number and four reps apart in what they imply. Adding
+ * the reps left in reserve is the standard correction, and the cap then
+ * applies to the total, so a set stopped far from failure drops out rather
+ * than being estimated from guesswork.
+ */
 export const estimatedOneRepMax = (
   weightKg: number | null,
   reps: number | null,
+  rir?: number | null,
 ): number | null => {
-  if (
-    weightKg === null ||
-    reps === null ||
-    weightKg <= 0 ||
-    reps <= 0 ||
-    reps > MAX_REPS_FOR_ESTIMATE
-  ) {
+  if (weightKg === null || reps === null || weightKg <= 0 || reps <= 0) {
     return null;
   }
-  return Math.round(weightKg * (1 + reps / 30) * 10) / 10;
+  const effectiveReps = reps + Math.max(rir ?? 0, 0);
+  if (effectiveReps > MAX_REPS_FOR_ESTIMATE) {
+    return null;
+  }
+  return Math.round(weightKg * (1 + effectiveReps / 30) * 10) / 10;
 };
 
 export const setVolume = (set: PerformedSet): number =>
@@ -202,7 +225,10 @@ export const oneRepMaxSeries = (sets: PerformedSet[]): OneRepMaxSeries[] => {
   >();
 
   for (const set of sets) {
-    const oneRepMax = estimatedOneRepMax(set.weightKg, set.reps);
+    if (!supportsOneRepMax(set.equipmentType)) {
+      continue;
+    }
+    const oneRepMax = estimatedOneRepMax(set.weightKg, set.reps, set.rir);
     if (!set.exerciseId || !set.performedAt || oneRepMax === null) {
       continue;
     }
@@ -274,7 +300,9 @@ export const volumeByExercise = (sets: PerformedSet[]): ExerciseVolume[] => {
       sets: 0,
       bestOneRepMax: null,
     };
-    const oneRepMax = estimatedOneRepMax(set.weightKg, set.reps);
+    const oneRepMax = supportsOneRepMax(set.equipmentType)
+      ? estimatedOneRepMax(set.weightKg, set.reps, set.rir)
+      : null;
 
     byExercise.set(set.exerciseId, {
       ...current,
@@ -419,4 +447,49 @@ export const sessionCalendar = (
     cursor = addDays(cursor, 1);
   }
   return calendar;
+};
+
+/** Change between the first and last point of a strength series. */
+export const oneRepMaxTrendPercent = (
+  series: OneRepMaxSeries,
+): number | null => {
+  if (series.points.length < 2) {
+    return null;
+  }
+  const first = series.points[0].oneRepMax;
+  if (first === 0) {
+    return null;
+  }
+  return Math.round(((series.latest - first) / first) * 1000) / 10;
+};
+
+/**
+ * Ticks spanning a range that does not start at zero.
+ *
+ * Strength sits in a narrow band — 160kg to 190kg — and anchoring that axis
+ * at zero flattens every change worth seeing. The floor and ceiling are
+ * rounded outwards to the step so the band still reads as round numbers.
+ */
+export const niceTicksBetween = (
+  low: number,
+  high: number,
+  count = 3,
+): number[] => {
+  if (!Number.isFinite(low) || !Number.isFinite(high) || high <= low) {
+    return niceTicks(Math.max(high, 0), count);
+  }
+  const rawStep = (high - low) / Math.max(count - 1, 1);
+  const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+  const normalised = rawStep / magnitude;
+  const niceNormalised =
+    normalised <= 1 ? 1 : normalised <= 2 ? 2 : normalised <= 2.5 ? 2.5 : normalised <= 5 ? 5 : 10;
+  const step = niceNormalised * magnitude;
+
+  const floor = Math.floor(low / step) * step;
+  const ceiling = Math.ceil(high / step) * step;
+  const ticks: number[] = [];
+  for (let value = ceiling; value >= floor - step / 2; value -= step) {
+    ticks.push(Math.round(value * 1e6) / 1e6);
+  }
+  return ticks;
 };

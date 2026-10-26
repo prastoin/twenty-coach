@@ -189,18 +189,22 @@ export const ChartFrame = ({
   format,
   children,
   palette,
+  // Bars carry labels under the plot; a line does not, and the axis must not
+  // reserve room for captions that are never drawn.
+  labelSpace = AXIS_HEIGHT,
 }: {
   height: number;
   ticks: number[];
   format: (value: number) => string;
   children: ReactNode;
   palette: Palette;
+  labelSpace?: number;
 }) => (
   <div style={{ display: 'flex', gap: '8px' }}>
     <div
       style={{
         width: `${AXIS_WIDTH}px`,
-        height: `${height - AXIS_HEIGHT}px`,
+        height: `${height - labelSpace}px`,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -219,7 +223,7 @@ export const ChartFrame = ({
       <div
         style={{
           position: 'absolute',
-          inset: `0 0 ${AXIS_HEIGHT}px 0`,
+          inset: `0 0 ${labelSpace}px 0`,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -467,78 +471,101 @@ export type LinePoint = {
 };
 
 /**
- * Area under the line, and the latest point called out. A bare polyline
- * reads as a sparkline; the fill and the end marker make it a trend.
+ * A banded line: the series drawn against the same framed, gridded space the
+ * bars use, so a value can be read off rather than guessed from the shape.
  *
- * Geometry is SVG because a line needs real coordinates, but every label
- * stays in HTML beside it — stretching the viewBox to the widget would
- * otherwise stretch the text with it.
+ * The geometry is SVG because a line needs coordinates, but nothing that
+ * must keep its proportions lives inside it. Stretching a viewBox to the
+ * widget scales x and y by different factors, which fattens steep segments,
+ * thins flat ones and turns a round marker into a wedge — so the stroke is
+ * non-scaling and the end marker is an HTML dot positioned over the top.
  */
 export const TrendLine = ({
   points,
   height,
+  ticks,
   palette,
-  format,
 }: {
   points: LinePoint[];
   height: number;
+  ticks: number[];
   palette: Palette;
-  format: (value: number) => string;
 }) => {
-  const values = points.map((point) => point.value);
-  const low = Math.min(...values);
-  const span = Math.max(...values) - low || 1;
+  const top = ticks[0];
+  const bottom = ticks[ticks.length - 1];
+  const span = top - bottom || 1;
+  const fraction = (value: number) => (value - bottom) / span;
   const coord = (point: LinePoint, index: number): [number, number] => [
-    (index / (points.length - 1)) * 100,
-    94 - ((point.value - low) / span) * 88,
+    points.length === 1 ? 50 : (index / (points.length - 1)) * 100,
+    100 - fraction(point.value) * 100,
   ];
   const line = points.map(coord).map(([x, y]) => `${x},${y}`);
   const area = `0,100 ${line.join(' ')} 100,100`;
-  const [lastX, lastY] = coord(points[points.length - 1], points.length - 1);
+  const last = points[points.length - 1];
 
   return (
-    <div>
+    <div style={{ position: 'relative', height: `${height}px` }}>
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        style={{ width: '100%', height: `${height}px`, display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block' }}
         role="img"
         aria-label="Trend over time"
       >
-        <polygon points={area} fill={palette.accentSoft} />
+        <polygon points={area} fill={palette.accent} opacity={0.14} />
         <polyline
           points={line.join(' ')}
           fill="none"
           stroke={palette.accent}
           strokeWidth="2"
           strokeLinejoin="round"
-          vectorEffect="non-scaling-stroke"
-        />
-        <circle
-          cx={lastX}
-          cy={lastY}
-          r="3"
-          fill={palette.accent}
+          strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
-      <div
+      <span
+        title={`${last.label} — ${last.value}`}
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          paddingTop: '4px',
-          fontSize: '9px',
-          color: palette.textMuted,
+          position: 'absolute',
+          right: 0,
+          bottom: `${fraction(last.value) * 100}%`,
+          width: '7px',
+          height: '7px',
+          marginBottom: '-3.5px',
+          borderRadius: '50%',
+          background: palette.accent,
+          border: `2px solid ${palette.cardBg}`,
+          boxSizing: 'content-box',
         }}
-      >
-        <span>
-          {points[0].label} · {format(points[0].value)}
-        </span>
-        <span style={{ color: palette.textSecondary, fontWeight: 600 }}>
-          {points[points.length - 1].label} ·{' '}
-          {format(points[points.length - 1].value)}
-        </span>
-      </div>
+      />
     </div>
   );
 };
+
+/** First and last point of a series, named, under the chart that drew them. */
+export const TrendEnds = ({
+  points,
+  format,
+  palette,
+}: {
+  points: LinePoint[];
+  format: (value: number) => string;
+  palette: Palette;
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      fontSize: '9px',
+      color: palette.textMuted,
+    }}
+  >
+    <span>
+      {points[0].label} · {format(points[0].value)}
+    </span>
+    <span style={{ color: palette.textSecondary, fontWeight: 600 }}>
+      {points[points.length - 1].label} ·{' '}
+      {format(points[points.length - 1].value)}
+    </span>
+  </div>
+);

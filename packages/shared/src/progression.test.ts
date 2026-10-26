@@ -4,6 +4,9 @@ import {
   adherence,
   movingAverage,
   niceTicks,
+  niceTicksBetween,
+  oneRepMaxTrendPercent,
+  supportsOneRepMax,
   sessionCalendar,
   bucketStart,
   estimatedOneRepMax,
@@ -33,6 +36,24 @@ describe('estimatedOneRepMax', () => {
   it('should apply Epley', () => {
     expect(estimatedOneRepMax(100, 5)).toBe(116.7);
     expect(estimatedOneRepMax(100, 1)).toBe(103.3);
+  });
+
+  it('should count reps left in reserve as reps not done', () => {
+    // Eight at RIR 2 implies the same strength as ten to failure.
+    expect(estimatedOneRepMax(100, 8, 2)).toBe(estimatedOneRepMax(100, 10));
+    // And is a higher estimate than the same set taken to failure.
+    expect(estimatedOneRepMax(100, 8, 2)).toBeGreaterThan(
+      estimatedOneRepMax(100, 8) as number,
+    );
+  });
+
+  it('should apply the cap to effective reps, not logged ones', () => {
+    expect(estimatedOneRepMax(60, 10, 3)).toBeNull();
+    expect(estimatedOneRepMax(60, 10, 2)).not.toBeNull();
+  });
+
+  it('should ignore a negative reserve', () => {
+    expect(estimatedOneRepMax(100, 5, -3)).toBe(estimatedOneRepMax(100, 5));
   });
 
   it('should refuse rep counts where Epley stops meaning anything', () => {
@@ -333,5 +354,63 @@ describe('sessionCalendar', () => {
 
   it('should return nothing when no session ever started', () => {
     expect(sessionCalendar([{ startedAt: null }])).toEqual([]);
+  });
+});
+
+describe('supportsOneRepMax', () => {
+  it('should refuse equipment where the load is not the resistance', () => {
+    expect(supportsOneRepMax('MACHINE')).toBe(false);
+    expect(supportsOneRepMax('CABLE')).toBe(false);
+    expect(supportsOneRepMax('BODYWEIGHT')).toBe(false);
+  });
+
+  it('should allow free weights, and unknown equipment', () => {
+    expect(supportsOneRepMax('BARBELL')).toBe(true);
+    expect(supportsOneRepMax('DUMBBELL')).toBe(true);
+    expect(supportsOneRepMax(null)).toBe(true);
+  });
+});
+
+describe('oneRepMaxSeries with equipment', () => {
+  it('should leave machine work out of the strength series', () => {
+    const machineSet = {
+      ...set('2026-10-19', 100, 5, 'press'),
+      equipmentType: 'MACHINE',
+    };
+
+    expect(oneRepMaxSeries([machineSet])).toEqual([]);
+  });
+});
+
+describe('oneRepMaxTrendPercent', () => {
+  it('should compare the first and last point', () => {
+    const [series] = oneRepMaxSeries([
+      set('2026-10-19', 100, 5, 'squat'),
+      set('2026-10-26', 120, 5, 'squat'),
+    ]);
+
+    expect(oneRepMaxTrendPercent(series)).toBe(20);
+  });
+
+  it('should return null with a single point', () => {
+    const [series] = oneRepMaxSeries([set('2026-10-19', 100, 5, 'squat')]);
+
+    expect(oneRepMaxTrendPercent(series)).toBeNull();
+  });
+});
+
+describe('niceTicksBetween', () => {
+  it('should band a narrow range instead of anchoring at zero', () => {
+    const ticks = niceTicksBetween(162, 187);
+
+    expect(ticks[0]).toBeGreaterThanOrEqual(187);
+    expect(ticks[ticks.length - 1]).toBeLessThanOrEqual(162);
+    expect(ticks[ticks.length - 1]).toBeGreaterThan(0);
+  });
+
+  it('should fall back to a zero-anchored scale when the range is empty', () => {
+    // The fallback keeps the caller's tick count.
+    expect(niceTicksBetween(5, 5)).toEqual(niceTicks(5, 3));
+    expect(niceTicksBetween(5, 5, 4)).toEqual(niceTicks(5, 4));
   });
 });
