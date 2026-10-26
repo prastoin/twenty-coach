@@ -8,6 +8,7 @@ import {
   oneRepMaxTrendPercent,
   supportsOneRepMax,
   sessionCalendar,
+  volumeByMuscleGroup,
   bucketStart,
   estimatedOneRepMax,
   oneRepMaxSeries,
@@ -412,5 +413,39 @@ describe('niceTicksBetween', () => {
     // The fallback keeps the caller's tick count.
     expect(niceTicksBetween(5, 5)).toEqual(niceTicks(5, 3));
     expect(niceTicksBetween(5, 5, 4)).toEqual(niceTicks(5, 4));
+  });
+});
+
+describe('volumeByMuscleGroup', () => {
+  const sets = [
+    { ...set('2026-10-19', 150, 5, 'deadlift'), muscleGroups: ['BACK', 'HAMSTRINGS'] },
+    { ...set('2026-10-19', 150, 5, 'deadlift'), muscleGroups: ['BACK', 'HAMSTRINGS'] },
+    { ...set('2026-10-19', 10, 12, 'raise'), muscleGroups: ['SHOULDERS'] },
+  ];
+
+  it('should count a set in full for every muscle it works', () => {
+    const groups = volumeByMuscleGroup(sets);
+
+    expect(groups.find((g) => g.muscleGroup === 'BACK')?.sets).toBe(2);
+    expect(groups.find((g) => g.muscleGroup === 'HAMSTRINGS')?.sets).toBe(2);
+    expect(groups.find((g) => g.muscleGroup === 'SHOULDERS')?.sets).toBe(1);
+  });
+
+  it('should rank by sets, the unit a programme is written in', () => {
+    expect(volumeByMuscleGroup(sets).map((g) => g.muscleGroup)).toEqual([
+      'BACK',
+      'HAMSTRINGS',
+      'SHOULDERS',
+    ]);
+  });
+
+  it('should total tonnage per group alongside the count', () => {
+    expect(volumeByMuscleGroup(sets).find((g) => g.muscleGroup === 'BACK')).toMatchObject(
+      { tonnage: 1500 },
+    );
+  });
+
+  it('should ignore sets with no muscle groups', () => {
+    expect(volumeByMuscleGroup([set('2026-10-19', 100, 5)])).toEqual([]);
   });
 });

@@ -17,6 +17,7 @@ import {
   totalVolume,
   volumeBuckets,
   volumeByExercise,
+  volumeByMuscleGroup,
   volumeTrendPercent,
   type Granularity,
   type PerformedSet,
@@ -78,6 +79,12 @@ const dayLabel = (iso: string): string => {
   return `${Number(day)} ${MONTHS[Number(month) - 1]}`;
 };
 
+// LOWER_BACK -> Lower back
+const muscleLabel = (value: string): string => {
+  const words = value.toLowerCase().replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
 const formatTonnage = (kg: number): string =>
   kg >= 1000 ? `${Math.round(kg / 100) / 10}t` : `${kg}kg`;
 
@@ -111,7 +118,12 @@ const SET_SELECTION = {
   weightKg: true,
   createdAt: true,
   rir: true,
-  exercise: { id: true, name: true, equipmentType: true },
+  exercise: {
+    id: true,
+    name: true,
+    equipmentType: true,
+    muscleGroups: true,
+  },
   session: { startedAt: true },
 };
 
@@ -122,6 +134,7 @@ const toPerformedSet = (node: any): PerformedSet => ({
   weightKg: node?.weightKg ?? null,
   rir: node?.rir ?? null,
   equipmentType: node?.exercise?.equipmentType ?? null,
+  muscleGroups: node?.exercise?.muscleGroups ?? null,
   // When it was trained, not when the row was written — a log typed up days
   // later still belongs to the session's week.
   performedAt: node?.session?.startedAt ?? node?.createdAt ?? null,
@@ -321,28 +334,29 @@ const VolumeDashboardContent = () => {
     [cutoff],
   );
 
+  // Volume answers "how much lately", so it follows the range. Strength and
+  // the training history do not: a 1RM is a continuity from the first time
+  // the lift was trained, and cutting it to a window throws away the only
+  // thing it had to say.
+  const allSets = useMemo(() => data?.sets ?? [], [data]);
   const sets = useMemo(
-    () => (data?.sets ?? []).filter((set) => inRange(set.performedAt)),
-    [data, inRange],
+    () => allSets.filter((set) => inRange(set.performedAt)),
+    [allSets, inRange],
   );
   const buckets = useMemo(
     () => volumeBuckets(sets, granularity),
     [sets, granularity],
   );
   const calendar = useMemo(
-    () =>
-      sessionCalendar(
-        (data?.sessionStarts ?? []).filter((session) =>
-          inRange(session.startedAt),
-        ),
-      ),
-    [data, inRange],
+    () => sessionCalendar(data?.sessionStarts ?? []),
+    [data],
   );
   const perExercise = useMemo(
     () => (scope.kind === 'exercise' ? [] : volumeByExercise(sets).slice(0, 8)),
     [sets, scope],
   );
-  const series = useMemo(() => oneRepMaxSeries(sets), [sets]);
+  const series = useMemo(() => oneRepMaxSeries(allSets), [allSets]);
+  const byMuscle = useMemo(() => volumeByMuscleGroup(sets).slice(0, 8), [sets]);
 
   if (error !== null) {
     return <div style={{ fontSize: '12px', color: palette.textMuted }}>{error}</div>;
@@ -446,7 +460,7 @@ const VolumeDashboardContent = () => {
           )}
           <span style={{ flex: 1 }} />
           <Toggle
-            label="Showing"
+            label="Volume over"
             options={RANGES}
             selected={rangeWeeks}
             onSelect={setRangeWeeks}
@@ -464,7 +478,9 @@ const VolumeDashboardContent = () => {
 
       {strengthPoints.length > 1 && (
         <Card palette={palette}>
-          <SectionTitle palette={palette}>Estimated 1RM</SectionTitle>
+          <SectionTitle palette={palette}>
+            Estimated 1RM{rangeWeeks === null ? '' : ' · all time'}
+          </SectionTitle>
           <ChartFrame
             height={LINE_HEIGHT}
             ticks={strengthTicks}
@@ -508,7 +524,9 @@ const VolumeDashboardContent = () => {
 
       {calendar.length > 0 && (
         <Card palette={palette}>
-          <SectionTitle palette={palette}>Training days</SectionTitle>
+          <SectionTitle palette={palette}>
+            Training days{rangeWeeks === null ? '' : ' · all time'}
+          </SectionTitle>
           <ActivityGrid
             cells={calendar}
             palette={palette}
@@ -533,6 +551,22 @@ const VolumeDashboardContent = () => {
             hint={compliance.percent !== null ? `${compliance.percent}%` : undefined}
             palette={palette}
           />
+        </Card>
+      )}
+
+      {byMuscle.length > 0 && scope.kind !== 'exercise' && (
+        <Card palette={palette}>
+          <SectionTitle palette={palette}>By muscle group</SectionTitle>
+          {byMuscle.map((group) => (
+            <MeterRow
+              key={group.muscleGroup}
+              label={muscleLabel(group.muscleGroup)}
+              fraction={group.sets / byMuscle[0].sets}
+              value={`${group.sets} sets`}
+              hint={formatTonnage(group.tonnage)}
+              palette={palette}
+            />
+          ))}
         </Card>
       )}
 

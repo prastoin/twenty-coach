@@ -20,6 +20,51 @@ export type PerformedSet = {
   /** Reps left in the tank. Changes what a set says about strength. */
   rir?: number | null;
   equipmentType?: string | null;
+  muscleGroups?: string[] | null;
+};
+
+export type MuscleGroupVolume = {
+  muscleGroup: string;
+  sets: number;
+  tonnage: number;
+};
+
+/**
+ * Work per muscle group, counted in sets first.
+ *
+ * Sets are the unit programmes are written in — ten to twenty per muscle per
+ * week is the usual currency — and tonnage across groups cannot be compared
+ * anyway: a set of deadlifts moves far more weight than a set of lateral
+ * raises without being more work for the shoulder.
+ *
+ * A set counts in full for every muscle it works, so these totals sum to
+ * more than the session's. That is the honest reading — a deadlift really
+ * does train the back and the hamstrings — and it is why each bar is drawn
+ * against the largest group rather than against a total.
+ */
+export const volumeByMuscleGroup = (
+  sets: PerformedSet[],
+): MuscleGroupVolume[] => {
+  const byGroup = new Map<string, MuscleGroupVolume>();
+
+  for (const set of sets) {
+    for (const muscleGroup of set.muscleGroups ?? []) {
+      const current = byGroup.get(muscleGroup) ?? {
+        muscleGroup,
+        sets: 0,
+        tonnage: 0,
+      };
+      byGroup.set(muscleGroup, {
+        muscleGroup,
+        sets: current.sets + 1,
+        tonnage: current.tonnage + setVolume(set),
+      });
+    }
+  }
+
+  return [...byGroup.values()]
+    .map((group) => ({ ...group, tonnage: Math.round(group.tonnage) }))
+    .sort((left, right) => right.sets - left.sets || right.tonnage - left.tonnage);
 };
 
 /**
