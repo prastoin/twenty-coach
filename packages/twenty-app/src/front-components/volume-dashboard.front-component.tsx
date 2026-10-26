@@ -51,16 +51,15 @@ export const VOLUME_DASHBOARD_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
 const CHART_HEIGHT = 150;
 const LINE_HEIGHT = 120;
 
-const RANGES = [
-  { value: 8, label: '8 weeks' },
-  { value: 26, label: '6 months' },
-  { value: null, label: 'All' },
+const GROUPINGS = [
+  { value: 'week' as Granularity, label: 'Weekly' },
+  { value: 'month' as Granularity, label: 'Monthly' },
 ];
 
-const GROUPINGS = [
-  { value: 'week' as Granularity, label: 'Week' },
-  { value: 'month' as Granularity, label: 'Month' },
-];
+// Weekly bars over years are unreadable, so on an open-ended scope asking
+// for weeks also asks for recent weeks. A quarter keeps roughly a dozen
+// bars, which is enough to show a shape.
+const WEEKLY_WINDOW_WEEKS = 13;
 
 const MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -298,11 +297,13 @@ const VolumeDashboardContent = () => {
   const [granularity, setGranularity] = useState<Granularity>(
     scope.kind === 'person' || scope.kind === 'all' ? 'month' : 'week',
   );
-  // A program or a workout is already a bounded period; a trainee is not, so
-  // an unbounded scope opens on recent history rather than all of it.
-  const [rangeWeeks, setRangeWeeks] = useState<number | null>(
-    scope.kind === 'person' || scope.kind === 'all' ? 26 : null,
-  );
+
+  // A program, a workout or a single exercise is already bounded by what it
+  // is, so there the choice only regroups. A trainee, or the whole
+  // workspace, is open-ended — and there weekly means recent.
+  const isOpenEnded = scope.kind === 'person' || scope.kind === 'all';
+  const rangeWeeks =
+    isOpenEnded && granularity === 'week' ? WEEKLY_WINDOW_WEEKS : null;
 
   const load = useCallback(async () => {
     try {
@@ -460,14 +461,7 @@ const VolumeDashboardContent = () => {
           )}
           <span style={{ flex: 1 }} />
           <Toggle
-            label="Volume over"
-            options={RANGES}
-            selected={rangeWeeks}
-            onSelect={setRangeWeeks}
-            palette={palette}
-          />
-          <Toggle
-            label="Grouped by"
+            label="Volume"
             options={GROUPINGS}
             selected={granularity}
             onSelect={setGranularity}
