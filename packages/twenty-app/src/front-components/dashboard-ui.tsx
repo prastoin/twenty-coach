@@ -115,6 +115,54 @@ export const StatRow = ({
   </div>
 );
 
+/**
+ * A labelled choice. Two of these sit side by side, and the labels matter:
+ * a bare "Weekly / Monthly" pair reads as a filter when it only changes how
+ * the bars are grouped.
+ */
+export const Toggle = <T,>({
+  label,
+  options,
+  selected,
+  onSelect,
+  palette,
+}: {
+  label: string;
+  options: { value: T; label: string }[];
+  selected: T;
+  onSelect: (value: T) => void;
+  palette: Palette;
+}) => (
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+    <span style={{ fontSize: '10px', color: palette.textMuted }}>{label}</span>
+    <div style={{ display: 'flex', gap: '3px' }}>
+      {options.map((option) => {
+        const isSelected = option.value === selected;
+        return (
+          <button
+            key={String(option.value)}
+            onClick={() => onSelect(option.value)}
+            style={{
+              fontSize: '12px',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              border: `1px solid ${
+                isSelected ? palette.accent : palette.border
+              }`,
+              background: isSelected ? palette.accentSoft : 'transparent',
+              color: isSelected ? palette.textPrimary : palette.textSecondary,
+            }}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
 /** Label, a proportional bar, and a value. Used for shares and adherence. */
 export const MeterRow = ({
   label,

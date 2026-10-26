@@ -30,6 +30,7 @@ import {
 import {
   ActivityGrid,
   BarSeries,
+  Toggle,
   Card,
   ChartFrame,
   MeterRow,
@@ -48,6 +49,17 @@ export const VOLUME_DASHBOARD_FRONT_COMPONENT_UNIVERSAL_IDENTIFIER =
 // app so they read as one product.
 const CHART_HEIGHT = 150;
 const LINE_HEIGHT = 120;
+
+const RANGES = [
+  { value: 8, label: '8 weeks' },
+  { value: 26, label: '6 months' },
+  { value: null, label: 'All' },
+];
+
+const GROUPINGS = [
+  { value: 'week' as Granularity, label: 'Week' },
+  { value: 'month' as Granularity, label: 'Month' },
+];
 
 const MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -273,6 +285,11 @@ const VolumeDashboardContent = () => {
   const [granularity, setGranularity] = useState<Granularity>(
     scope.kind === 'person' || scope.kind === 'all' ? 'month' : 'week',
   );
+  // A program or a workout is already a bounded period; a trainee is not, so
+  // an unbounded scope opens on recent history rather than all of it.
+  const [rangeWeeks, setRangeWeeks] = useState<number | null>(
+    scope.kind === 'person' || scope.kind === 'all' ? 26 : null,
+  );
 
   const load = useCallback(async () => {
     try {
@@ -286,14 +303,40 @@ const VolumeDashboardContent = () => {
     void load();
   }, [load]);
 
-  const sets = useMemo(() => data?.sets ?? [], [data]);
+  // One cutoff, applied before anything is computed — a range that reached
+  // only the bars would leave the totals, the breakdown and the grid quietly
+  // describing a different period from the chart above them.
+  const cutoff = useMemo(
+    () =>
+      rangeWeeks === null
+        ? null
+        : new Date(Date.now() - rangeWeeks * 7 * 86400000)
+            .toISOString()
+            .slice(0, 10),
+    [rangeWeeks],
+  );
+  const inRange = useCallback(
+    (performedAt: string | null) =>
+      cutoff === null || (performedAt ?? '').slice(0, 10) >= cutoff,
+    [cutoff],
+  );
+
+  const sets = useMemo(
+    () => (data?.sets ?? []).filter((set) => inRange(set.performedAt)),
+    [data, inRange],
+  );
   const buckets = useMemo(
     () => volumeBuckets(sets, granularity),
     [sets, granularity],
   );
   const calendar = useMemo(
-    () => sessionCalendar(data?.sessionStarts ?? []),
-    [data],
+    () =>
+      sessionCalendar(
+        (data?.sessionStarts ?? []).filter((session) =>
+          inRange(session.startedAt),
+        ),
+      ),
+    [data, inRange],
   );
   const perExercise = useMemo(
     () => (scope.kind === 'exercise' ? [] : volumeByExercise(sets).slice(0, 8)),
@@ -394,7 +437,7 @@ const VolumeDashboardContent = () => {
             hint={volumeTrend === null ? 'needs two periods' : undefined}
             palette={palette}
           />
-          {scope.kind === 'exercise' && (
+          {scope.kind === 'exercise' && series[0] && (
             <Stat
               label="Volume"
               value={formatTonnage(totalVolume(sets))}
@@ -402,31 +445,20 @@ const VolumeDashboardContent = () => {
             />
           )}
           <span style={{ flex: 1 }} />
-          <div style={{ display: 'flex', gap: '4px' }}>
-            {(['week', 'month'] as Granularity[]).map((option) => (
-              <button
-                key={option}
-                onClick={() => setGranularity(option)}
-                style={{
-                  fontSize: '12px',
-                  padding: '5px 12px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  border: `1px solid ${
-                    option === granularity ? palette.accent : palette.border
-                  }`,
-                  background:
-                    option === granularity ? palette.accentSoft : 'transparent',
-                  color:
-                    option === granularity
-                      ? palette.textPrimary
-                      : palette.textSecondary,
-                }}
-              >
-                {option === 'week' ? 'Weekly' : 'Monthly'}
-              </button>
-            ))}
-          </div>
+          <Toggle
+            label="Showing"
+            options={RANGES}
+            selected={rangeWeeks}
+            onSelect={setRangeWeeks}
+            palette={palette}
+          />
+          <Toggle
+            label="Grouped by"
+            options={GROUPINGS}
+            selected={granularity}
+            onSelect={setGranularity}
+            palette={palette}
+          />
         </StatRow>
       </Card>
 
@@ -489,7 +521,9 @@ const VolumeDashboardContent = () => {
         </Card>
       )}
 
-      {data.prescribedSets > 0 && (
+      {/* Prescriptions are not time-filtered, so a narrowed range would
+          compare part of the work against all of the plan. */}
+      {data.prescribedSets > 0 && rangeWeeks === null && (
         <Card palette={palette}>
           <SectionTitle palette={palette}>Adherence</SectionTitle>
           <MeterRow
