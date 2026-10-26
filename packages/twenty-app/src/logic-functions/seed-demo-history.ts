@@ -92,7 +92,55 @@ const loadFor = (args: {
   return plateRound(base * growth * args.intensity * deload * jitter);
 };
 
-const handler = async () => {
+/**
+ * Removes everything this seeder made, so it can be run again after the
+ * template improves. Children first: a set log outlives its program, whose
+ * link is SET_NULL on delete.
+ */
+const reset = async (client: CoreApiClient, blockIds: string[]) => {
+  if (blockIds.length === 0) {
+    return;
+  }
+  const { workouts } = (await client.query({
+    workouts: {
+      __args: { filter: { programId: { in: blockIds } }, first: 500 },
+      edges: { node: { id: true } },
+    },
+  } as any)) as any;
+  const workoutIds = (workouts?.edges ?? []).map((edge: any) => edge.node.id);
+
+  await client.mutation({
+    deleteSetLogs: {
+      __args: { filter: { programId: { in: blockIds } } },
+      id: true,
+    },
+  } as any);
+  await client.mutation({
+    deleteSessions: {
+      __args: { filter: { programId: { in: blockIds } } },
+      id: true,
+    },
+  } as any);
+  if (workoutIds.length > 0) {
+    await client.mutation({
+      deleteProgramExercises: {
+        __args: { filter: { workoutId: { in: workoutIds } } },
+        id: true,
+      },
+    } as any);
+    await client.mutation({
+      deleteWorkouts: {
+        __args: { filter: { programId: { in: blockIds } } },
+        id: true,
+      },
+    } as any);
+  }
+  await client.mutation({
+    deletePrograms: { __args: { filter: { id: { in: blockIds } } }, id: true },
+  } as any);
+};
+
+const handler = async (payload?: { reset?: boolean }) => {
   const client = new CoreApiClient();
 
   const { people } = (await client.query({
@@ -113,25 +161,45 @@ const handler = async () => {
       edges: { node: { id: true, name: true } },
     },
   } as any)) as any;
-  const existing: { id: string; name: string }[] = (programs?.edges ?? []).map(
+  let existing: { id: string; name: string }[] = (programs?.edges ?? []).map(
     (edge: any) => edge.node,
   );
-  const source = existing.find((program) => !BLOCKS.some((b) => b.name === program.name));
-  if (!source) {
+  if (payload?.reset) {
+    const blockIds = existing
+      .filter((program) => BLOCKS.some((block) => block.name === program.name))
+      .map((program) => program.id);
+    await reset(client, blockIds);
+    existing = existing.filter(
+      (program) => !BLOCKS.some((block) => block.name === program.name),
+    );
+    console.log(`Reset ${blockIds.length} previously seeded blocks.`);
+  }
+
+  const candidates = existing.filter(
+    (program) => !BLOCKS.some((block) => block.name === program.name),
+  );
+  if (candidates.length === 0) {
     console.log('No source program to copy the structure from.');
     return {};
   }
 
   // The prescriptions of the current block are the template for past ones.
+  // Pick the richest candidate rather than the first one returned: a program
+  // with a single week-1 workout yields a single training day per week, and
+  // every seeded session then lands on the same weekday.
   const { workouts } = (await client.query({
     workouts: {
-      __args: { filter: { programId: { eq: source.id } }, first: 200 },
+      __args: {
+        filter: { programId: { in: candidates.map((program) => program.id) } },
+        first: 500,
+      },
       edges: {
         node: {
           id: true,
           day: true,
           week: true,
           name: true,
+          programId: true,
           programExercises: {
             __args: { first: 100 },
             edges: {
@@ -154,15 +222,26 @@ const handler = async () => {
   } as any)) as any;
 
   const template = (workouts?.edges ?? []).map((edge: any) => edge.node);
-  const byDay = new Map<string, any[]>();
+  const daysByProgram = new Map<string, Map<string, any[]>>();
   for (const workout of template) {
-    if ((workout.week ?? 1) !== 1) {
+    if ((workout.week ?? 1) !== 1 || !workout.day) {
       continue;
     }
-    byDay.set(
+    const forProgram =
+      daysByProgram.get(workout.programId) ?? new Map<string, any[]>();
+    forProgram.set(
       workout.day,
       (workout.programExercises?.edges ?? []).map((edge: any) => edge.node),
     );
+    daysByProgram.set(workout.programId, forProgram);
+  }
+
+  const byDay =
+    [...daysByProgram.values()].sort((left, right) => right.size - left.size)[0] ??
+    new Map<string, any[]>();
+  if (byDay.size === 0) {
+    console.log('No week-one workouts to copy a structure from.');
+    return {};
   }
 
   const startOfToday = new Date();
