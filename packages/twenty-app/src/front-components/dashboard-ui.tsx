@@ -163,6 +163,68 @@ export const Toggle = <T,>({
   </div>
 );
 
+/**
+ * What the marks on a chart mean. A second series drawn without a key is
+ * just an unexplained line.
+ */
+export const Legend = ({
+  items,
+  palette,
+}: {
+  items: { label: string; dashed?: boolean }[];
+  palette: Palette;
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      gap: '14px',
+      fontSize: '10px',
+      color: palette.textMuted,
+    }}
+  >
+    {items.map((item) => (
+      <span
+        key={item.label}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}
+      >
+        <span
+          style={{
+            width: '12px',
+            height: item.dashed ? '0' : '8px',
+            borderTop: item.dashed
+              ? `2px solid ${palette.textPrimary}`
+              : undefined,
+            opacity: item.dashed ? 0.55 : 1,
+            background: item.dashed ? undefined : palette.accent,
+            borderRadius: item.dashed ? 0 : '2px',
+          }}
+        />
+        {item.label}
+      </span>
+    ))}
+  </div>
+);
+
+/** Names the two numbers a list of meter rows puts on the right. */
+export const ColumnHint = ({
+  children,
+  palette,
+}: {
+  children: ReactNode;
+  palette: Palette;
+}) => (
+  <span
+    style={{
+      fontSize: '10px',
+      color: palette.textMuted,
+      textAlign: 'right',
+      marginTop: '-4px',
+    }}
+  >
+    {children}
+  </span>
+);
+
 /** Label, a proportional bar, and a value. Used for shares and adherence. */
 export const MeterRow = ({
   label,

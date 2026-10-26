@@ -31,6 +31,8 @@ import {
 import {
   ActivityGrid,
   BarSeries,
+  ColumnHint,
+  Legend,
   Toggle,
   Card,
   ChartFrame,
@@ -514,6 +516,13 @@ const VolumeDashboardContent = () => {
             palette={palette}
           />
         </ChartFrame>
+        <Legend
+          items={[
+            { label: `Volume per ${granularity}` },
+            { label: `4-${granularity} average`, dashed: true },
+          ]}
+          palette={palette}
+        />
       </Card>
 
       {calendar.length > 0 && (
@@ -551,6 +560,7 @@ const VolumeDashboardContent = () => {
       {byMuscle.length > 0 && scope.kind !== 'exercise' && (
         <Card palette={palette}>
           <SectionTitle palette={palette}>By muscle group</SectionTitle>
+          <ColumnHint palette={palette}>sets worked · volume lifted</ColumnHint>
           {byMuscle.map((group) => (
             <MeterRow
               key={group.muscleGroup}
@@ -567,6 +577,9 @@ const VolumeDashboardContent = () => {
       {perExercise.length > 0 && (
         <Card palette={palette}>
           <SectionTitle palette={palette}>By exercise</SectionTitle>
+          <ColumnHint palette={palette}>
+            volume lifted{scope.kind === 'exercise' ? '' : ' · best estimated 1RM'}
+          </ColumnHint>
           {perExercise.map((exercise) => (
             <MeterRow
               key={exercise.exerciseId}
